@@ -303,6 +303,10 @@ geonode:
   memcached:
     # -- enable memcache, this will spawn one or more seperate memcache container(s) and configure django geonode repsectivly. Dynamic caching (see https://docs.djangoproject.com/en/4.0/topics/cache/)
     enabled: True
+    # -- memcached backend to use
+    # if geonode ">=4.3.0" use django.core.cache.backends.memcached.PyLibMCCache
+    # before use django.core.cache.backends.memcached.MemcachedCache
+    backend: django.core.cache.backends.memcached.PyLibMCCache
     # -- memcached lock expire time
     lock_expire: "3600"
     # -- memcached lock timeout

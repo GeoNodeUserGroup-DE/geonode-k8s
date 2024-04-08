@@ -134,11 +134,7 @@ data:
   HAYSTACK_SEARCH_RESULTS_PER_PAGE: {{ .Values.geonode.haystack.search_results_per_page | quote }}
 
   MEMCACHED_ENABLED: {{  include "boolean2str" .Values.geonode.memcached.enabled | quote }}
-  {{ if semverCompare ">=4.3.0" .Values.geonode.version }}
-  MEMCACHED_BACKEND: django.core.cache.backends.memcached.PyLibMCCache
-  {{ else }}
-  MEMCACHED_BACKEND: django.core.cache.backends.memcached.MemcachedCache
-  {{ end }}
+  MEMCACHED_BACKEND: {{ .Values.geonode.memcached.backend | quote }}
   MEMCACHED_LOCATION: {{ .Release.Name }}-memcached
   MEMCACHED_LOCK_EXPIRE: {{ .Values.geonode.memcached.lock_expire | quote }}
   MEMCACHED_LOCK_TIMEOUT: {{ .Values.geonode.memcached.lock_timeout | quote }}
