@@ -301,8 +301,10 @@ geonode:
 
   # configure memcached as django cache. .Values.memcached.... to configure memcached replicas, architecture and so on (see https://docs.djangoproject.com/en/4.0/topics/cache/)
   memcached:
-    # -- enable memcache, this will spawn one or more seperate memcache container(s) and configure django geonode repsectivly. Dynamic caching (see https://docs.djangoproject.com/en/4.0/topics/cache/)
+    # -- enable memcache, this will spawn one or more seperate memcache container(s)
     enabled: True
+    # -- set the MEMCAHED_ENABLED env var for GeoNode (django). Dynamic caching (see https://docs.djangoproject.com/en/4.0/topics/cache/)
+    enabled_geonode: False
     # -- memcached backend to use
     # if geonode ">=4.3.0" use django.core.cache.backends.memcached.PyLibMCCache
     # before use django.core.cache.backends.memcached.MemcachedCache

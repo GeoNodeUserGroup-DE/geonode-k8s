@@ -133,7 +133,7 @@ data:
   HAYSTACK_ENGINE_INDEX_NAME: {{ .Values.geonode.haystack.engine_index_name | quote }}
   HAYSTACK_SEARCH_RESULTS_PER_PAGE: {{ .Values.geonode.haystack.search_results_per_page | quote }}
 
-  MEMCACHED_ENABLED: {{  include "boolean2str" .Values.geonode.memcached.enabled | quote }}
+  MEMCACHED_ENABLED: {{  include "boolean2str" .Values.geonode.memcached.enabled_geonode | quote }}
   MEMCACHED_BACKEND: {{ .Values.geonode.memcached.backend | quote }}
   MEMCACHED_LOCATION: {{ .Release.Name }}-memcached
   MEMCACHED_LOCK_EXPIRE: {{ .Values.geonode.memcached.lock_expire | quote }}
