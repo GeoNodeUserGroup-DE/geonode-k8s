@@ -21,7 +21,7 @@ geonode:
     # -- used geonode image
     name: geonode/geonode
     # -- tag of used geonode image
-    tag: "4.3.0"
+    tag: "4.4.1"
   # -- image pull policy
   imagePullPolicy: IfNotPresent
   # -- pull secret to use for geonode image
@@ -345,7 +345,7 @@ geoserver:
     # -- geoserver image docker image (default in zalf namespace because geonode one was not up to date)
     name: geonode/geoserver
     # -- geoserver docker image tag
-    tag: "2.24.3-v1"
+    tag: "2.24.3-latest"
   # -- geoserver image pull policy
   imagePullPolicy: "IfNotPresent"
   # -- pull secret to use for geoserver image

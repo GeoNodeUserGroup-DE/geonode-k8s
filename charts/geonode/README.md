@@ -69,7 +69,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.3.0, Geoserver: 2.24.3-v1
 | geonode.haystack.engine_url | string | `"http://elasticsearch:9200/"` | hystack url |
 | geonode.haystack.search_results_per_page | string | `"200"` | hystack results per page |
 | geonode.image.name | string | `"geonode/geonode"` | used geonode image |
-| geonode.image.tag | string | `"4.3.0"` | tag of used geonode image |
+| geonode.image.tag | string | `"4.4.1"` | tag of used geonode image |
 | geonode.imagePullPolicy | string | `"IfNotPresent"` | image pull policy |
 | geonode.imagePullSecret | string | `""` | pull secret to use for geonode image |
 | geonode.ingress.annotations | object | `{}` | adds ingress annotations for nginx ingress class |
@@ -151,7 +151,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.3.0, Geoserver: 2.24.3-v1
 | geoserver.extraPodEnv | string | `""` | Define this for extra GeoServer environment variables Format: extraPodEnv: |   - name: KEY_1     value: "VALUE_1"   - name: KEY_2     value: "VALUE_2" |
 | geoserver.force_reinit | bool | `true` | set force reinit true so that changing passwords etc. in Values.yaml will take effect after restarting the pod this on the other hand will increase pod initializing time, only change if you know what you are doing |
 | geoserver.image.name | string | `"geonode/geoserver"` | geoserver image docker image (default in zalf namespace because geonode one was not up to date) |
-| geoserver.image.tag | string | `"2.24.3-v1"` | geoserver docker image tag |
+| geoserver.image.tag | string | `"2.24.3-latest"` | geoserver docker image tag |
 | geoserver.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
 | geoserver.imagePullSecret | string | `""` | pull secret to use for geoserver image |
 | geoserver.port | int | `8080` | geoserver port |
