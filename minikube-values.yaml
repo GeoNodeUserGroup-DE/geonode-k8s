@@ -8,7 +8,7 @@ geonode:
     debug: True
     debug_static: True
     externalScheme: http
-    externalDomain: geonode
+    externalDomain: geonode.local
 
   persistant:
     storageSize: 2Gi

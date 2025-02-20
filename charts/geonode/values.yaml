@@ -7,7 +7,7 @@ global:
 # geonode configuration
 geonode:
   # -- geonode version, used for some distinguassion between version of GeoNode
-  version: 4.3.0
+  version: 4.4.0
   # -- container name
   container_name: geonode
   # -- number of geonode replicas (! not working properly yet)
@@ -22,6 +22,7 @@ geonode:
     name: geonode/geonode
     # -- tag of used geonode image
     tag: "4.4.1"
+
   # -- image pull policy
   imagePullPolicy: IfNotPresent
   # -- pull secret to use for geonode image
@@ -63,6 +64,12 @@ geonode:
       clientId: Jrchz2oPY3akmzndmgUTYrs9gczlgoV20YPSvqaV
       # -- oauth2 geoserver secret (OAUTH2_CLIENT_SECRET)
       clientSecret: rCnp5txobUo83EpQEblM8fVj3QT5zb5qRfxNsuPzCqZaiRyIoxM4jdgMiZKFfePBHYXCLd7B8NlkfDBY9HKeIQPcy5Cp08KQNpRHQbjpLItDHv12GvkSeXp6OxaUETv3
+    bing:
+      # Bing API KEY required by MapStore to enable Bing background layers
+      apiKey: ""
+    django:
+      # django SECRET_KEY setting, recommended to set custom value for production
+      secretKey: "myv-y4#7j-d*p-__@j#*3z@!y24fz8%^z2v6atuy4bo9vqr1_a"
 
   resources:
     requests:
@@ -346,6 +353,7 @@ geoserver:
     name: geonode/geoserver
     # -- geoserver docker image tag
     tag: "2.24.3-latest"
+
   # -- geoserver image pull policy
   imagePullPolicy: "IfNotPresent"
   # -- pull secret to use for geoserver image
@@ -355,6 +363,12 @@ geoserver:
   force_reinit: true
   # -- geoserver port
   port: 8080
+  printing:
+    extraHosts: |
+#      - !dnsMatch
+#        host: data.geopf.fr
+#        port: 80
+
   secret:
     # -- name of an existing Secret to use. Set, if you want to separately maintain the Secret.
     existingSecretName: ""
@@ -366,12 +380,10 @@ geoserver:
     admin_password: geoserver
     # -- additional elements to include in the secret provided to GeoServer, if not using an existing secret
     extraSecrets: |
-#  key_1: value_1
-
+  #  key_1: value_1
   # -- additional elements to include in the config map provided to GeoServer
   extraConfigMap: |
-# file_1: conf content
-  
+  # file_1: conf content
   # -- Define this for extra GeoServer environment variables
   # Format:
   # extraPodEnv: |
@@ -399,7 +411,7 @@ geoserver_data:
     # -- geoserver image docker image (default in zalf namespace because geonode one was not up to date)
     name: geonode/geoserver_data
     # -- geoserver docker image tag
-    tag: "2.23.3-v1"
+    tag: "2.24.4-v1"
   # -- geoserver image pull policy
   imagePullPolicy: "IfNotPresent"
 
@@ -564,7 +576,7 @@ pycsw:
         # ogc_schemas_base=
         # federatedcatalogues=
         # pretty_print=
-        gzip_compresslevel=1
+        gzip_compresslevel=0
         # domainquerytype=
         # domaincounts=
         # spatial_ranking=

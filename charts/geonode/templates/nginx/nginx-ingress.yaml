@@ -26,13 +26,29 @@ spec:
   - host: {{ .Values.geonode.general.externalDomain }}
     http:
       paths:
-      - pathType: Prefix
-        path: "/"
+      - path: "/"
+        pathType: Prefix
         backend:
           service:
             name:  "{{ include "nginx_pod_name" . }}"
             port:
               number: 80
+      - path: "/geoserver"
+        pathType: Prefix
+        backend:
+          service:
+            name: "{{ include "geoserver_pod_name" . }}"
+            port:
+              number: {{ .Values.geoserver.port }}
+  {{ if .Values.pycsw.enabled }}
+      - path: {{ .Values.pycsw.endpoint }}
+        pathType: Prefix
+        backend:
+          service:
+            name: "{{ include "pycsw_pod_name" . }}"
+            port:
+              number: 8000
+  {{ end }}
 
 ---
 

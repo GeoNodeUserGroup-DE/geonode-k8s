@@ -52,7 +52,7 @@ spec:
           valueFrom:
             secretKeyRef:
               name: {{ include "database_geonode_password_secret_key_ref" . }}
-              key: password
+              key: {{ include "database_geonode_password_key_ref" . }}
         - name: PYCSW_REPOSITORY_DATABASE_URI
           value: "postgresql://$(GEONODE_DATABASE):$(GEONODE_DATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(GEONODE_DATABASE)"
 

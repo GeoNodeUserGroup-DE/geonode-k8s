@@ -1,8 +1,8 @@
 # geonode-k8s
 
-![Version: 1.2.2](https://img.shields.io/badge/Version-1.2.2-informational?style=flat-square)
+![Version: 1.2.3-alpha](https://img.shields.io/badge/Version-1.2.3--alpha-informational?style=flat-square)
 
-Helm Chart for Geonode. Supported versions: Geonode: 4.3.0, Geoserver: 2.24.3-v1, pyCSW: 2.6.1
+Helm Chart for Geonode. Supported versions: Geonode: 4.4.0, Geoserver: 2.24.4-v1, pyCSW: 2.6.1
 
 **Homepage:** <https://geonode.org/>
 
@@ -21,9 +21,9 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.3.0, Geoserver: 2.24.3-v1
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | memcached | ~6.x.x |
-| https://charts.bitnami.com/bitnami | rabbitmq | ~10.1.7 |
-| https://opensource.zalando.com/postgres-operator/charts/postgres-operator/ | postgres-operator | ~1.9.0 |
+| https://charts.bitnami.com/bitnami | memcached | ~7.5.2 |
+| https://charts.bitnami.com/bitnami | rabbitmq | ~15.0.3 |
+| https://opensource.zalando.com/postgres-operator/charts/postgres-operator/ | postgres-operator | ~1.12.0 |
 
 ## Values
 
@@ -122,6 +122,8 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.3.0, Geoserver: 2.24.3-v1
 | geonode.secret.superUser.email | string | `"support@example.com"` | admin user password |
 | geonode.secret.superUser.password | string | `"geonode"` | admin panel password |
 | geonode.secret.superUser.username | string | `"admin"` | admin username |
+| geonode.secret.bing.apiKey | string | `""` | API Key for Bing Maps.  |
+| geonode.secret.django.secretKey | string | `"!^gs*4^y81)#qt1n8!#3hzd221boe3_2x+s%t9buh#qwm)q)cb"` | Django SECRET_KEY setting. It is recommended to change it prior production use. |
 | geonode.sentry.build_number | int | `0` | sentry build number |
 | geonode.sentry.dsn | string | `""` | sentry dsn url |
 | geonode.sentry.enabled | bool | `false` | enable sentry integration for geonode |
@@ -144,14 +146,14 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.3.0, Geoserver: 2.24.3-v1
 | geonode.uwsgi.processes | int | `128` | Maximum number of workers allowed |
 | geonode.uwsgi.reload_on_rss | int | `2048` | Restart workers after this much resident memory |
 | geonode.uwsgi.worker_reload_mercy | int | `60` | How long to wait before forcefully killing workers |
-| geonode.version | string | `"4.3.0"` | geonode version, used for some distinguassion between version of GeoNode |
+| geonode.version | string | `"4.4.0"` | geonode version, used for some distinguassion between version of GeoNode |
 | geonodeFixtures | map of fixture files | `{"somefixture.json":"[\n  {\n    \"pk\": 0,\n    \"model\": \"myapp.sample\"\n    \"description\": \"nice little content\"\n  }\n]\n"}` | Fixture files which shall be made available under /usr/src/geonode/geonode/fixtures (refer to https://docs.djangoproject.com/en/4.2/howto/initial-data/) |
 | geoserver.container_name | string | `"geoserver"` | geoserver container name |
 | geoserver.extraConfigMap | string | `""` | additional elements to include in the config map provided to GeoServer |
 | geoserver.extraPodEnv | string | `""` | Define this for extra GeoServer environment variables Format: extraPodEnv: |   - name: KEY_1     value: "VALUE_1"   - name: KEY_2     value: "VALUE_2" |
 | geoserver.force_reinit | bool | `true` | set force reinit true so that changing passwords etc. in Values.yaml will take effect after restarting the pod this on the other hand will increase pod initializing time, only change if you know what you are doing |
 | geoserver.image.name | string | `"geonode/geoserver"` | geoserver image docker image (default in zalf namespace because geonode one was not up to date) |
-| geoserver.image.tag | string | `"2.24.3-latest"` | geoserver docker image tag |
+| geoserver.image.tag | string | `"2.24.4-v1"` | geoserver docker image tag |
 | geoserver.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
 | geoserver.imagePullSecret | string | `""` | pull secret to use for geoserver image |
 | geoserver.port | int | `8080` | geoserver port |
@@ -166,7 +168,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.3.0, Geoserver: 2.24.3-v1
 | geoserver.secret.extraSecrets | string | `""` | additional elements to include in the secret provided to GeoServer, if not using an existing secret |
 | geoserver_data.container_name | string | `"geoserver-data-dir"` |  |
 | geoserver_data.image.name | string | `"geonode/geoserver_data"` | geoserver image docker image (default in zalf namespace because geonode one was not up to date) |
-| geoserver_data.image.tag | string | `"2.23.3-v1"` | geoserver docker image tag |
+| geoserver_data.image.tag | string | `"2.24.4-v1"` | geoserver docker image tag |
 | geoserver_data.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
 | global.accessMode | string | `"ReadWriteMany"` | storage access mode used by helm dependency pvc |
 | global.storageClass | string | `nil` | storageClass used by helm dependencies pvc |
@@ -240,4 +242,4 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.3.0, Geoserver: 2.24.3-v1
 | rabbitmq.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 
 ----------------------------------------------
-Autogenerated from chart metadata using [helm-docs v1.13.1](https://github.com/norwoodj/helm-docs/releases/v1.13.1)
+Autogenerated from chart metadata using [helm-docs v1.11.0](https://github.com/norwoodj/helm-docs/releases/v1.11.0)

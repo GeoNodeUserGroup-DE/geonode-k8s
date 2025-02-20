@@ -32,6 +32,10 @@ spec:
             # Copy defaults from data container
             echo "copying geoserver_data files into volume ..."
             cp -r /tmp/geonode/downloaded/data/* /geoserver_data/data/
+
+            # Copy overrides from ConfigMap
+            cp /overrides/config.yaml /geoserver_data/data/printing/            
+
             touch /geoserver_data/data/.geoserver_data_copied
           else
             echo "geoserver_data files already exists, skipping copy ..."
@@ -45,7 +49,7 @@ spec:
         - name: "{{ include "persistant_volume_name" . }}"
           mountPath: /geoserver_data/data
           subPath: geoserver-data-dir
-        - name: geoserver-notifier-xml
+        - name: geoserver-printing-config-yaml
           mountPath: /overrides
 
 {{- if not (empty .Values.geoserver.imagePullSecret) }}
@@ -106,9 +110,9 @@ spec:
             cpu: {{ .Values.geoserver.resources.limits.cpu }}
 
       volumes:
-      - name: geoserver-notifier-xml
+      - name: geoserver-printing-config-yaml
         configMap:
-          name: {{ .Release.Name }}-geoserver-notifier-xml
+          name: {{ .Release.Name }}-geoserver-printing-config-yaml
       - name: "{{ include "persistant_volume_name" . }}"
         persistentVolumeClaim:
           claimName: pvc-{{ .Release.Name }}-geonode

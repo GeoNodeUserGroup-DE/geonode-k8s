@@ -51,19 +51,6 @@ data:
         alias /mnt/volumes/statics/static/img/favicon.ico;
       }
 
-      # GeoServer
-      location /geoserver {
-        client_max_body_size {{ .Values.nginx.maxClientBodySize }};
-
-{{- if .Values.nginx.external_cors.enabled }}
-        proxy_set_header Access-Control-Allow-Origin {{ .Values.nginx.external_cors.domain }};
-{{ end }}
-        proxy_set_header Host $http_host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_pass http://{{ include "geoserver_pod_name" . }}:{{ .Values.geoserver.port }};
-      }
 
       # GeoNode
       location /static/ {
@@ -119,7 +106,23 @@ data:
         proxy_http_version 1.1;
       }
 
-      {{ if .Values.pycsw.enabled }}
+
+{{if (eq .Values.geonode.ingress.enabled false) }}
+      # GeoServer
+      location /geoserver {
+        client_max_body_size {{ .Values.nginx.maxClientBodySize }};
+
+{{- if .Values.nginx.external_cors.enabled }}
+        proxy_set_header Access-Control-Allow-Origin {{ .Values.nginx.external_cors.domain }};
+{{ end }}
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://{{ include "geoserver_pod_name" . }}:{{ .Values.geoserver.port }};
+      }
+
+{{ if .Values.pycsw.enabled }}
       # external PYCSW forward 
       location {{ .Values.pycsw.endpoint }} {
         client_max_body_size {{ .Values.nginx.maxClientBodySize }};
@@ -142,8 +145,8 @@ data:
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
       }
-      {{ end }}
-
+{{ end }}
+{{ end }}
       location / {
         client_max_body_size {{ .Values.nginx.maxClientBodySize }};
 
