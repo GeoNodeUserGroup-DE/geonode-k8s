@@ -363,9 +363,9 @@ geoserver:
   port: 8080
   printing:
     extraHosts: |
-#      - !dnsMatch
-#        host: data.geopf.fr
-#        port: 80
+  #      - !dnsMatch
+  #        host: data.geopf.fr
+  #        port: 80
 
   secret:
     # -- name of an existing Secret to use. Set, if you want to separately maintain the Secret.
@@ -684,7 +684,10 @@ postgres:
     # database passwords are set randomly
     # infos @ https://postgres-operator.readthedocs.io/en/refactoring-sidecars/user/
     # get password after creation via: kubectl get secret {{ .Release.name }}.{{ .Release.name }}-{{ container_name }}.credentials -o 'jsonpath={.data.password}' | base64 -d
-
+    parameters:
+      max_connections: 200
+      shared_buffers: 1Gb
+      work_mem: 64Mb
   external:
     hostname: my-external-postgres.com
     port: 5432

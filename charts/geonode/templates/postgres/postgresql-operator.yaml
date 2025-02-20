@@ -37,5 +37,9 @@ spec:
         pg_partman: {{ .Values.postgres.schema }}
         postgis: {{ .Values.postgres.schema }}
   postgresql:
+    parameters:
+      max_connections: {{ .Values.postgres.operator.parameters.max_connections }}
+      shared_buffers: {{ .Values.postgres.operator.parameters.shared_buffers }}
+      work_mem: {{ .Values.postgres.operator.parameters.work_mem }}
     version: {{ .Values.postgres.operator.postgres_version | quote }}
 {{ end }}

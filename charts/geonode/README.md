@@ -112,6 +112,8 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.0, Geoserver: 2.24.4-v1
 | geonode.resources.limits.memory | string | `"2Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geonode.resources.requests.cpu | int | `1` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geonode.resources.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
+| geonode.secret.bing.apiKey | string | `""` |  |
+| geonode.secret.django.secretKey | string | `"myv-y4#7j-d*p-__@j#*3z@!y24fz8%^z2v6atuy4bo9vqr1_a"` |  |
 | geonode.secret.existingSecretName | string | `""` | name of an existing Secret to use. Set, if you want to separately maintain the Secret. |
 | geonode.secret.ldap.bind_password | string | `"password"` | ldap password |
 | geonode.secret.mail.from | string | `"changeme@web.de"` | define from mail-addr |
@@ -122,8 +124,6 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.0, Geoserver: 2.24.4-v1
 | geonode.secret.superUser.email | string | `"support@example.com"` | admin user password |
 | geonode.secret.superUser.password | string | `"geonode"` | admin panel password |
 | geonode.secret.superUser.username | string | `"admin"` | admin username |
-| geonode.secret.bing.apiKey | string | `""` | API Key for Bing Maps.  |
-| geonode.secret.django.secretKey | string | `"!^gs*4^y81)#qt1n8!#3hzd221boe3_2x+s%t9buh#qwm)q)cb"` | Django SECRET_KEY setting. It is recommended to change it prior production use. |
 | geonode.sentry.build_number | int | `0` | sentry build number |
 | geonode.sentry.dsn | string | `""` | sentry dsn url |
 | geonode.sentry.enabled | bool | `false` | enable sentry integration for geonode |
@@ -157,6 +157,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.0, Geoserver: 2.24.4-v1
 | geoserver.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
 | geoserver.imagePullSecret | string | `""` | pull secret to use for geoserver image |
 | geoserver.port | int | `8080` | geoserver port |
+| geoserver.printing.extraHosts | string | `""` |  |
 | geoserver.resources.limits.cpu | int | `2` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geoserver.resources.limits.memory | string | `"4Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geoserver.resources.requests.cpu | int | `1` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
@@ -203,6 +204,9 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.0, Geoserver: 2.24.4-v1
 | postgres.geodata_databasename_and_username | string | `"geodata"` | geoserver database name and username |
 | postgres.geonode_databasename_and_username | string | `"geonode"` | geonode database name and username |
 | postgres.operator.numberOfInstances | int | `1` | number of database instances |
+| postgres.operator.parameters.max_connections | int | `200` |  |
+| postgres.operator.parameters.shared_buffers | string | `"1Gb"` |  |
+| postgres.operator.parameters.work_mem | string | `"64Mb"` |  |
 | postgres.operator.pod_name | string | `"postgresql"` | pod name for postgres containers == teamID for mainifest |
 | postgres.operator.postgres_version | int | `15` | postgres version |
 | postgres.operator.storageSize | string | `"3Gi"` | Database storage size |
