@@ -8,6 +8,7 @@ spec:
   teamId: {{ .Release.Name | quote }}
   volume:
     size: {{ .Values.postgres.operator.storageSize }}
+    storageClass: {{ .Values.postgres.operator.storageClass }}
   numberOfInstances: {{ int .Values.postgres.operator.numberOfInstances }}
   users:
     {{ .Values.postgres.username }}:
