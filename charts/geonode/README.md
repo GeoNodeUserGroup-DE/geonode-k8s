@@ -205,6 +205,9 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.0, Geoserver: 2.24.4-v1
 | postgres.geodata_databasename_and_username | string | `"geodata"` | geoserver database name and username |
 | postgres.geonode_databasename_and_username | string | `"geonode"` | geonode database name and username |
 | postgres.operator.numberOfInstances | int | `1` | number of database instances |
+| postgres.operator.parameters.max_connections | int | `200` |  |
+| postgres.operator.parameters.shared_buffers | string | `"1Gb"` |  |
+| postgres.operator.parameters.work_mem | string | `"64Mb"` |  |
 | postgres.operator.pod_name | string | `"postgresql"` | pod name for postgres containers == teamID for mainifest |
 | postgres.operator.postgres_version | int | `15` | postgres version |
 | postgres.operator.storageSize | string | `"3Gi"` | Database storage size |
