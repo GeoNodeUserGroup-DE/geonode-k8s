@@ -39,7 +39,7 @@ spec:
         postgis: {{ .Values.postgres.schema }}
   postgresql:
     parameters:
-      max_connections: {{ .Values.postgres.operator.parameters.max_connections }}
+      max_connections: {{ .Values.postgres.operator.parameters.max_connections | quote }}
       shared_buffers: {{ .Values.postgres.operator.parameters.shared_buffers }}
       work_mem: {{ .Values.postgres.operator.parameters.work_mem }}
     version: {{ .Values.postgres.operator.postgres_version | quote }}
