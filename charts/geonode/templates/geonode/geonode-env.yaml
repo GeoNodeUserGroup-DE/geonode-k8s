@@ -74,11 +74,11 @@ data:
   LOCKDOWN_GEONODE: {{ .Values.geonode.accesscontrol.lockdown | quote }}
   CORS_ORIGIN_ALLOW_ALL: 'True'
   X_FRAME_OPTIONS: ALLOW-FROM ALL
-  SESSION_EXPIRED_CONTROL_ENABLED: 'True'
-  DEFAULT_ANONYMOUS_VIEW_PERMISSION: 'True'
-  DEFAULT_ANONYMOUS_DOWNLOAD_PERMISSION: 'True'
-  DEFAULT_MAX_PARALLEL_UPLOADS_PER_USER: '100'
-  DEFAULT_MAX_UPLOAD_SIZE: '5368709120'
+  SESSION_EXPIRED_CONTROL_ENABLED: {{ .Values.geonode.general.session_expired_control_enabled | quote }}
+  DEFAULT_ANONYMOUS_VIEW_PERMISSION: {{ .Values.geonode.general.upload.anonymous_view_permission | quote }}
+  DEFAULT_ANONYMOUS_DOWNLOAD_PERMISSION: {{ .Values.geonode.general.upload.anonymous_download_permission | quote }}
+  DEFAULT_MAX_PARALLEL_UPLOADS_PER_USER:  {{ .Values.geonode.general.upload.max_parallel_uploads_per_user | quote }}
+  DEFAULT_MAX_UPLOAD_SIZE: {{ .Values.geonode.general.upload.size | quote }}
 
   # Users Registration
   ACCOUNT_OPEN_SIGNUP: {{ include "boolean2str" .Values.geonode.register.open_signup | quote }}
@@ -128,25 +128,11 @@ data:
   TIME_ENABLED: 'True'
   MOSAIC_ENABLED: 'False'
 
-  HAYSTACK_SEARCH: {{ include "boolean2str" .Values.geonode.haystack.enabled | quote }}
-  HAYSTACK_ENGINE_URL: {{ .Values.geonode.haystack.engine_url | quote }}
-  HAYSTACK_ENGINE_INDEX_NAME: {{ .Values.geonode.haystack.engine_index_name | quote }}
-  HAYSTACK_SEARCH_RESULTS_PER_PAGE: {{ .Values.geonode.haystack.search_results_per_page | quote }}
-
   MEMCACHED_ENABLED: {{  include "boolean2str" .Values.geonode.memcached.enabled_geonode | quote }}
   MEMCACHED_BACKEND: {{ .Values.geonode.memcached.backend | quote }}
   MEMCACHED_LOCATION: {{ .Release.Name }}-memcached
   MEMCACHED_LOCK_EXPIRE: {{ .Values.geonode.memcached.lock_expire | quote }}
   MEMCACHED_LOCK_TIMEOUT: {{ .Values.geonode.memcached.lock_timeout | quote }}
-
-  # Monitoring
-  MONITORING_ENABLED: {{  include "boolean2str" .Values.geonode.monitoring.enabled | quote }}
-  MONITORING_DATA_TTL: {{ .Values.geonode.monitoring.data_tls | quote }}
-  USER_ANALYTICS_ENABLED: {{  include "boolean2str" .Values.geonode.monitoring.user_analytics_enabled | quote }}
-  USER_ANALYTICS_GZIP: {{  include "boolean2str" .Values.geonode.monitoring.user_analytics_gzip | quote }}
-  CENTRALIZED_DASHBOARD_ENABLED: {{  include "boolean2str" .Values.geonode.monitoring.centralized_dashboard_enabled | quote }}
-  MONITORING_SERVICE_NAME: {{ .Release.Name }}-monitoring
-  MONITORING_HOST_NAME: {{ .Release.Name }}-monitoring
 
   # Other Options/Contribs
   MODIFY_TOPICCATEGORY: 'True'
@@ -187,3 +173,8 @@ data:
   GEONODE_GEODATABASE: {{ .Values.postgres.geodata_databasename_and_username | quote }}
   GEONODE_DATABASE_SCHEMA: {{ .Values.postgres.schema }}
   GEONODE_GEODATABASE_SCHEMA: {{ .Values.postgres.schema }}
+
+  # import all settings from values.geonode.general.extraEnvVars
+  {{- if .Values.geonode.general.extraEnvVars }}
+  {{- toYaml .Values.geonode.general.extraEnvVars | nindent 2 }}
+  {{- end }}

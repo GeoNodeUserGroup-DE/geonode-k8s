@@ -51,6 +51,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.0, Geoserver: 2.24.4-v1
 | geonode.general.display.wms_link | bool | `true` | DISPLAY_WMS_LINKS If set to False direct WMS link to GeoServer is hidden. |
 | geonode.general.externalDomain | string | `"geonode"` | external ingress hostname |
 | geonode.general.externalScheme | string | `"http"` | external ingress schema. If set to 'https', make sure to configure TLS either by configuring tls certificate or using cert-manager. Available options: (http|https) |
+| geonode.general.extraEnvVars | object | `{}` | extraEnvVars can be used to add geonode environment variable configuration from https://docs.geonode.org/en/master/basic/settings/index.html which are not available in the helm chart. Where the key is the env-var name comming from the geonode docs. |
 | geonode.general.force_reinit | bool | `true` | set force reinit true so that changing passwords etc. in Values.yaml will take effect after restarting the pod this on the other hand will increase pod initializing time, only change if you know what you are doing |
 | geonode.general.freetext_keywords_readonly | bool | `false` | FREETEXT_KEYWORDS_READONLY Make Free-Text Keywords writable from users. Or read-only when set to False. |
 | geonode.general.geonode_project | string | `"geonode"` | the name of the geonode project used (keep geonode for base image) |
@@ -62,12 +63,13 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.0, Geoserver: 2.24.4-v1
 | geonode.general.ogc_request_timeout | int | `600` | OGC_REQUEST_TIMEOUT |
 | geonode.general.publishing.admin_moderate_uploads | bool | `false` | ADMIN_MODERATE_UPLOADS When this variable is set to True, every uploaded resource must be approved before becoming visible to the public users. Until a resource is in PENDING APPROVAL state, only the superusers, owner and group members can access it, unless specific edit permissions have been set for other users or groups. A Group Manager can approve the resource, but he cannot publish it whenever the setting RESOURCE_PUBLISHING is set to True. Otherwise, if RESOURCE_PUBLISHING (helm: resource_publishing_by_staff) is set to False, the resource becomes accessible as soon as it is approved. |
 | geonode.general.publishing.resource_publishing_by_staff | bool | `false` | RESOURCE_PUBLISHING By default, the GeoNode application allows GeoNode staff members to publish/unpublish resources. By default, resources are published when created. When this setting is set to True the staff members will be able to unpublish a resource (and eventually publish it back). |
+| geonode.general.session_expired_control_enabled | bool | `true` | DEFAULT_ANONYMOUS_VIEW_PERMISSION: Whether the uploaded resources should be public by default. |
 | geonode.general.settings_additions | string | `""` | add additional settings to the settings py. This code will be appended to the end of the geonode settings.py |
 | geonode.general.settings_module | string | `"geonode.settings"` | the settings module to load |
-| geonode.haystack.enabled | bool | `false` | enable hystack |
-| geonode.haystack.engine_index_name | string | `"haystack"` | hystack index name |
-| geonode.haystack.engine_url | string | `"http://elasticsearch:9200/"` | hystack url |
-| geonode.haystack.search_results_per_page | string | `"200"` | hystack results per page |
+| geonode.general.upload.anonymous_download_permission | string | `"True"` | DEFAULT_ANONYMOUS_DOWNLOAD_PERMISSION (https://docs.geonode.org/en/master/basic/settings/index.html#default-anonymous-download-permission) Whether the uploaded resources should downloadable by default. |
+| geonode.general.upload.anonymous_view_permission | string | `"True"` | DEFAULT_ANONYMOUS_VIEW_PERMISSION (https://docs.geonode.org/en/master/basic/settings/index.html#default-anonymous-view-permission) Whether the uploaded resources should be public by default. |
+| geonode.general.upload.max_parallel_uploads_per_user | int | `10` | DEFAULT_MAX_PARALLEL_UPLOADS_PER_USER (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-parallel-uploads-per-user) Default: 5 When uploading datasets, this value limits the number os parallel uploads. The parallelism limit is set during installation using the value of this variable. After installation, only an user with administrative rights can change it. These limits can be changed in the admin panel or accessing by api. |
+| geonode.general.upload.size | string | `"2097152000"` | DEFAULT_MAX_UPLOAD_SIZE (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-upload-size) Important: This value must be syncronized with nginx.maxClientBodySize Default: 2097152000 (2000 MB in bytes) (104857600 = 100 MB) When uploading datasets or uploading documents, the total size of the uploaded files is verified. The size limits are set during installation using the value of this variable. After installation, only an user with administrative rights can change it. These limits can be changed in the admin panel or accessing by api. |
 | geonode.image.name | string | `"geonode/geonode"` | used geonode image |
 | geonode.image.tag | string | `"4.4.1"` | tag of used geonode image |
 | geonode.imagePullPolicy | string | `"IfNotPresent"` | image pull policy |
@@ -99,14 +101,10 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.0, Geoserver: 2.24.4-v1
 | geonode.mail.tls | bool | `true` | activate tls for geonode mail (only tls or ssl can be true not both) |
 | geonode.mail.use_ssl | bool | `false` | enable ssl for geonode mail (only tls or ssl can be true not both) |
 | geonode.memcached.backend | string | `"django.core.cache.backends.memcached.PyLibMCCache"` | memcached backend to use if geonode ">=4.3.0" use django.core.cache.backends.memcached.PyLibMCCache before use django.core.cache.backends.memcached.MemcachedCache |
-| geonode.memcached.enabled | bool | `true` | enable memcache, this will spawn one or more seperate memcache container(s) and configure django geonode repsectivly. Dynamic caching (see https://docs.djangoproject.com/en/4.0/topics/cache/) |
+| geonode.memcached.enabled | bool | `true` | enable memcache, this will spawn one or more seperate memcache container(s) |
+| geonode.memcached.enabled_geonode | bool | `false` | set the MEMCAHED_ENABLED env var for GeoNode (django). Dynamic caching (see https://docs.djangoproject.com/en/4.0/topics/cache/) |
 | geonode.memcached.lock_expire | string | `"3600"` | memcached lock expire time |
 | geonode.memcached.lock_timeout | string | `"10"` | memcached lock timeout |
-| geonode.monitoring.centralized_dashboard_enabled | bool | `false` |  |
-| geonode.monitoring.data_tls | int | `365` |  |
-| geonode.monitoring.enabled | bool | `false` |  |
-| geonode.monitoring.user_analytics_enabled | bool | `true` |  |
-| geonode.monitoring.user_analytics_gzip | bool | `true` |  |
 | geonode.persistant.storageSize | string | `"10Gi"` | size of persistant geonode storage |
 | geonode.replicaCount | int | `1` | number of geonode replicas (! not working properly yet) |
 | geonode.resources.limits.cpu | int | `2` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
@@ -247,4 +245,4 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.0, Geoserver: 2.24.4-v1
 | rabbitmq.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 
 ----------------------------------------------
-Autogenerated from chart metadata using [helm-docs v1.13.1](https://github.com/norwoodj/helm-docs/releases/v1.13.1)
+Autogenerated from chart metadata using [helm-docs v1.11.0](https://github.com/norwoodj/helm-docs/releases/v1.11.0)

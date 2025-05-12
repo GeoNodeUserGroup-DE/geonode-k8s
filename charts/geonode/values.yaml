@@ -174,8 +174,6 @@ geonode:
     geonode_project: geonode
     # -- the settings module to load
     settings_module: geonode.settings
-    # -- add additional settings to the settings py. This code will be appended to the end of the geonode settings.py
-    settings_additions: ""
 
     # -- FREETEXT_KEYWORDS_READONLY Make Free-Text Keywords writable from users. Or read-only when set to False.
     freetext_keywords_readonly: false
@@ -189,6 +187,8 @@ geonode:
     ogc_request_pool_maxsize: 10
     # -- OGC_REQUEST_POOL_CONNECTIONS
     ogc_request_pool_connections: 10
+    # -- DEFAULT_ANONYMOUS_VIEW_PERMISSION: Whether the uploaded resources should be public by default.
+    session_expired_control_enabled: True
 
     publishing:
       # -- RESOURCE_PUBLISHING By default, the GeoNode application allows GeoNode staff members to publish/unpublish resources.
@@ -212,6 +212,39 @@ geonode:
       wms_link: true
       # -- DISPLAY_ORIGINAL_DATASET_LINK If set to False original dataset download is hidden.
       dataset_link: true
+
+    upload:
+      # -- DEFAULT_MAX_UPLOAD_SIZE (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-upload-size)
+      # Important: This value must be syncronized with nginx.maxClientBodySize
+      # Default: 2097152000 (2000 MB in bytes)
+      # (104857600 = 100 MB) When uploading datasets or uploading documents, the total size of the uploaded files is verified.
+      # The size limits are set during installation using the value of this variable. After installation,
+      # only an user with administrative rights can change it. These limits can be changed in the admin panel
+      # or accessing by api.
+      size: "2097152000"
+      # -- DEFAULT_ANONYMOUS_DOWNLOAD_PERMISSION (https://docs.geonode.org/en/master/basic/settings/index.html#default-anonymous-download-permission)
+      # Whether the uploaded resources should downloadable by default.
+      anonymous_download_permission: "True"
+      # -- DEFAULT_ANONYMOUS_VIEW_PERMISSION (https://docs.geonode.org/en/master/basic/settings/index.html#default-anonymous-view-permission)
+      # Whether the uploaded resources should be public by default.
+      anonymous_view_permission: "True"
+      # -- DEFAULT_MAX_PARALLEL_UPLOADS_PER_USER (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-parallel-uploads-per-user)
+      # Default: 5
+      # When uploading datasets, this value limits the number os parallel uploads.
+      #The parallelism limit is set during installation using the value of this variable.
+      # After installation, only an user with administrative rights can change it.
+      # These limits can be changed in the admin panel or accessing by api.
+      max_parallel_uploads_per_user: 10
+
+    # -- add additional settings to the settings py. This code will be appended to the end of the geonode settings.py
+    settings_additions: ""
+
+    # -- extraEnvVars can be used to add geonode environment variable configuration from https://docs.geonode.org/en/master/basic/settings/index.html
+    # which are not available in the helm chart. Where the key is the env-var name comming from the geonode docs.
+    extraEnvVars:
+      {}
+      # SOCIAL_BUTTONS: True
+      # DEFAULT_SEARCH_SIZE: 10
 
   mail:
     # -- enables mail configuration for geonode
@@ -242,8 +275,6 @@ geonode:
     mirror_groups: True
     # -- always update local user database from ldap
     always_update_user: True
-    # -- TODO ADD mirror groups_except AUTH_LDAP_MIRROR_GROUPS_EXCEPT
-    # mirror_groups_except:
     # -- ldap group search dn
     group_search_dn: "OU=Groups,DC=ad,DC=example,DC=com"
     # -- ldap group filterstr
@@ -288,17 +319,6 @@ geonode:
     # -- show email addr in profile view
     show_profile_email: True
 
-  # TODO add haystack chart
-  haystack:
-    # -- enable hystack
-    enabled: False
-    # -- hystack url
-    engine_url: http://elasticsearch:9200/
-    # -- hystack index name
-    engine_index_name: haystack
-    # -- hystack results per page
-    search_results_per_page: "200"
-
   # configure memcached as django cache. .Values.memcached.... to configure memcached replicas, architecture and so on (see https://docs.djangoproject.com/en/4.0/topics/cache/)
   memcached:
     # -- enable memcache, this will spawn one or more seperate memcache container(s)
@@ -313,14 +333,6 @@ geonode:
     lock_expire: "3600"
     # -- memcached lock timeout
     lock_timeout: "10"
-
-  # TODO not tested yey
-  monitoring:
-    enabled: False
-    data_tls: 365
-    user_analytics_enabled: True
-    user_analytics_gzip: True
-    centralized_dashboard_enabled: False
 
   init:
     # -- init container name
@@ -374,7 +386,6 @@ geoserver:
   #      - !dnsMatch
   #        host: data.geopf.fr
   #        port: 80
-
   secret:
     # -- name of an existing Secret to use. Set, if you want to separately maintain the Secret.
     existingSecretName: ""
@@ -398,7 +409,6 @@ geoserver:
   #   - name: KEY_2
   #     value: "VALUE_2"
   extraPodEnv: |
-
   resources:
     requests:
       # -- requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
