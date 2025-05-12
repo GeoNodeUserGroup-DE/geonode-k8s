@@ -187,8 +187,10 @@ geonode:
     ogc_request_pool_maxsize: 10
     # -- OGC_REQUEST_POOL_CONNECTIONS
     ogc_request_pool_connections: 10
-    # -- DEFAULT_ANONYMOUS_VIEW_PERMISSION: Whether the uploaded resources should be public by default.
-    session_expired_control_enabled: True
+    # -- SESSION_EXPIRED_CONTROL_ENABLED (https://docs.geonode.org/en/master/basic/settings/index.html#session-expired-control-enabled)
+    # By enabling this variable, a new middleware geonode.security.middleware.SessionControlMiddleware will be added to the MIDDLEWARE_CLASSES.
+    # The class will check every request to GeoNode and it will force a log out whenever one of the following conditions occurs:: Whether the uploaded resources should be public by default.
+    session_expired_control_enabled: "True"
 
     publishing:
       # -- RESOURCE_PUBLISHING By default, the GeoNode application allows GeoNode staff members to publish/unpublish resources.
