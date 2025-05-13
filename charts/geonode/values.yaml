@@ -162,8 +162,6 @@ geonode:
     # -- set force reinit true so that changing passwords etc. in Values.yaml will take effect after restarting the pod
     # this on the other hand will increase pod initializing time, only change if you know what you are doing
     force_reinit: true
-    # -- max upload document size in MB
-    max_document_size: 10
     # -- to describe
     api_limit_per_page: 1000
     # -- django debug mode
@@ -237,6 +235,8 @@ geonode:
       # After installation, only an user with administrative rights can change it.
       # These limits can be changed in the admin panel or accessing by api.
       max_parallel_uploads_per_user: 10
+      # -- max upload document size in MB
+      document_size: 60
 
     # -- add additional settings to the settings py. This code will be appended to the end of the geonode settings.py
     settings_additions: ""
@@ -449,8 +449,14 @@ nginx:
   # -- pull secret to use for nginx image
   imagePullSecret: ""
 
-  # -- max file upload size
-  maxClientBodySize: 2G
+  # -- max file upload size for geonode upload. Only set this value if it should be different from geonode.general.upload.size.
+  # to use e.g. if geonode.general.upload.document_size > geonode.general.upload.size
+  geonodeMaxClientBodySize:
+  # -- maximum upload size for geoserver in nginx configuration. Changes here may also require changes in geoserver configuration of the individual services (WFS, ...)
+  geoServerMaxClientBodySize: 10G
+  # -- maximum upload size for pycsw server in nginx configuration. Only used if `.Values.pycsw.enabled: true`.
+  pycswMaxClientBodySize: 10M
+
   resources:
     requests:
       # -- requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)

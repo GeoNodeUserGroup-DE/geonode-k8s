@@ -16,7 +16,7 @@ data:
 
   CLIENT_RESULTS_LIMIT: '25'
   C_FORCE_ROOT: '1'
-  MAX_DOCUMENT_SIZE:  {{ .Values.geonode.general.max_document_size | quote }}
+  MAX_DOCUMENT_SIZE:  {{ .Values.geonode.general.upload.document_size | quote }}
   API_LIMIT_PER_PAGE: {{ .Values.geonode.general.api_limit_per_page | quote }}
   # GeoNode APIs
   API_LOCKDOWN: 'False'

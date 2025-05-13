@@ -55,8 +55,6 @@ data:
       # GeoNode
       location /static/ {
         alias /mnt/volumes/statics/static/;
-        client_max_body_size {{ .Values.nginx.maxClientBodySize }};
-
         location ~* \.(?:html|js|jpg|jpeg|gif|png|css|tgz|gz|rar|bz2|doc|pdf|ppt|tar|wav|bmp|ttf|rtf|swf|ico|flv|txt|woff|woff2|svg|xml)$ {
           gzip_static always;
           expires 30d;
@@ -68,7 +66,11 @@ data:
 
       # GeoNode Upload
       location /uploaded/ {
-        client_max_body_size {{ .Values.nginx.maxClientBodySize }};
+{{ if .Values.nginx.geonodeMaxClientBodySize }}
+        client_max_body_size {{ .Values.nginx.geonodeMaxClientBodySize }};
+{{ else }}
+        client_max_body_size {{ .Values.geonode.general.upload.size }};
+{{ end }}
 
         alias /mnt/volumes/statics/uploaded/;
         location ~* \.(?:html|js|jpg|jpeg|gif|png|css|tgz|gz|rar|bz2|doc|pdf|ppt|tar|wav|bmp|ttf|rtf|swf|ico|flv|txt|woff|woff2|svg|xml)$ {
@@ -110,7 +112,7 @@ data:
 {{if (eq .Values.geonode.ingress.enabled false) }}
       # GeoServer
       location /geoserver {
-        client_max_body_size {{ .Values.nginx.maxClientBodySize }};
+        client_max_body_size {{ .Values.nginx.geoServerMaxClientBodySize }};
 
 {{- if .Values.nginx.external_cors.enabled }}
         proxy_set_header Access-Control-Allow-Origin {{ .Values.nginx.external_cors.domain }};
@@ -125,7 +127,7 @@ data:
 {{ if .Values.pycsw.enabled }}
       # external PYCSW forward 
       location {{ .Values.pycsw.endpoint }} {
-        client_max_body_size {{ .Values.nginx.maxClientBodySize }};
+        client_max_body_size {{ .Values.nginx.pycswMaxClientBodySize }};
 
         # compression
         gzip on;
@@ -148,8 +150,11 @@ data:
 {{ end }}
 {{ end }}
       location / {
-        client_max_body_size {{ .Values.nginx.maxClientBodySize }};
-
+{{ if .Values.nginx.geonodeMaxClientBodySize }}
+        client_max_body_size {{ .Values.nginx.geonodeMaxClientBodySize }};
+{{ else }}
+        client_max_body_size {{ .Values.geonode.general.upload.size }};
+{{ end }}
         # FIXME: Work around /proxy sometimes using a mix of public/internal URL to geonode...
         rewrite_log on;
         #rewrite ^/proxy/(.*)url=http?://{{ .Values.geonode.general.externalDomain  }}(:\d+)?/geoserver(.*) /proxy/$1url=http://geoserver:{{ .Values.geoserver.port }}$3 last;

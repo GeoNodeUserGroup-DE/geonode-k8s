@@ -55,7 +55,6 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.0, Geoserver: 2.24.4-v1
 | geonode.general.force_reinit | bool | `true` | set force reinit true so that changing passwords etc. in Values.yaml will take effect after restarting the pod this on the other hand will increase pod initializing time, only change if you know what you are doing |
 | geonode.general.freetext_keywords_readonly | bool | `false` | FREETEXT_KEYWORDS_READONLY Make Free-Text Keywords writable from users. Or read-only when set to False. |
 | geonode.general.geonode_project | string | `"geonode"` | the name of the geonode project used (keep geonode for base image) |
-| geonode.general.max_document_size | int | `10` | max upload document size in MB |
 | geonode.general.ogc_request_backoff_factor | float | `0.3` | OGC_REQUEST_BACKOFF_FACTOR |
 | geonode.general.ogc_request_max_retries | int | `1` | OGC_REQUEST_MAX_RETRIES |
 | geonode.general.ogc_request_pool_connections | int | `10` | OGC_REQUEST_POOL_CONNECTIONS |
@@ -68,6 +67,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.0, Geoserver: 2.24.4-v1
 | geonode.general.settings_module | string | `"geonode.settings"` | the settings module to load |
 | geonode.general.upload.anonymous_download_permission | string | `"True"` | DEFAULT_ANONYMOUS_DOWNLOAD_PERMISSION (https://docs.geonode.org/en/master/basic/settings/index.html#default-anonymous-download-permission) Whether the uploaded resources should downloadable by default. |
 | geonode.general.upload.anonymous_view_permission | string | `"True"` | DEFAULT_ANONYMOUS_VIEW_PERMISSION (https://docs.geonode.org/en/master/basic/settings/index.html#default-anonymous-view-permission) Whether the uploaded resources should be public by default. |
+| geonode.general.upload.document_size | int | `60` | max upload document size in MB |
 | geonode.general.upload.max_parallel_uploads_per_user | int | `10` | DEFAULT_MAX_PARALLEL_UPLOADS_PER_USER (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-parallel-uploads-per-user) Default: 5 When uploading datasets, this value limits the number os parallel uploads. The parallelism limit is set during installation using the value of this variable. After installation, only an user with administrative rights can change it. These limits can be changed in the admin panel or accessing by api. |
 | geonode.general.upload.size | string | `"2097152000"` | DEFAULT_MAX_UPLOAD_SIZE (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-upload-size) Important: This value must be syncronized with nginx.maxClientBodySize Default: 2097152000 (2000 MB in bytes) (104857600 = 100 MB) When uploading datasets or uploading documents, the total size of the uploaded files is verified. The size limits are set during installation using the value of this variable. After installation, only an user with administrative rights can change it. These limits can be changed in the admin panel or accessing by api. |
 | geonode.image.name | string | `"geonode/geonode"` | used geonode image |
@@ -178,11 +178,13 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.0, Geoserver: 2.24.4-v1
 | nginx.container_name | string | `"nginx"` | nginx container name |
 | nginx.external_cors.domain | string | `""` | Target domain for CORS |
 | nginx.external_cors.enabled | bool | `false` | Add Access-Control-Allow-Origin directive to allow integration from an external domain |
+| nginx.geoServerMaxClientBodySize | string | `"10G"` | maximum upload size for geoserver in nginx configuration. Changes here may also require changes in geoserver configuration of the individual services (WFS, ...) |
+| nginx.geonodeMaxClientBodySize | string | `nil` | max file upload size for geonode upload. Only set this value if it should be different from geonode.general.upload.size. to use e.g. if geonode.general.upload.document_size > geonode.general.upload.size |
 | nginx.image.name | string | `"nginx"` | nginx docker image |
 | nginx.image.tag | string | `"1.25"` | nginx docker image tag |
 | nginx.imagePullPolicy | string | `"IfNotPresent"` | nginx image pull policy |
 | nginx.imagePullSecret | string | `""` | pull secret to use for nginx image |
-| nginx.maxClientBodySize | string | `"2G"` | max file upload size |
+| nginx.pycswMaxClientBodySize | string | `"10M"` | maximum upload size for pycsw server in nginx configuration. Only used if `.Values.pycsw.enabled: true`. |
 | nginx.replicaCount | int | `1` | nginx container replicas |
 | nginx.resources.limits.cpu | string | `"800m"` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | nginx.resources.limits.memory | string | `"1Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
