@@ -210,7 +210,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.0, Geoserver: 2.24.4-v1
 | postgres.operator.enableMasterLoadBalancer | string | `nil` | boolean flag to override the operator defaults (set by the enable_master_load_balancer parameter) to define whether to enable the load balancer pointing to the Postgres primary. Optional. |
 | postgres.operator.env | list | `[]` | a dictionary of environment variables. Use usual Kubernetes definition (https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/) for environment variables. Optional. |
 | postgres.operator.numberOfInstances | int | `1` | number of database instances |
-| postgres.operator.parameters | object | `{"max_connections":"20","shared_buffers":"100Mb","work_mem":"64Mb"}` | postgres parameters resources |
+| postgres.operator.parameters | object | `{"max_connections":"20","shared_buffers":"250MB","work_mem":"12.5Mb"}` | postgres parameters resources |
 | postgres.operator.patroni | object | `{}` | patroni related configuration (https://patroni.readthedocs.io/en/master/patroni_configuration.html) |
 | postgres.operator.pod_name | string | `"postgresql"` | pod name for postgres containers == teamID for mainifest |
 | postgres.operator.postgres_version | int | `15` | postgres version |

@@ -707,8 +707,8 @@ postgres:
     # -- postgres parameters resources
     parameters:
       max_connections: "20"
-      shared_buffers: 100Mb
-      work_mem: 64Mb
+      shared_buffers: 250MB
+      work_mem: 12.5Mb
     # --
     clone: {}
     # -- Those parameters define CPU and memory requests and limits for the Postgres container. They are grouped under the resources top-level key with subgroups requests and limits
