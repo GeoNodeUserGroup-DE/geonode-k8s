@@ -707,7 +707,7 @@ postgres:
     # -- postgres parameters resources
     parameters:
       max_connections: "200"
-      shared_buffers: 1Gb
+      shared_buffers: 100Mb
       work_mem: 64Mb
     # --
     clone: {}
@@ -715,14 +715,14 @@ postgres:
     resources:
       requests:
         # -- requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
-        memory: "0.5Gi"
+        memory: "0.3Gi"
         # -- requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
         cpu: "100m"
       limits:
         # -- limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
-        memory: "1Gi"
+        memory: "0.6Gi"
         # -- limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
-        cpu: "500m"
+        cpu: "400m"
 
   external:
     hostname: my-external-postgres.com
