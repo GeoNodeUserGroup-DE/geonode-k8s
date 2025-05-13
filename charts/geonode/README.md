@@ -51,10 +51,10 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.0, Geoserver: 2.24.4-v1
 | geonode.general.display.wms_link | bool | `true` | DISPLAY_WMS_LINKS If set to False direct WMS link to GeoServer is hidden. |
 | geonode.general.externalDomain | string | `"geonode"` | external ingress hostname |
 | geonode.general.externalScheme | string | `"http"` | external ingress schema. If set to 'https', make sure to configure TLS either by configuring tls certificate or using cert-manager. Available options: (http|https) |
+| geonode.general.extraEnvVars | object | `{}` | extraEnvVars can be used to add geonode environment variable configuration from https://docs.geonode.org/en/master/basic/settings/index.html which are not available in the helm chart. Where the key is the env-var name comming from the geonode docs. |
 | geonode.general.force_reinit | bool | `true` | set force reinit true so that changing passwords etc. in Values.yaml will take effect after restarting the pod this on the other hand will increase pod initializing time, only change if you know what you are doing |
 | geonode.general.freetext_keywords_readonly | bool | `false` | FREETEXT_KEYWORDS_READONLY Make Free-Text Keywords writable from users. Or read-only when set to False. |
 | geonode.general.geonode_project | string | `"geonode"` | the name of the geonode project used (keep geonode for base image) |
-| geonode.general.max_document_size | int | `10` | max upload document size in MB |
 | geonode.general.ogc_request_backoff_factor | float | `0.3` | OGC_REQUEST_BACKOFF_FACTOR |
 | geonode.general.ogc_request_max_retries | int | `1` | OGC_REQUEST_MAX_RETRIES |
 | geonode.general.ogc_request_pool_connections | int | `10` | OGC_REQUEST_POOL_CONNECTIONS |
@@ -62,12 +62,14 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.0, Geoserver: 2.24.4-v1
 | geonode.general.ogc_request_timeout | int | `600` | OGC_REQUEST_TIMEOUT |
 | geonode.general.publishing.admin_moderate_uploads | bool | `false` | ADMIN_MODERATE_UPLOADS When this variable is set to True, every uploaded resource must be approved before becoming visible to the public users. Until a resource is in PENDING APPROVAL state, only the superusers, owner and group members can access it, unless specific edit permissions have been set for other users or groups. A Group Manager can approve the resource, but he cannot publish it whenever the setting RESOURCE_PUBLISHING is set to True. Otherwise, if RESOURCE_PUBLISHING (helm: resource_publishing_by_staff) is set to False, the resource becomes accessible as soon as it is approved. |
 | geonode.general.publishing.resource_publishing_by_staff | bool | `false` | RESOURCE_PUBLISHING By default, the GeoNode application allows GeoNode staff members to publish/unpublish resources. By default, resources are published when created. When this setting is set to True the staff members will be able to unpublish a resource (and eventually publish it back). |
+| geonode.general.session_expired_control_enabled | string | `"True"` | SESSION_EXPIRED_CONTROL_ENABLED (https://docs.geonode.org/en/master/basic/settings/index.html#session-expired-control-enabled) By enabling this variable, a new middleware geonode.security.middleware.SessionControlMiddleware will be added to the MIDDLEWARE_CLASSES. The class will check every request to GeoNode and it will force a log out whenever one of the following conditions occurs:: Whether the uploaded resources should be public by default. |
 | geonode.general.settings_additions | string | `""` | add additional settings to the settings py. This code will be appended to the end of the geonode settings.py |
 | geonode.general.settings_module | string | `"geonode.settings"` | the settings module to load |
-| geonode.haystack.enabled | bool | `false` | enable hystack |
-| geonode.haystack.engine_index_name | string | `"haystack"` | hystack index name |
-| geonode.haystack.engine_url | string | `"http://elasticsearch:9200/"` | hystack url |
-| geonode.haystack.search_results_per_page | string | `"200"` | hystack results per page |
+| geonode.general.upload.anonymous_download_permission | string | `"True"` | DEFAULT_ANONYMOUS_DOWNLOAD_PERMISSION (https://docs.geonode.org/en/master/basic/settings/index.html#default-anonymous-download-permission) Whether the uploaded resources should downloadable by default. |
+| geonode.general.upload.anonymous_view_permission | string | `"True"` | DEFAULT_ANONYMOUS_VIEW_PERMISSION (https://docs.geonode.org/en/master/basic/settings/index.html#default-anonymous-view-permission) Whether the uploaded resources should be public by default. |
+| geonode.general.upload.document_size | int | `60` | max upload document size in MB |
+| geonode.general.upload.max_parallel_uploads_per_user | int | `10` | DEFAULT_MAX_PARALLEL_UPLOADS_PER_USER (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-parallel-uploads-per-user) Default: 5 When uploading datasets, this value limits the number os parallel uploads. The parallelism limit is set during installation using the value of this variable. After installation, only an user with administrative rights can change it. These limits can be changed in the admin panel or accessing by api. |
+| geonode.general.upload.size | string | `"2097152000"` | DEFAULT_MAX_UPLOAD_SIZE (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-upload-size) Important: This value must be syncronized with nginx.maxClientBodySize Default: 2097152000 (2000 MB in bytes) (104857600 = 100 MB) When uploading datasets or uploading documents, the total size of the uploaded files is verified. The size limits are set during installation using the value of this variable. After installation, only an user with administrative rights can change it. These limits can be changed in the admin panel or accessing by api. |
 | geonode.image.name | string | `"geonode/geonode"` | used geonode image |
 | geonode.image.tag | string | `"4.4.1"` | tag of used geonode image |
 | geonode.imagePullPolicy | string | `"IfNotPresent"` | image pull policy |
@@ -103,11 +105,6 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.0, Geoserver: 2.24.4-v1
 | geonode.memcached.enabled_geonode | bool | `false` | set the MEMCAHED_ENABLED env var for GeoNode (django). Dynamic caching (see https://docs.djangoproject.com/en/4.0/topics/cache/) |
 | geonode.memcached.lock_expire | string | `"3600"` | memcached lock expire time |
 | geonode.memcached.lock_timeout | string | `"10"` | memcached lock timeout |
-| geonode.monitoring.centralized_dashboard_enabled | bool | `false` |  |
-| geonode.monitoring.data_tls | int | `365` |  |
-| geonode.monitoring.enabled | bool | `false` |  |
-| geonode.monitoring.user_analytics_enabled | bool | `true` |  |
-| geonode.monitoring.user_analytics_gzip | bool | `true` |  |
 | geonode.persistant.storageSize | string | `"10Gi"` | size of persistant geonode storage |
 | geonode.replicaCount | int | `1` | number of geonode replicas (! not working properly yet) |
 | geonode.resources.limits.cpu | int | `2` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
@@ -181,11 +178,13 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.0, Geoserver: 2.24.4-v1
 | nginx.container_name | string | `"nginx"` | nginx container name |
 | nginx.external_cors.domain | string | `""` | Target domain for CORS |
 | nginx.external_cors.enabled | bool | `false` | Add Access-Control-Allow-Origin directive to allow integration from an external domain |
+| nginx.geoServerMaxClientBodySize | string | `"10G"` | maximum upload size for geoserver in nginx configuration. Changes here may also require changes in geoserver configuration of the individual services (WFS, ...) |
+| nginx.geonodeMaxClientBodySize | string | `nil` | max file upload size for geonode upload. Only set this value if it should be different from geonode.general.upload.size. to use e.g. if geonode.general.upload.document_size > geonode.general.upload.size |
 | nginx.image.name | string | `"nginx"` | nginx docker image |
 | nginx.image.tag | string | `"1.25"` | nginx docker image tag |
 | nginx.imagePullPolicy | string | `"IfNotPresent"` | nginx image pull policy |
 | nginx.imagePullSecret | string | `""` | pull secret to use for nginx image |
-| nginx.maxClientBodySize | string | `"2G"` | max file upload size |
+| nginx.pycswMaxClientBodySize | string | `"10M"` | maximum upload size for pycsw server in nginx configuration. Only used if `.Values.pycsw.enabled: true`. |
 | nginx.replicaCount | int | `1` | nginx container replicas |
 | nginx.resources.limits.cpu | string | `"800m"` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | nginx.resources.limits.memory | string | `"1Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
