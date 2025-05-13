@@ -52,7 +52,6 @@ spec:
     parameters: {{- toYaml .Values.postgres.operator.parameters | nindent 6 }}
     {{- end }}
     version: {{ .Values.postgres.operator.postgres_version | quote }}
-
   {{- if .Values.postgres.operator.patroni }}
   patroni: {{- toYaml .Values.postgres.operator.patroni | nindent 4 }}
   {{- end }}
