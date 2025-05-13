@@ -210,15 +210,15 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.0, Geoserver: 2.24.4-v1
 | postgres.operator.enableMasterLoadBalancer | string | `nil` | boolean flag to override the operator defaults (set by the enable_master_load_balancer parameter) to define whether to enable the load balancer pointing to the Postgres primary. Optional. |
 | postgres.operator.env | list | `[]` | a dictionary of environment variables. Use usual Kubernetes definition (https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/) for environment variables. Optional. |
 | postgres.operator.numberOfInstances | int | `1` | number of database instances |
-| postgres.operator.parameters | object | `{"max_connections":"200","shared_buffers":"100Mb","work_mem":"64Mb"}` | postgres parameters resources |
+| postgres.operator.parameters | object | `{"max_connections":"20","shared_buffers":"100Mb","work_mem":"64Mb"}` | postgres parameters resources |
 | postgres.operator.patroni | object | `{}` | patroni related configuration (https://patroni.readthedocs.io/en/master/patroni_configuration.html) |
 | postgres.operator.pod_name | string | `"postgresql"` | pod name for postgres containers == teamID for mainifest |
 | postgres.operator.postgres_version | int | `15` | postgres version |
-| postgres.operator.resources | object | `{"limits":{"cpu":"400m","memory":"0.6Gi"},"requests":{"cpu":"100m","memory":"0.3Gi"}}` | Those parameters define CPU and memory requests and limits for the Postgres container. They are grouped under the resources top-level key with subgroups requests and limits |
+| postgres.operator.resources | object | `{"limits":{"cpu":"400m","memory":"1Gi"},"requests":{"cpu":"100m","memory":"0.5Gi"}}` | Those parameters define CPU and memory requests and limits for the Postgres container. They are grouped under the resources top-level key with subgroups requests and limits |
 | postgres.operator.resources.limits.cpu | string | `"400m"` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| postgres.operator.resources.limits.memory | string | `"0.6Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
+| postgres.operator.resources.limits.memory | string | `"1Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | postgres.operator.resources.requests.cpu | string | `"100m"` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| postgres.operator.resources.requests.memory | string | `"0.3Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
+| postgres.operator.resources.requests.memory | string | `"0.5Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | postgres.operator.storageClass | string | `nil` | postgress pv storageclass |
 | postgres.operator.storageSize | string | `"3Gi"` | Database storage size |
 | postgres.schema | string | `"public"` | database schema |

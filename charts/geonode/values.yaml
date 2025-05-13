@@ -706,7 +706,7 @@ postgres:
     patroni: {}
     # -- postgres parameters resources
     parameters:
-      max_connections: "200"
+      max_connections: "20"
       shared_buffers: 100Mb
       work_mem: 64Mb
     # --
@@ -715,12 +715,12 @@ postgres:
     resources:
       requests:
         # -- requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
-        memory: "0.3Gi"
+        memory: "0.5Gi"
         # -- requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
         cpu: "100m"
       limits:
         # -- limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
-        memory: "0.6Gi"
+        memory: "1Gi"
         # -- limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
         cpu: "400m"
 
