@@ -7,7 +7,7 @@ global:
 # geonode configuration
 geonode:
   # -- geonode version, used for some distinguassion between version of GeoNode
-  version: 4.4.0
+  version: 4.4.2
   # -- container name
   container_name: geonode
   # -- number of geonode replicas (! not working properly yet)
@@ -21,7 +21,7 @@ geonode:
     # -- used geonode image
     name: geonode/geonode
     # -- tag of used geonode image
-    tag: "4.4.1"
+    tag: "4.4.2"
 
   # -- image pull policy
   imagePullPolicy: IfNotPresent

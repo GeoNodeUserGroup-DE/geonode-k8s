@@ -1,8 +1,8 @@
 # geonode-k8s
 
-![Version: 1.2.3-alpha](https://img.shields.io/badge/Version-1.2.3--alpha-informational?style=flat-square)
+![Version: 1.2.3](https://img.shields.io/badge/Version-1.2.3-informational?style=flat-square)
 
-Helm Chart for Geonode. Supported versions: Geonode: 4.4.0, Geoserver: 2.24.4-v1, pyCSW: 2.6.1
+Helm Chart for Geonode. Supported versions: Geonode: 4.4.2, Geoserver: 2.24.3-latest, pyCSW: 2.6.1
 
 **Homepage:** <https://geonode.org/>
 
@@ -71,7 +71,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.0, Geoserver: 2.24.4-v1
 | geonode.general.upload.max_parallel_uploads_per_user | int | `10` | DEFAULT_MAX_PARALLEL_UPLOADS_PER_USER (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-parallel-uploads-per-user) Default: 5 When uploading datasets, this value limits the number os parallel uploads. The parallelism limit is set during installation using the value of this variable. After installation, only an user with administrative rights can change it. These limits can be changed in the admin panel or accessing by api. |
 | geonode.general.upload.size | string | `"2097152000"` | DEFAULT_MAX_UPLOAD_SIZE (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-upload-size) Important: This value must be syncronized with nginx.maxClientBodySize Default: 2097152000 (2000 MB in bytes) (104857600 = 100 MB) When uploading datasets or uploading documents, the total size of the uploaded files is verified. The size limits are set during installation using the value of this variable. After installation, only an user with administrative rights can change it. These limits can be changed in the admin panel or accessing by api. |
 | geonode.image.name | string | `"geonode/geonode"` | used geonode image |
-| geonode.image.tag | string | `"4.4.1"` | tag of used geonode image |
+| geonode.image.tag | string | `"4.4.2"` | tag of used geonode image |
 | geonode.imagePullPolicy | string | `"IfNotPresent"` | image pull policy |
 | geonode.imagePullSecret | string | `""` | pull secret to use for geonode image |
 | geonode.ingress.annotations | object | `{}` | adds ingress annotations for nginx ingress class |
@@ -145,7 +145,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.0, Geoserver: 2.24.4-v1
 | geonode.uwsgi.processes | int | `128` | Maximum number of workers allowed |
 | geonode.uwsgi.reload_on_rss | int | `2048` | Restart workers after this much resident memory |
 | geonode.uwsgi.worker_reload_mercy | int | `60` | How long to wait before forcefully killing workers |
-| geonode.version | string | `"4.4.0"` | geonode version, used for some distinguassion between version of GeoNode |
+| geonode.version | string | `"4.4.2"` | geonode version, used for some distinguassion between version of GeoNode |
 | geonodeFixtures | map of fixture files | `{"somefixture.json":"[\n  {\n    \"pk\": 0,\n    \"model\": \"myapp.sample\"\n    \"description\": \"nice little content\"\n  }\n]\n"}` | Fixture files which shall be made available under /usr/src/geonode/geonode/fixtures (refer to https://docs.djangoproject.com/en/4.2/howto/initial-data/) |
 | geoserver.container_name | string | `"geoserver"` | geoserver container name |
 | geoserver.extraConfigMap | string | `""` | additional elements to include in the config map provided to GeoServer |
