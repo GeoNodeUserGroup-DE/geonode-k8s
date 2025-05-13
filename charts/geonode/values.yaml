@@ -679,7 +679,7 @@ postgres:
   # -- geoserver database name and username
   geodata_databasename_and_username: geodata
 
-  # configuration for postgres operator database manifest
+  # configuration for postgres operator database manifest (https://github.com/zalando/postgres-operator/blob/master/docs/reference/cluster_manifest.md)
   operator:
     # -- pod name for postgres containers == teamID for mainifest
     pod_name: postgresql
@@ -691,13 +691,39 @@ postgres:
     numberOfInstances: 1
     # -- postgres version
     postgres_version: 15
-    # database passwords are set randomly
-    # infos @ https://postgres-operator.readthedocs.io/en/refactoring-sidecars/user/
-    # get password after creation via: kubectl get secret {{ .Release.name }}.{{ .Release.name }}-{{ container_name }}.credentials -o 'jsonpath={.data.password}' | base64 -d
+    # -- boolean flag to override the operator defaults (set by the enable_master_load_balancer parameter) to define whether to enable the load balancer pointing to the Postgres primary. Optional.
+    enableMasterLoadBalancer:
+    # -- when one or more load balancers are enabled for the cluster, this parameter defines the comma-separated range of IP networks (in CIDR-notation).
+    # The corresponding load balancer is accessible only to the networks defined by this parameter.
+    # Optional, when empty the load balancer service becomes inaccessible from outside of the Kubernetes cluster.
+    allowedSourceRanges: []
+    # -- a dictionary of environment variables. Use usual Kubernetes definition (https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/)
+    # for environment variables. Optional.
+    env: []
+    # -- additional annotation for postgresql object
+    annotations: {}
+    # -- patroni related configuration (https://patroni.readthedocs.io/en/master/patroni_configuration.html)
+    patroni: {}
+    # -- postgres parameters resources
     parameters:
-      max_connections: 200
+      max_connections: "200"
       shared_buffers: 1Gb
       work_mem: 64Mb
+    # --
+    clone: {}
+    # -- Those parameters define CPU and memory requests and limits for the Postgres container. They are grouped under the resources top-level key with subgroups requests and limits
+    resources:
+      requests:
+        # -- requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
+        memory: "0.5Gi"
+        # -- requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
+        cpu: "100m"
+      limits:
+        # -- limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
+        memory: "1Gi"
+        # -- limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
+        cpu: "500m"
+
   external:
     hostname: my-external-postgres.com
     port: 5432

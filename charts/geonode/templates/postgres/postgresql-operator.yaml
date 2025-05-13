@@ -4,11 +4,21 @@ apiVersion: "acid.zalan.do/v1"
 kind: postgresql
 metadata:
   name: "{{ include "postgres_pod_name" . }}"
+  {{- if .Values.postgres.operator.annotations }}
+  annotations:
+    {{- toYaml .Values.postgres.operator.annotations | nindent 4 }}
+  {{- end }}
 spec:
+  {{ if .Values.postgres.operator.env }}
+  env:
+    {{- toYaml .Values.postgres.operator.env | nindent 4 }}
+  {{- end }}
   teamId: {{ .Release.Name | quote }}
   volume:
     size: {{ .Values.postgres.operator.storageSize }}
     storageClass: {{ .Values.postgres.operator.storageClass }}
+  enableMasterLoadBalancer: {{ .Values.postgres.operator.enableMasterLoadBalancer }}
+  allowedSourceRanges: {{- toYaml .Values.postgres.operator.allowedSourceRanges | nindent 4 }}
   numberOfInstances: {{ int .Values.postgres.operator.numberOfInstances }}
   users:
     {{ .Values.postgres.username }}:
@@ -38,9 +48,16 @@ spec:
         pg_partman: {{ .Values.postgres.schema }}
         postgis: {{ .Values.postgres.schema }}
   postgresql:
-    parameters:
-      max_connections: {{ .Values.postgres.operator.parameters.max_connections | quote }}
-      shared_buffers: {{ .Values.postgres.operator.parameters.shared_buffers }}
-      work_mem: {{ .Values.postgres.operator.parameters.work_mem }}
+    {{- if .Values.postgres.operator.parameters }}
+    parameters: {{- toYaml .Values.postgres.operator.parameters | nindent 6 }}
+    {{- end }}
     version: {{ .Values.postgres.operator.postgres_version | quote }}
+
+  {{- if .Values.postgres.operator.patroni }}
+  patroni: {{- toYaml .Values.postgres.operator.patroni | nindent 4 }}
+  {{- end }}
+  resources: {{ toYaml .Values.postgres.operator.resources | nindent 4 }}
+  {{- if .Values.postgres.operator.clone }}
+  clone: {{- toYaml .Values.postgres.operator.clone | nindent 4 }}
+  {{- end }}
 {{ end }}
