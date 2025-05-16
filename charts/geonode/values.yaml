@@ -7,7 +7,7 @@ global:
 # geonode configuration
 geonode:
   # -- geonode version, used for some distinguassion between version of GeoNode
-  version: 4.4.2
+  version: 4.4.3
   # -- container name
   container_name: geonode
   # -- number of geonode replicas (! not working properly yet)
@@ -21,7 +21,7 @@ geonode:
     # -- used geonode image
     name: geonode/geonode
     # -- tag of used geonode image
-    tag: "4.4.2"
+    tag: "4.4.3"
 
   # -- image pull policy
   imagePullPolicy: IfNotPresent
@@ -372,7 +372,7 @@ geoserver:
     # -- geoserver image docker image (default in zalf namespace because geonode one was not up to date)
     name: geonode/geoserver
     # -- geoserver docker image tag
-    tag: "2.24.3-latest"
+    tag: "2.24.3-v2"
 
   # -- geoserver image pull policy
   imagePullPolicy: "IfNotPresent"
@@ -429,7 +429,7 @@ geoserver_data:
     # -- geoserver image docker image (default in zalf namespace because geonode one was not up to date)
     name: geonode/geoserver_data
     # -- geoserver docker image tag
-    tag: "2.24.4-v1"
+    tag: "2.24.4-v3"
   # -- geoserver image pull policy
   imagePullPolicy: "IfNotPresent"
 
