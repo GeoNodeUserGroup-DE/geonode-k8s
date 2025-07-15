@@ -1,0 +1,175 @@
+# check if postgres.type is set to external operator
+{{ $is_operator := (eq .Values.postgres.type "operator") }}
+{{ $is_external := (eq .Values.postgres.type "external") }}
+{{ if not (or $is_operator  $is_external) }}
+  {{- fail "Deploymnent FAILED, unknown postgres.type defined, please set postgres.type to operator or external ..." }}
+{{ end }}
+
+# geonode stateful set
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "{{ include "geonode_pod_name" . }}"
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      org.geonode.instance: "{{ include "geonode_pod_name" . }}"
+  serviceName: "{{ include "geonode_pod_name" . }}"
+  replicas: {{ .Values.geonode.replicaCount }}
+  template:
+    metadata:
+      labels:
+        org.geonode.instance: "{{ include "geonode_pod_name" . }}"
+      annotations:
+        checksum/geonode-env: {{ include (print $.Template.BasePath "/geonode/geonode-env.yaml") . | sha256sum }}
+        checksum/geonode-secret: {{ include (print $.Template.BasePath "/geonode/geonode-secret.yaml") . | sha256sum }}
+        checksum/geonode-tasks-py: {{ include (print $.Template.BasePath "/geonode/geonode-tasks-py-conf.yaml") . | sha256sum }}
+        checksum/geonode-local-settings: {{ include (print $.Template.BasePath "/geonode/geonode-local-settings.yaml") . | sha256sum }}
+        checksum/geonode-settings-additions: {{ include (print $.Template.BasePath "/geonode/geonode-settings-additions.yaml") . | sha256sum }}
+        checksum/geonode-uwsig: {{ include (print $.Template.BasePath "/geonode/geonode-uwsgi-ini-conf.yaml") . | sha256sum }}
+    spec:
+      terminationGracePeriodSeconds: 3
+
+{{- if not (empty .Values.geonode.imagePullSecret) }}
+      imagePullSecrets:
+      - name: {{ .Values.geonode.imagePullSecret }}
+{{ end }}
+
+      initContainers:
+      # Wait for Postgres and rabbit
+      - name: {{ .Values.geonode.init.container_name }}
+        image: "{{ .Values.geonode.init.image.name }}:{{ .Values.geonode.init.image.tag }}"
+        imagePullPolicy: {{ .Values.geonode.init.imagePullPolicy }}
+        args:
+        - -timeout=60s
+        - -wait
+        - tcp://{{ include "database_hostname" . }}:{{ include "database_port" . }}
+        - -wait
+        - tcp://{{ include "rabbit_host" .}}
+
+      containers:
+      # This is the django app server
+      - name: {{ .Values.geonode.container_name }}
+        image: "{{ .Values.geonode.image.name }}:{{ .Values.geonode.image.tag }}"
+        imagePullPolicy: {{ .Values.geonode.imagePullPolicy }}
+        command:
+        - bash
+        - -c
+        - |
+          # install dockerize...
+          wget -q https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+            && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+            && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+
+          {{ if .Values.geonode.ldap.enabled }}
+          # install geonode ldap contrib if ldap enabled. it would be better to have a base model with ldap included,
+          # but this way we can build the vanilla Dockerfile from geonode/geonode
+
+          cd /usr/src; git clone https://github.com/GeoNode/geonode-contribs.git -b master
+          cd /usr/src/geonode-contribs/ldap; pip install --upgrade  -e .
+          cd /usr/src/geonode/
+          {{ end }}
+
+          cd {{ include "geonode_root_path" .}}/
+          # Add config overrides
+          cat /usr/src/geonode/geonode/geonode-k8s-settings.py >> {{ include "geonode_path" .}}/settings.py
+          cat /usr/src/geonode/geonode/geonode-k8s-settings-additions.py >> {{ include "geonode_path" .}}/settings.py
+
+          # Run database related invoke tasks
+          invoke update
+          invoke waitfordbs
+          
+          invoke prescript
+          invoke migrations
+          invoke prepare
+
+          invoke waitforgeoserver
+          invoke geoserverfixture
+          invoke postscript
+
+        envFrom:
+        - configMapRef:
+            name: {{ include "geonode_pod_name" . }}-env
+        - secretRef:
+            name: {{ .Values.geonode.secret.existingSecretName | default (include "geonode_secret_name" .) | quote }}
+        - secretRef:
+            name: {{ .Values.geoserver.secret.existingSecretName | default (include "geoserver_secret_name" .) | quote }}
+
+        env:
+        - name: GEONODE_DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "database_geonode_password_secret_key_ref" . }}
+              key: {{ include "database_geonode_password_key_ref" . }}
+        - name: GEONODE_GEODATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "database_geodata_password_secret_key_ref" . }}
+              key: {{ include "database_geodata_password_key_ref" . }}
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "database_postgres_password_secret_key_ref" . }}
+              key: {{ include "database_postgres_password_key_ref" . }}
+        - name: GEODATABASE_URL
+          value: "postgis://$(GEONODE_GEODATABASE):$(GEONODE_GEODATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(GEONODE_GEODATABASE)"
+        - name: DATABASE_URL
+          value: "postgis://$(GEONODE_DATABASE):$(GEONODE_DATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(GEONODE_DATABASE)"
+
+        volumeMounts:
+        - name: cache-volume
+          mountPath: /tmp
+        - name: tasks-py
+          mountPath: "{{ include "geonode_root_path" .}}/tasks.py"
+          subPath: tasks.py
+          readOnly: true
+        - name: geonode-k8s-settings-py
+          mountPath: "/usr/src/geonode/geonode/geonode-k8s-settings.py"
+          subPath: geonode-k8s-settings.py
+        - name: geonode-k8s-settings-additions-py
+          mountPath: "/usr/src/geonode/geonode/geonode-k8s-settings-additions.py"
+          subPath: geonode-k8s-settings-additions.py
+          readOnly: true
+        {{ if .Values.geonodeFixtures }}
+        - name: geonode-fixtures
+          mountPath: "{{ include "geonode_path" .}}/fixtures"
+          readOnly: true
+        {{ end }}
+
+      volumes:
+        - name: tasks-py
+          configMap:
+            name: {{ .Release.Name }}-geonode-tasks-py
+            items:
+            - key: tasks.py
+              path: "tasks.py"
+        - name: geonode-k8s-settings-py
+          configMap:
+            name: {{ .Release.Name }}-geonode-k8s-settings-py
+            defaultMode: 0744
+            items:
+            - key: geonode-k8s-settings.py
+              path: "geonode-k8s-settings.py"
+        - name: geonode-k8s-settings-additions-py
+          configMap:
+            name: {{ .Release.Name }}-geonode-k8s-settings-additions-py
+            defaultMode: 0744
+            items:
+            - key: geonode-k8s-settings-additions.py
+              path: "geonode-k8s-settings-additions.py"
+        {{- if .Values.geonodeFixtures }}
+        - name: geonode-fixtures
+          configMap:
+            name: {{ .Release.Name }}-geonode-fixtures
+            defaultMode: 0744
+            items:
+            {{- range $key, $value := .Values.geonodeFixtures }}
+            - key: {{ $key | quote }}
+              path: {{ $key | quote }}
+            {{- end }}
+        {{- end }}
+        # Using an emptyDir to cache compiled statics... it will survive container crashes, but not pod restarts
+        - name: cache-volume
+          emptyDir: {}
+
