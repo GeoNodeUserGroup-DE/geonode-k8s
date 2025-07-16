@@ -372,7 +372,7 @@ geoserver:
     # -- geoserver image docker image (default in zalf namespace because geonode one was not up to date)
     name: geonode/geoserver
     # -- geoserver docker image tag
-    tag: "2.24.3-v2"
+    tag: "2.24.4-latest"
 
   # -- geoserver image pull policy
   imagePullPolicy: "IfNotPresent"
@@ -429,7 +429,7 @@ geoserver_data:
     # -- geoserver image docker image (default in zalf namespace because geonode one was not up to date)
     name: geonode/geoserver_data
     # -- geoserver docker image tag
-    tag: "2.24.4-v3"
+    tag: "2.24.4-latest"
   # -- geoserver image pull policy
   imagePullPolicy: "IfNotPresent"
 
