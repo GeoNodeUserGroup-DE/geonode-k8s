@@ -90,24 +90,13 @@ spec:
           subPath: statics
         
         readinessProbe:
-          tcpSocket:
-            port: {{ .Values.geoserver.port }}
-          periodSeconds: 5
-          failureThreshold: 15
+          {{- toYaml $.Values.geoserver.readinessProbe | nindent 10 }}
+
         livenessProbe:
-          tcpSocket:
-            port: {{ .Values.geoserver.port }}
-          initialDelaySeconds: 90
-          periodSeconds: 5
-          failureThreshold: 15
+          {{- toYaml $.Values.geoserver.livenessProbe | nindent 10 }}
 
         resources:
-          requests:
-            memory: {{ .Values.geoserver.resources.requests.memory }}
-            cpu: {{ .Values.geoserver.resources.requests.cpu }}
-          limits:
-            memory: {{ .Values.geoserver.resources.limits.memory }}
-            cpu: {{ .Values.geoserver.resources.limits.cpu }}
+          {{- toYaml $.Values.geoserver.resources | nindent 10 }}
 
       volumes:
       - name: geoserver-printing-config-yaml
