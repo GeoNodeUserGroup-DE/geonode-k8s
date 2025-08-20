@@ -128,7 +128,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | geonode.sentry.dsn | string | `""` | sentry dsn url |
 | geonode.sentry.enabled | bool | `false` | enable sentry integration for geonode |
 | geonode.sentry.environment | string | `"development"` | sentry environment |
-| geonode.startupProbe | object | `{"failureThreshold":12,"httpGet":{"path":"/","port":"http-monitor"},"periodSeconds":10}` | configure startupProbe for geonode, make sure port is alligned with geonode.port configuration |
+| geonode.startupProbe | object | `{"failureThreshold":12,"httpGet":{"path":"/","port":"http-monitor"},"periodSeconds":10}` | configure startupProbe for geonode, make sure port is aligned with geonode.port configuration |
 | geonode.tasks_post_script | string | `"print(\"tasks_post_script not defined ...\")\n"` | additions to tasks.py script at the beginning of the tasks.py, must be additional code written in python |
 | geonode.tasks_pre_script | string | `"print(\"tasks_pre_script not defined ...\")\n"` | additions to tasks.py init script, must be additional code written in python |
 | geonode.uwsgi.buffer_size | int | `32768` | the max size of a request (request-body excluded) |
