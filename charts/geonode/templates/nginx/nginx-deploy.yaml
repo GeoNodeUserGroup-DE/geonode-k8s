@@ -43,19 +43,10 @@ spec:
 
         # this will fail as long as statics are not build by the geonode sts
         livenessProbe:
-          httpGet:
-            path: /
-            port: http
-          initialDelaySeconds: 45
-          timeoutSeconds: 5
+          {{- toYaml $.Values.nginx.livenessProbe | nindent 10 }}
 
         resources:
-          requests:
-            memory: {{ .Values.nginx.resources.requests.memory }}
-            cpu: {{ .Values.nginx.resources.requests.cpu }}
-          limits:
-            memory: {{ .Values.nginx.resources.limits.memory }}
-            cpu: {{ .Values.nginx.resources.limits.cpu }}
+          {{- toYaml $.Values.nginx.resources | nindent 10 }}
 
       volumes:
       - name: nginx-confd

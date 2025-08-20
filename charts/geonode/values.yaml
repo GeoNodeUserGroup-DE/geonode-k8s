@@ -83,6 +83,23 @@ geonode:
       # -- limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
       cpu: 2
 
+  # -- configure startupProbe for geonode, make sure port is aligned with geonode.port configuration
+  startupProbe:
+    httpGet:
+      path: /
+      port: http-monitor
+    failureThreshold: 12
+    periodSeconds: 10
+
+  # -- configure livenessProbe for geonode, make sure port is aligned with geonode.port configuration
+  livenessProbe:
+    httpGet:
+      path: /
+      port: http-monitor
+    initialDelaySeconds: 90
+    periodSeconds: 5
+    failureThreshold: 3
+
   ingress:
     # -- enables external access
     enabled: True
@@ -120,10 +137,10 @@ geonode:
   uwsgi:
     # --  the max size of a request (request-body excluded)
     buffer_size: 32768
-    # -- forcefully kill workers after 60 seconds (MOSTLY REASON FOR TIMEOUTS WHILE UPLOAD)
-    harakiri: 800
+    # -- forcefully kill workers after 300 seconds (MOSTLY REASON FOR TIMEOUTS WHILE UPLOAD)
+    harakiri: 300
     # -- Restart workers after this many requests
-    max_requests: 1000
+    max_requests: 600
     # -- Restart workers after this many seconds
     max_worker_lifetime: 3600
     # -- Restart workers after this much resident memory
@@ -132,7 +149,10 @@ geonode:
     worker_reload_mercy: 60
 
     # -- Maximum number of workers allowed
-    processes: 128
+    processes: 4
+    # -- number of threads per process
+    threads: 24
+
     # -- Minimum number of workers allowed
     cheaper: 8
     # -- Workers created at startup
@@ -385,9 +405,9 @@ geoserver:
   port: 8080
   printing:
     extraHosts: |
-  #      - !dnsMatch
-  #        host: data.geopf.fr
-  #        port: 80
+    #      - !dnsMatch
+    #        host: data.geopf.fr
+    #        port: 80
   secret:
     # -- name of an existing Secret to use. Set, if you want to separately maintain the Secret.
     existingSecretName: ""
@@ -397,20 +417,24 @@ geoserver:
     admin_username: admin
     # -- geoserver admin password, respect admin_factory_password, if you gonna change the password from not factory password
     admin_password: geoserver
+
     # -- additional elements to include in the secret provided to GeoServer, if not using an existing secret
     extraSecrets: |
-  #  key_1: value_1
-  # -- additional elements to include in the config map provided to GeoServer
-  extraConfigMap: |
-  # file_1: conf content
-  # -- Define this for extra GeoServer environment variables
-  # Format:
-  # extraPodEnv: |
-  #   - name: KEY_1
-  #     value: "VALUE_1"
-  #   - name: KEY_2
-  #     value: "VALUE_2"
-  extraPodEnv: |
+      #  key_1: value_1
+
+    # -- additional elements to include in the config map provided to GeoServer
+    extraConfigMap: |
+      # file_1: conf content
+
+    # -- Define this for extra GeoServer environment variables
+    # Format:
+    # extraPodEnv: |
+    #   - name: KEY_1
+    #     value: "VALUE_1"
+    #   - name: KEY_2
+    #     value: "VALUE_2"
+    extraPodEnv: |
+
   resources:
     requests:
       # -- requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
@@ -422,6 +446,21 @@ geoserver:
       memory: "4Gi"
       # -- limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
       cpu: 2
+
+  # -- configure readinessProbe for geoserver, make sure port is aligned with geoserver.port configuration
+  readinessProbe:
+    tcpSocket:
+      port: 8080
+    periodSeconds: 5
+    failureThreshold: 15
+
+  # -- configure livenessProbe for geoserver, make sure port is aligned with geoserver.port configuration
+  livenessProbe:
+    tcpSocket:
+      port: 8080
+    initialDelaySeconds: 90
+    periodSeconds: 5
+    failureThreshold: 15
 
 geoserver_data:
   container_name: geoserver-data-dir
@@ -468,6 +507,14 @@ nginx:
       memory: "1Gi"
       # -- limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
       cpu: "800m"
+
+  livenessProbe:
+    httpGet:
+      path: /
+      port: http
+    initialDelaySeconds: 50
+    timeoutSeconds: 5
+
   access_control_allow:
     # -- control value of Access-Control-Allow-Credentials in nginx configuration
     credentials: false
@@ -509,6 +556,22 @@ pycsw:
       memory: "1Gi"
       # -- limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
       cpu: "500m"
+
+  # -- configure readinessProbe for pycsw, make sure port is aligned with pycsw.port configuration
+  readinessProbe:
+    httpGet:
+      path: /
+      port: 8000
+    timeoutSeconds: 5
+
+  livenessProbe:
+    httpGet:
+      path: /
+      port: 8000
+    initialDelaySeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
   init:
     container_name: pycsw-wait-for-geonode
     image:

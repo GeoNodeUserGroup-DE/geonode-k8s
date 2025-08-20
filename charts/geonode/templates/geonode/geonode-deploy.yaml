@@ -158,25 +158,12 @@ spec:
         {{ end }}
 
         startupProbe:
-          httpGet:
-            path: /
-            port: http-monitor
-          failureThreshold: 10
-          periodSeconds: 10
-
+          {{- toYaml $.Values.geonode.startupProbe | nindent 10 }}
         livenessProbe:
-          httpGet:
-            path: /
-            port: http-monitor
-          initialDelaySeconds: 90
-          periodSeconds: 10
+          {{- toYaml $.Values.geonode.livenessProbe | nindent 10 }}
         resources:
-          requests:
-            memory: {{ .Values.geonode.resources.requests.memory }}
-            cpu: {{ .Values.geonode.resources.requests.cpu }}
-          limits:
-            memory: {{ .Values.geonode.resources.limits.memory }}
-            cpu: {{ .Values.geonode.resources.limits.cpu }}
+          {{- toYaml $.Values.geonode.resources | nindent 10 }}
+
 
       # Celery is the task worker
       - name: {{ .Values.geonode.celery.container_name }}
