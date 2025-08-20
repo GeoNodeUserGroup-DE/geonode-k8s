@@ -83,7 +83,7 @@ geonode:
       # -- limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
       cpu: 2
 
-  # -- configure startupProbe for geonode, make sure port is alligned with geonode.port configuration
+  # -- configure startupProbe for geonode, make sure port is aligned with geonode.port configuration
   startupProbe:
     httpGet:
       path: /
@@ -91,7 +91,7 @@ geonode:
     failureThreshold: 12
     periodSeconds: 10
 
-  # -- configure livenessProbe for geonode, make sure port is alligned with geonode.port configuration
+  # -- configure livenessProbe for geonode, make sure port is aligned with geonode.port configuration
   livenessProbe:
     httpGet:
       path: /
@@ -433,6 +433,7 @@ geoserver:
     #     value: "VALUE_1"
     #   - name: KEY_2
     #     value: "VALUE_2"
+    extraPodEnv: |
 
   resources:
     requests:
@@ -446,14 +447,14 @@ geoserver:
       # -- limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
       cpu: 2
 
-  # -- configure redinessProbe for geoserver, make sure port is alligned with geoserver.port configuration
+  # -- configure readinessProbe for geoserver, make sure port is aligned with geoserver.port configuration
   readinessProbe:
     tcpSocket:
       port: 8080
     periodSeconds: 5
     failureThreshold: 15
 
-  # -- configure livenessProbe for geoserver, make sure port is alligned with geoserver.port configuration
+  # -- configure livenessProbe for geoserver, make sure port is aligned with geoserver.port configuration
   livenessProbe:
     tcpSocket:
       port: 8080
@@ -556,7 +557,7 @@ pycsw:
       # -- limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
       cpu: "500m"
 
-  # -- configure redinessProbe for pycsw, make sure port is alligned with pycsw.port configuration
+  # -- configure readinessProbe for pycsw, make sure port is aligned with pycsw.port configuration
   readinessProbe:
     httpGet:
       path: /

@@ -94,7 +94,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | geonode.ldap.uri | string | `"ldap://example.com"` | ldap uri |
 | geonode.ldap.user_search_dn | string | `"OU=User,DC=ad,DC=example,DC=com"` | ldap user search dn |
 | geonode.ldap.user_search_filterstr | string | `"(sAMAccountName=%(user)s)"` | ldap user filterstr |
-| geonode.livenessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/","port":"http-monitor"},"initialDelaySeconds":90,"periodSeconds":5}` | configure livenessProbe for geonode, make sure port is alligned with geonode.port configuration |
+| geonode.livenessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/","port":"http-monitor"},"initialDelaySeconds":90,"periodSeconds":5}` | configure livenessProbe for geonode, make sure port is aligned with geonode.port configuration |
 | geonode.mail.backend | string | `"django.core.mail.backends.smtp.EmailBackend"` | set mail backend in geonode settings |
 | geonode.mail.enabled | bool | `false` | enables mail configuration for geonode |
 | geonode.mail.host | string | `"smtp.gmail.com"` | set mail host for genode mail |
@@ -128,7 +128,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | geonode.sentry.dsn | string | `""` | sentry dsn url |
 | geonode.sentry.enabled | bool | `false` | enable sentry integration for geonode |
 | geonode.sentry.environment | string | `"development"` | sentry environment |
-| geonode.startupProbe | object | `{"failureThreshold":12,"httpGet":{"path":"/","port":"http-monitor"},"periodSeconds":10}` | configure startupProbe for geonode, make sure port is alligned with geonode.port configuration |
+| geonode.startupProbe | object | `{"failureThreshold":12,"httpGet":{"path":"/","port":"http-monitor"},"periodSeconds":10}` | configure startupProbe for geonode, make sure port is aligned with geonode.port configuration |
 | geonode.tasks_post_script | string | `"print(\"tasks_post_script not defined ...\")\n"` | additions to tasks.py script at the beginning of the tasks.py, must be additional code written in python |
 | geonode.tasks_pre_script | string | `"print(\"tasks_pre_script not defined ...\")\n"` | additions to tasks.py init script, must be additional code written in python |
 | geonode.uwsgi.buffer_size | int | `32768` | the max size of a request (request-body excluded) |
@@ -156,10 +156,10 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | geoserver.image.tag | string | `"2.24.4-latest"` | geoserver docker image tag |
 | geoserver.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
 | geoserver.imagePullSecret | string | `""` | pull secret to use for geoserver image |
-| geoserver.livenessProbe | object | `{"failureThreshold":15,"initialDelaySeconds":90,"periodSeconds":5,"tcpSocket":{"port":8080}}` | configure livenessProbe for geoserver, make sure port is alligned with geoserver.port configuration |
+| geoserver.livenessProbe | object | `{"failureThreshold":15,"initialDelaySeconds":90,"periodSeconds":5,"tcpSocket":{"port":8080}}` | configure livenessProbe for geoserver, make sure port is aligned with geoserver.port configuration |
 | geoserver.port | int | `8080` | geoserver port |
 | geoserver.printing.extraHosts | string | `""` |  |
-| geoserver.readinessProbe | object | `{"failureThreshold":15,"periodSeconds":5,"tcpSocket":{"port":8080}}` | configure redinessProbe for geoserver, make sure port is alligned with geoserver.port configuration |
+| geoserver.readinessProbe | object | `{"failureThreshold":15,"periodSeconds":5,"tcpSocket":{"port":8080}}` | configure readinessProbe for geoserver, make sure port is aligned with geoserver.port configuration |
 | geoserver.resources.limits.cpu | int | `2` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geoserver.resources.limits.memory | string | `"4Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geoserver.resources.requests.cpu | int | `1` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
@@ -169,6 +169,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | geoserver.secret.admin_username | string | `"admin"` | geoserver admin username |
 | geoserver.secret.existingSecretName | string | `""` | name of an existing Secret to use. Set, if you want to separately maintain the Secret. |
 | geoserver.secret.extraConfigMap | string | `"# file_1: conf content\n"` | additional elements to include in the config map provided to GeoServer |
+| geoserver.secret.extraPodEnv | string | `""` | Define this for extra GeoServer environment variables Format: extraPodEnv: |   - name: KEY_1     value: "VALUE_1"   - name: KEY_2     value: "VALUE_2" |
 | geoserver.secret.extraSecrets | string | `"#  key_1: value_1\n"` | additional elements to include in the secret provided to GeoServer, if not using an existing secret |
 | geoserver_data.container_name | string | `"geoserver-data-dir"` |  |
 | geoserver_data.image.name | string | `"geonode/geoserver_data"` | geoserver image docker image (default in zalf namespace because geonode one was not up to date) |
@@ -250,7 +251,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | pycsw.livenessProbe.timeoutSeconds | int | `5` |  |
 | pycsw.mappings | string | copied from 4.1.x: https://github.com/GeoNode/geonode/blob/master/geonode/catalogue/backends/pycsw_local_mappings.py | pycsw config file parameters, see docs: https://docs.pycsw.org/_/downloads/en/latest/pdf/ |
 | pycsw.port | int | `8000` | pycsw endpoint port |
-| pycsw.readinessProbe | object | `{"httpGet":{"path":"/","port":8000},"timeoutSeconds":5}` | configure redinessProbe for pycsw, make sure port is alligned with pycsw.port configuration |
+| pycsw.readinessProbe | object | `{"httpGet":{"path":"/","port":8000},"timeoutSeconds":5}` | configure readinessProbe for pycsw, make sure port is aligned with pycsw.port configuration |
 | pycsw.replicaCount | int | `1` | pycsw container replicas |
 | pycsw.resources.limits.cpu | string | `"500m"` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | pycsw.resources.limits.memory | string | `"1Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
@@ -270,4 +271,4 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | rabbitmq.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 
 ----------------------------------------------
-Autogenerated from chart metadata using [helm-docs v1.13.1](https://github.com/norwoodj/helm-docs/releases/v1.13.1)
+Autogenerated from chart metadata using [helm-docs v1.11.0](https://github.com/norwoodj/helm-docs/releases/v1.11.0)
