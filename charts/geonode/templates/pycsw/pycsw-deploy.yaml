@@ -68,24 +68,13 @@ spec:
           mountPath: /etc/pycsw/pycsw-mappings.py
           subPath: pycsw-mappings.py
           readOnly: true
+
         readinessProbe:
-          httpGet:
-            path: /
-            port: http
-          timeoutSeconds: 5
+          {{- toYaml $.Values.pycsw.readinessProbe | nindent 10 }}
         livenessProbe:
-          httpGet:
-            path: /
-            port: http
-          initialDelaySeconds: 10
-          timeoutSeconds: 5
+          {{- toYaml $.Values.pycsw.livenessProbe | nindent 10 }}
         resources:
-          requests:
-            memory: {{ .Values.pycsw.resources.requests.memory }}
-            cpu: {{ .Values.pycsw.resources.requests.cpu }}
-          limits:
-            memory: {{ .Values.pycsw.resources.limits.memory }}
-            cpu: {{ .Values.pycsw.resources.limits.cpu }}
+          {{- toYaml $.Values.pycsw.resources | nindent 10 }}
 
       volumes:
       - name: pycsw-cfg

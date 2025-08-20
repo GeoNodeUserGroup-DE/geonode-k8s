@@ -71,7 +71,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.2, Geoserver: 2.24.3-la
 | geonode.general.upload.max_parallel_uploads_per_user | int | `10` | DEFAULT_MAX_PARALLEL_UPLOADS_PER_USER (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-parallel-uploads-per-user) Default: 5 When uploading datasets, this value limits the number os parallel uploads. The parallelism limit is set during installation using the value of this variable. After installation, only an user with administrative rights can change it. These limits can be changed in the admin panel or accessing by api. |
 | geonode.general.upload.size | string | `"2097152000"` | DEFAULT_MAX_UPLOAD_SIZE (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-upload-size) Important: This value must be syncronized with nginx.maxClientBodySize Default: 2097152000 (2000 MB in bytes) (104857600 = 100 MB) When uploading datasets or uploading documents, the total size of the uploaded files is verified. The size limits are set during installation using the value of this variable. After installation, only an user with administrative rights can change it. These limits can be changed in the admin panel or accessing by api. |
 | geonode.image.name | string | `"geonode/geonode"` | used geonode image |
-| geonode.image.tag | string | `"4.4.2"` | tag of used geonode image |
+| geonode.image.tag | string | `"4.4.3"` | tag of used geonode image |
 | geonode.imagePullPolicy | string | `"IfNotPresent"` | image pull policy |
 | geonode.imagePullSecret | string | `""` | pull secret to use for geonode image |
 | geonode.ingress.annotations | object | `{}` | adds ingress annotations for nginx ingress class |
@@ -94,6 +94,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.2, Geoserver: 2.24.3-la
 | geonode.ldap.uri | string | `"ldap://example.com"` | ldap uri |
 | geonode.ldap.user_search_dn | string | `"OU=User,DC=ad,DC=example,DC=com"` | ldap user search dn |
 | geonode.ldap.user_search_filterstr | string | `"(sAMAccountName=%(user)s)"` | ldap user filterstr |
+| geonode.livenessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/","port":"http-monitor"},"initialDelaySeconds":90,"periodSeconds":5}` | configure livenessProbe for geonode, make sure port is alligned with geonode.port configuration |
 | geonode.mail.backend | string | `"django.core.mail.backends.smtp.EmailBackend"` | set mail backend in geonode settings |
 | geonode.mail.enabled | bool | `false` | enables mail configuration for geonode |
 | geonode.mail.host | string | `"smtp.gmail.com"` | set mail host for genode mail |
@@ -127,6 +128,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.2, Geoserver: 2.24.3-la
 | geonode.sentry.dsn | string | `""` | sentry dsn url |
 | geonode.sentry.enabled | bool | `false` | enable sentry integration for geonode |
 | geonode.sentry.environment | string | `"development"` | sentry environment |
+| geonode.startupProbe | object | `{"failureThreshold":12,"httpGet":{"path":"/","port":"http-monitor"},"periodSeconds":10}` | configure startupProbe for geonode, make sure port is alligned with geonode.port configuration |
 | geonode.tasks_post_script | string | `"print(\"tasks_post_script not defined ...\")\n"` | additions to tasks.py script at the beginning of the tasks.py, must be additional code written in python |
 | geonode.tasks_pre_script | string | `"print(\"tasks_pre_script not defined ...\")\n"` | additions to tasks.py init script, must be additional code written in python |
 | geonode.uwsgi.buffer_size | int | `32768` | the max size of a request (request-body excluded) |
@@ -139,24 +141,25 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.2, Geoserver: 2.24.3-la
 | geonode.uwsgi.cheaper_initial | int | `16` | Workers created at startup |
 | geonode.uwsgi.cheaper_overload | int | `1` | Length of a cycle in seconds |
 | geonode.uwsgi.cheaper_step | int | `16` | How many workers to spawn at a time |
-| geonode.uwsgi.harakiri | int | `800` | forcefully kill workers after 60 seconds (MOSTLY REASON FOR TIMEOUTS WHILE UPLOAD) |
-| geonode.uwsgi.max_requests | int | `1000` | Restart workers after this many requests |
+| geonode.uwsgi.harakiri | int | `300` | forcefully kill workers after 300 seconds (MOSTLY REASON FOR TIMEOUTS WHILE UPLOAD) |
+| geonode.uwsgi.max_requests | int | `600` | Restart workers after this many requests |
 | geonode.uwsgi.max_worker_lifetime | int | `3600` | Restart workers after this many seconds |
-| geonode.uwsgi.processes | int | `128` | Maximum number of workers allowed |
+| geonode.uwsgi.processes | int | `4` | Maximum number of workers allowed |
 | geonode.uwsgi.reload_on_rss | int | `2048` | Restart workers after this much resident memory |
+| geonode.uwsgi.threads | int | `24` | number of threads per process |
 | geonode.uwsgi.worker_reload_mercy | int | `60` | How long to wait before forcefully killing workers |
 | geonode.version | string | `"4.4.2"` | geonode version, used for some distinguassion between version of GeoNode |
 | geonodeFixtures | map of fixture files | `{"somefixture.json":"[\n  {\n    \"pk\": 0,\n    \"model\": \"myapp.sample\"\n    \"description\": \"nice little content\"\n  }\n]\n"}` | Fixture files which shall be made available under /usr/src/geonode/geonode/fixtures (refer to https://docs.djangoproject.com/en/4.2/howto/initial-data/) |
 | geoserver.container_name | string | `"geoserver"` | geoserver container name |
-| geoserver.extraConfigMap | string | `""` | additional elements to include in the config map provided to GeoServer |
-| geoserver.extraPodEnv | string | `""` | Define this for extra GeoServer environment variables Format: extraPodEnv: |   - name: KEY_1     value: "VALUE_1"   - name: KEY_2     value: "VALUE_2" |
 | geoserver.force_reinit | bool | `true` | set force reinit true so that changing passwords etc. in Values.yaml will take effect after restarting the pod this on the other hand will increase pod initializing time, only change if you know what you are doing |
 | geoserver.image.name | string | `"geonode/geoserver"` | geoserver image docker image (default in zalf namespace because geonode one was not up to date) |
-| geoserver.image.tag | string | `"2.24.3-latest"` | geoserver docker image tag |
+| geoserver.image.tag | string | `"2.24.4-latest"` | geoserver docker image tag |
 | geoserver.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
 | geoserver.imagePullSecret | string | `""` | pull secret to use for geoserver image |
+| geoserver.livenessProbe | object | `{"failureThreshold":15,"initialDelaySeconds":90,"periodSeconds":5,"tcpSocket":{"port":8080}}` | configure livenessProbe for geoserver, make sure port is alligned with geoserver.port configuration |
 | geoserver.port | int | `8080` | geoserver port |
 | geoserver.printing.extraHosts | string | `""` |  |
+| geoserver.readinessProbe | object | `{"failureThreshold":15,"periodSeconds":5,"tcpSocket":{"port":8080}}` | configure redinessProbe for geoserver, make sure port is alligned with geoserver.port configuration |
 | geoserver.resources.limits.cpu | int | `2` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geoserver.resources.limits.memory | string | `"4Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geoserver.resources.requests.cpu | int | `1` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
@@ -165,10 +168,11 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.2, Geoserver: 2.24.3-la
 | geoserver.secret.admin_password | string | `"geoserver"` | geoserver admin password, respect admin_factory_password, if you gonna change the password from not factory password |
 | geoserver.secret.admin_username | string | `"admin"` | geoserver admin username |
 | geoserver.secret.existingSecretName | string | `""` | name of an existing Secret to use. Set, if you want to separately maintain the Secret. |
-| geoserver.secret.extraSecrets | string | `""` | additional elements to include in the secret provided to GeoServer, if not using an existing secret |
+| geoserver.secret.extraConfigMap | string | `"# file_1: conf content\n"` | additional elements to include in the config map provided to GeoServer |
+| geoserver.secret.extraSecrets | string | `"#  key_1: value_1\n"` | additional elements to include in the secret provided to GeoServer, if not using an existing secret |
 | geoserver_data.container_name | string | `"geoserver-data-dir"` |  |
 | geoserver_data.image.name | string | `"geonode/geoserver_data"` | geoserver image docker image (default in zalf namespace because geonode one was not up to date) |
-| geoserver_data.image.tag | string | `"2.24.4-v1"` | geoserver docker image tag |
+| geoserver_data.image.tag | string | `"2.24.4-latest"` | geoserver docker image tag |
 | geoserver_data.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
 | global.accessMode | string | `"ReadWriteMany"` | storage access mode used by helm dependency pvc |
 | global.storageClass | string | `nil` | storageClass used by helm dependencies pvc |
@@ -184,6 +188,10 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.2, Geoserver: 2.24.3-la
 | nginx.image.tag | string | `"1.25"` | nginx docker image tag |
 | nginx.imagePullPolicy | string | `"IfNotPresent"` | nginx image pull policy |
 | nginx.imagePullSecret | string | `""` | pull secret to use for nginx image |
+| nginx.livenessProbe.httpGet.path | string | `"/"` |  |
+| nginx.livenessProbe.httpGet.port | string | `"http"` |  |
+| nginx.livenessProbe.initialDelaySeconds | int | `50` |  |
+| nginx.livenessProbe.timeoutSeconds | int | `5` |  |
 | nginx.pycswMaxClientBodySize | string | `"10M"` | maximum upload size for pycsw server in nginx configuration. Only used if `.Values.pycsw.enabled: true`. |
 | nginx.replicaCount | int | `1` | nginx container replicas |
 | nginx.resources.limits.cpu | string | `"800m"` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
@@ -235,8 +243,14 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.2, Geoserver: 2.24.3-la
 | pycsw.init.image.name | string | `"alpine/curl"` | pycsw docker image |
 | pycsw.init.image.tag | string | `"8.5.0"` | pycsw docker image tag |
 | pycsw.init.imagePullPolicy | string | `"IfNotPresent"` | pycsw image pull policy |
+| pycsw.livenessProbe.failureThreshold | int | `3` |  |
+| pycsw.livenessProbe.httpGet.path | string | `"/"` |  |
+| pycsw.livenessProbe.httpGet.port | int | `8000` |  |
+| pycsw.livenessProbe.initialDelaySeconds | int | `10` |  |
+| pycsw.livenessProbe.timeoutSeconds | int | `5` |  |
 | pycsw.mappings | string | copied from 4.1.x: https://github.com/GeoNode/geonode/blob/master/geonode/catalogue/backends/pycsw_local_mappings.py | pycsw config file parameters, see docs: https://docs.pycsw.org/_/downloads/en/latest/pdf/ |
 | pycsw.port | int | `8000` | pycsw endpoint port |
+| pycsw.readinessProbe | object | `{"httpGet":{"path":"/","port":8000},"timeoutSeconds":5}` | configure redinessProbe for pycsw, make sure port is alligned with pycsw.port configuration |
 | pycsw.replicaCount | int | `1` | pycsw container replicas |
 | pycsw.resources.limits.cpu | string | `"500m"` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | pycsw.resources.limits.memory | string | `"1Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
