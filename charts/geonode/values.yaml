@@ -819,7 +819,7 @@ postgres:
 # VALUES DEFINITION: https://github.com/zalando/postgres-operator/blob/master/charts/postgres-operator/values.yaml
 postgres-operator:
   # -- enable postgres-operator (this or postgresql.enabled NOT both )
-  enabled: True
+  enabled: False
   # -- ???
   operatorApiUrl: "http://{{ .Release.Name }}-postgres-operator:8080"
   configLoggingRestApi:
