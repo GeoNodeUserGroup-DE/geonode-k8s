@@ -132,7 +132,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | geonode.tasks_post_script | string | `"print(\"tasks_post_script not defined ...\")\n"` | additions to tasks.py script at the beginning of the tasks.py, must be additional code written in python |
 | geonode.tasks_pre_script | string | `"print(\"tasks_pre_script not defined ...\")\n"` | additions to tasks.py init script, must be additional code written in python |
 | geonode.uwsgi.buffer_size | int | `32768` | the max size of a request (request-body excluded) |
-| geonode.uwsgi.cheaper | int | `8` | Minimum number of workers allowed |
+| geonode.uwsgi.cheaper | int | `2` | Minimum number of workers allowed |
 | geonode.uwsgi.cheaper_busyness_backlog_alert | int | `16` | Spawn emergency workers if more than this many requests are waiting in the queue |
 | geonode.uwsgi.cheaper_busyness_backlog_step | int | `2` | How many emergency workers to create if there are too many requests in the queue |
 | geonode.uwsgi.cheaper_busyness_max | int | `70` | Above this threshold, spawn new workers |
