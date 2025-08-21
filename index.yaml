@@ -14,6 +14,63 @@ entries:
         - name: Geonode
           url: https://www.geonode.org/
     apiVersion: v2
+    created: "2025-08-21T09:13:11.801446511Z"
+    dependencies:
+    - condition: postgres-operator.enabled
+      name: postgres-operator
+      repository: https://opensource.zalando.com/postgres-operator/charts/postgres-operator/
+      version: ~1.12.0
+    - condition: rabbitmq.enabled
+      name: rabbitmq
+      repository: https://charts.bitnami.com/bitnami
+      version: ~15.0.3
+    - condition: geonode.memcached.enabled
+      name: memcached
+      repository: https://charts.bitnami.com/bitnami
+      version: ~7.5.2
+    description: 'Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver:
+      2.24.4-latest, pyCSW: 2.6.1'
+    digest: 5ac3772c1af83e41de2f3ddb9dba7f18611f5d2c1aebcfb6f4459be3bcaae1fa
+    home: https://geonode.org/
+    icon: https://raw.githubusercontent.com/zalf-rdm/geonode-k8s/main/docs/img/geonode-k8s-logo.png
+    keywords:
+    - geonode
+    - geospatial
+    - geodata
+    - SDI
+    - http
+    - web
+    - python
+    - geoserver
+    - postresql
+    - postgis
+    - rabbitmq
+    - memcached
+    - django
+    maintainers:
+    - email: marcel.wallschlaeger@zalf.de
+      name: mwallschlaeger
+      url: https://github.com/mwallschlaeger
+    name: geonode-k8s
+    sources:
+    - https://github.com/zalf-rdm/geonode-k8s
+    - https://github.com/geonode/geonode
+    urls:
+    - https://github.com/GeoNodeUserGroup-DE/geonode-k8s/releases/download/geonode-k8s-1.2.6/geonode-k8s-1.2.6.tgz
+    version: 1.2.6
+  - annotations:
+      artifacthub.io/category: storage
+      artifacthub.io/license: GPL3
+      artifacthub.io/links: |
+        - name: Chart Source
+          url: https://github.com/zalf-rdm/geonode-k8s/
+        - name: Docs
+          url: https://geonode-k8s.readthedocs.io/en/latest/
+        - name: support
+          url: https://github.com/zalf-rdm/geonode-k8s/issues/
+        - name: Geonode
+          url: https://www.geonode.org/
+    apiVersion: v2
     created: "2025-07-16T17:31:44.868089941Z"
     dependencies:
     - condition: postgres-operator.enabled
@@ -1164,4 +1221,4 @@ entries:
     urls:
     - https://github.com/zalf-rdm/geonode-k8s/releases/download/geonode-k8s-1.0.0/geonode-k8s-1.0.0.tgz
     version: 1.0.0
-generated: "2025-07-16T17:31:44.868229362Z"
+generated: "2025-08-21T09:13:11.801590572Z"
