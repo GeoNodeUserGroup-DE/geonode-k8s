@@ -138,9 +138,9 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | geonode.uwsgi.cheaper_busyness_max | int | `70` | Above this threshold, spawn new workers |
 | geonode.uwsgi.cheaper_busyness_min | int | `20` | Below this threshold, kill workers (if stable for multiplier cycles) |
 | geonode.uwsgi.cheaper_busyness_multiplier | int | `30` | How many cycles to wait before killing workers |
-| geonode.uwsgi.cheaper_initial | int | `16` | Workers created at startup |
+| geonode.uwsgi.cheaper_initial | int | `2` | Workers created at startup |
 | geonode.uwsgi.cheaper_overload | int | `1` | Length of a cycle in seconds |
-| geonode.uwsgi.cheaper_step | int | `16` | How many workers to spawn at a time |
+| geonode.uwsgi.cheaper_step | int | `1` | How many workers to spawn at a time |
 | geonode.uwsgi.harakiri | int | `300` | forcefully kill workers after 300 seconds (MOSTLY REASON FOR TIMEOUTS WHILE UPLOAD) |
 | geonode.uwsgi.max_requests | int | `600` | Restart workers after this many requests |
 | geonode.uwsgi.max_worker_lifetime | int | `3600` | Restart workers after this many seconds |

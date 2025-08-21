@@ -156,11 +156,11 @@ geonode:
     # -- Minimum number of workers allowed
     cheaper: 2
     # -- Workers created at startup
-    cheaper_initial: 16
+    cheaper_initial: 2
     # -- Length of a cycle in seconds
     cheaper_overload: 1
     # -- How many workers to spawn at a time
-    cheaper_step: 16
+    cheaper_step: 1
     # -- How many cycles to wait before killing workers
     cheaper_busyness_multiplier: 30
     # -- Below this threshold, kill workers (if stable for multiplier cycles)
