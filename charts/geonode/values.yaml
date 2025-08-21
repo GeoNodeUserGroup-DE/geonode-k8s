@@ -154,7 +154,7 @@ geonode:
     threads: 24
 
     # -- Minimum number of workers allowed
-    cheaper: 8
+    cheaper: 2
     # -- Workers created at startup
     cheaper_initial: 16
     # -- Length of a cycle in seconds
