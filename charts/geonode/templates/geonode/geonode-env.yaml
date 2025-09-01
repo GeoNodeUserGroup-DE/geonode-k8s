@@ -10,7 +10,6 @@ data:
   IS_CELERY: "False"
   CELERY_BEAT_SCHEDULER: "celery.beat:PersistentScheduler"
 
-  DOCKERIZE_VERSION: "v0.6.1"
   DEBUG: {{ include "boolean2str" .Values.geonode.general.debug | quote }}
   DEBUG_STATIC: {{ include "boolean2str" .Values.geonode.general.debug_static | quote }}
 

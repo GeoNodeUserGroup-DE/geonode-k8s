@@ -30,11 +30,6 @@ spec:
         - bash
         - -c
         - |
-          # install dockerize...
-          wget -q https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-          && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-          && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-
           {{ if .Values.geonode.ldap.enabled }}
           # install geonode ldap contrib if ldap enabled. it would be better to have a base model with ldap included,
           # but this way we can build the vanilla Dockerfile from geonode/geonode
