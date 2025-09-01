@@ -55,7 +55,6 @@ data:
         echo "Executing Celery server $cmd for Production"
     else
         invoke prescript
-        invoke postscript
         echo "Executing UWSGI server $cmd for Production"
     fi
 

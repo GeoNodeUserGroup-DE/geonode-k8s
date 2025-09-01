@@ -31,9 +31,6 @@ geonode:
   # -- additions to tasks.py init script, must be additional code written in python
   tasks_pre_script: |
     print("tasks_pre_script not defined ...")
-  # -- additions to tasks.py script at the beginning of the tasks.py, must be additional code written in python
-  tasks_post_script: |
-    print("tasks_post_script not defined ...")
 
   accesscontrol:
     # -- Enable/Disable lockdown mode of GeoNode
