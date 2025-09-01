@@ -12,7 +12,7 @@ This jobs are defined in the following files (invoke tasks):
   - build statics (initialized, statics)
 
 Each job is configured to run specific management commands using the `invoke` tool, which is a task execution tool used in GeoNode for various administrative tasks.
-This jobs are usually executed automatically during the deployment process, but they can also be run manually if needed. To rerun on of this jobs manually, you have to delete the existing job and create a new one. For example, to rerun the init-db-job job, you can use the following commands:
+This jobs are usually executed automatically during the deployment process, but they can also be run manually if needed. To rerun one of these jobs manually, you have to delete the existing job and create a new one. For example, to rerun the init-db-job job, you can use the following commands:
 ```
 # list all jobs
 kubectl get Jobs

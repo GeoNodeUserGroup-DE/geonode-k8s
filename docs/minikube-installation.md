@@ -78,7 +78,7 @@ The initial start takes some time, due to init process of the django application
 ```bash
 kubectl -n geonode logs pod/geonode-geonode-0 -f 
 ```
-Furhter check that the `geonode-geonode-init-db-job` jobs is finished as this is setting the admin user password.
+Further check that the `geonode-geonode-init-db-job` job is finished as this is setting the admin user password.
 
 ## Expose Service to outside world
 
