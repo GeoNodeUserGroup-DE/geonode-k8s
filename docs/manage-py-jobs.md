@@ -3,7 +3,7 @@ Manage.py Jobs for GeoNode
 This document describes the Kubernetes Job configurations for managing GeoNode tasks such as migrations, static files collection, and fixture loading. These jobs are essential for maintaining and updating your GeoNode instance. With geonode-k8s 1.30.0 and later, these jobs are included by default in the Helm chart.
 
 This jobs are defined in the following files (invoke tasks):
-- `charts/geonode/templates/geonode/jobs/-init-db-job.yaml`
+- `charts/geonode/templates/geonode/jobs/geonode-init-db-job.yaml`
   - run migrations (waitfordbs, migration)
   - insert fixtures (prepare, fixtures)
   - create geoserver store via geserver rest (waitforgeoserver, geoserverfixture)
