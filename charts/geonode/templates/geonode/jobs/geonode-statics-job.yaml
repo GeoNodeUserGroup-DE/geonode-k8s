@@ -30,6 +30,7 @@ spec:
         - bash
         - -c
         - |
+          set -e
           {{ if .Values.geonode.ldap.enabled }}
           # install geonode ldap contrib if ldap enabled. it would be better to have a base model with ldap included,
           # but this way we can build the vanilla Dockerfile from geonode/geonode

@@ -42,6 +42,7 @@ spec:
         - bash
         - -c
         - |
+          set -e
           cd {{ include "geonode_root_path" .}}/
           # Add config overrides
           cat /usr/src/geonode/geonode/geonode-k8s-settings.py >> {{ include "geonode_path" .}}/settings.py
