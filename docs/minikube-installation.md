@@ -89,22 +89,23 @@ This installation requires to access geonode via "geonode" (or the value in .Val
 kubectl -n geonode get services
 
 NAME                                TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                                 AGE
-service/geonode-geonode             ClusterIP   10.107.192.66    <none>        8000/TCP,8001/TCP                       19m
-service/geonode-geoserver           ClusterIP   10.101.184.88    <none>        8080/TCP                                19m
-service/geonode-memcached           ClusterIP   10.109.197.248   <none>        11211/TCP                               19m
-service/geonode-nginx               ClusterIP   10.97.10.57      <none>        80/TCP                                  19m
-service/geonode-postgres-operator   ClusterIP   10.108.39.88     <none>        8080/TCP                                19m
-service/geonode-postgresql          ClusterIP   10.104.181.46    <none>        5432/TCP                                18m
-service/geonode-postgresql-config   ClusterIP   None             <none>        <none>                                  18m
-service/geonode-postgresql-repl     ClusterIP   10.100.210.207   <none>        5432/TCP                                18m
-service/geonode-rabbitmq            ClusterIP   10.109.132.35    <none>        5672/TCP,4369/TCP,25672/TCP,15672/TCP   19m
-service/geonode-rabbitmq-headless   ClusterIP   None             <none>        4369/TCP,5672/TCP,25672/TCP,15672/TCP   19m
+service/geonode-geonode             ClusterIP   10.108.139.157   <none>        8000/TCP,8001/TCP,5555/TCP              5m19s
+service/geonode-geoserver           ClusterIP   10.109.74.49     <none>        8080/TCP                                5m19s
+service/geonode-memcached           ClusterIP   10.98.114.227    <none>        11211/TCP                               5m19s
+service/geonode-nginx               ClusterIP   10.110.152.86    <none>        80/TCP                                  5m19s
+service/geonode-postgres            ClusterIP   10.108.247.27    <none>        5432/TCP                                5m12s
+service/geonode-postgres-config     ClusterIP   None             <none>        <none>                                  5m2s
+service/geonode-postgres-operator   ClusterIP   10.102.184.20    <none>        8080/TCP                                5m19s
+service/geonode-postgres-repl       ClusterIP   10.108.255.29    <none>        5432/TCP                                5m11s
+service/geonode-pycsw               ClusterIP   10.101.67.39     <none>        8000/TCP                                5m19s
+service/geonode-rabbitmq            ClusterIP   10.110.248.230   <none>        5672/TCP,4369/TCP,25672/TCP,15672/TCP   5m19s
+service/geonode-rabbitmq-headless   ClusterIP   None             <none>        4369/TCP,5672/TCP,25672/TCP,15672/TCP   5m19s
 ```
 
 Find the ip addr of the geonode-nginx service. and add an entry to your hosts file:
 
 ```
-10.97.10.57   geonode.local
+10.110.152.86   geonode.local
 ```
 
 After that the service has to be exposed form minikube. I prefer to use minikube tunnel. Start it via, it will require root access:
