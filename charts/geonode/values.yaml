@@ -45,7 +45,7 @@ geonode:
     superUser:
       # -- admin username
       username: admin
-      # -- admin panel password
+      # -- admin panel password, will only changed after running the init-db job. At first time deployment or after rerunning the job manually. (See docs/manage-py-jobs.md)
       password: geonode
       # -- admin user password
       email: support@example.com

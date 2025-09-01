@@ -122,7 +122,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | geonode.secret.oauth2.clientId | string | `"Jrchz2oPY3akmzndmgUTYrs9gczlgoV20YPSvqaV"` | oauth2 geoserver clientID (OAUTH2_CLIENT_ID) |
 | geonode.secret.oauth2.clientSecret | string | `"rCnp5txobUo83EpQEblM8fVj3QT5zb5qRfxNsuPzCqZaiRyIoxM4jdgMiZKFfePBHYXCLd7B8NlkfDBY9HKeIQPcy5Cp08KQNpRHQbjpLItDHv12GvkSeXp6OxaUETv3"` | oauth2 geoserver secret (OAUTH2_CLIENT_SECRET) |
 | geonode.secret.superUser.email | string | `"support@example.com"` | admin user password |
-| geonode.secret.superUser.password | string | `"geonode"` | admin panel password |
+| geonode.secret.superUser.password | string | `"geonode"` | admin panel password, will only changed after running the init-db job. At first time deployment or after rerunning the job manually. (See docs/manage-py-jobs.md) |
 | geonode.secret.superUser.username | string | `"admin"` | admin username |
 | geonode.sentry.build_number | int | `0` | sentry build number |
 | geonode.sentry.dsn | string | `""` | sentry dsn url |

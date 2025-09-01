@@ -18,7 +18,7 @@ This jobs are usually executed automatically during the deployment process, but 
 kubectl get Jobs
 
 # delete the init-db job
-kubectl delete job geonode-geonode--init-db-job
+kubectl delete job geonode-geonode-init-db-job
 
 # recreate job
 helm template --values values.yaml -s templates/geonode/jobs/-init-db-job.yaml  charts/geonode/ | kubectl apply -f -
