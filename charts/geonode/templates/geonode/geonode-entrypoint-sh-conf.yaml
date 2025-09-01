@@ -45,8 +45,8 @@ data:
     echo MONITORING_HOST_NAME=$MONITORING_HOST_NAME
     echo MONITORING_SERVICE_NAME=$MONITORING_SERVICE_NAME
     echo MONITORING_DATA_TTL=$MONITORING_DATA_TTL
-    # deactivated until https://github.com/GeoNode/geonode/pull/11340 is merged
-    #invoke waitfordbs
+    # database must run on port 5432
+    invoke waitfordbs
 
     cmd="$@"
 
@@ -55,21 +55,6 @@ data:
         echo "Executing Celery server $cmd for Production"
     else
         invoke prescript
-        invoke migrations
-        invoke prepare
-
-        if [ ${FORCE_REINIT} = "true" ]  || [ ${FORCE_REINIT} = "True" ] || [ ! -e "/mnt/volumes/statics/geonode_init.lock" ]; then
-            invoke updategeoip
-            invoke fixtures
-            # currently not implemented in geonode-k8s
-            # invoke monitoringfixture
-            invoke initialized
-            invoke updateadmin
-        fi
-
-        invoke statics
-        invoke waitforgeoserver
-        invoke geoserverfixture
         invoke postscript
         echo "Executing UWSGI server $cmd for Production"
     fi

@@ -1,0 +1,163 @@
+# check if postgres.type is set to external operator
+{{ $is_operator := (eq .Values.postgres.type "operator") }}
+{{ $is_external := (eq .Values.postgres.type "external") }}
+{{ if not (or $is_operator  $is_external) }}
+  {{- fail "Deploymnent FAILED, unknown postgres.type defined, please set postgres.type to operator or external ..." }}
+{{ end }}
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ include "geonode_pod_name" . }}-init-db-job"
+  namespace: {{ .Release.Namespace }}
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        org.geonode.instance: "{{ include "geonode_pod_name" . }}-init-db-job"
+    spec:
+{{- if not (empty .Values.geonode.imagePullSecret) }}
+      imagePullSecrets:
+      - name: {{ .Values.geonode.imagePullSecret }}
+{{ end }}
+      restartPolicy: OnFailure
+      initContainers:
+      # Wait for Postgres and rabbit
+      - name: {{ .Values.geonode.init.container_name }}-init-db-job
+        image: "{{ .Values.geonode.init.image.name }}:{{ .Values.geonode.init.image.tag }}"
+        imagePullPolicy: {{ .Values.geonode.init.imagePullPolicy }}
+        args:
+        - -timeout=60s
+        - -wait
+        - tcp://{{ include "database_hostname" . }}:{{ include "database_port" . }}
+        - -wait
+        - tcp://{{ include "rabbit_host" .}}
+
+      containers:
+      - name: {{ .Values.geonode.container_name }}-init-db-job
+        image: "{{ .Values.geonode.image.name }}:{{ .Values.geonode.image.tag }}"
+        imagePullPolicy: {{ .Values.geonode.imagePullPolicy }}
+        command:
+        - bash
+        - -c
+        - |
+          # install dockerize...
+          wget -q https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+          && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+          && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+
+          {{ if .Values.geonode.ldap.enabled }}
+          # install geonode ldap contrib if ldap enabled. it would be better to have a base model with ldap included,
+          # but this way we can build the vanilla Dockerfile from geonode/geonode
+
+          cd /usr/src; git clone https://github.com/GeoNode/geonode-contribs.git -b master
+          cd /usr/src/geonode-contribs/ldap; pip install --upgrade  -e .
+          cd /usr/src/geonode/
+          {{ end }}
+
+          cd {{ include "geonode_root_path" .}}/
+          # Add config overrides
+          cat /usr/src/geonode/geonode/geonode-k8s-settings.py >> {{ include "geonode_path" .}}/settings.py
+          cat /usr/src/geonode/geonode/geonode-k8s-settings-additions.py >> {{ include "geonode_path" .}}/settings.py
+
+          echo "-----------------------------------------------------"
+          echo "Starting Geonode migration tasks (waitfordbs, migrations) $(date)"
+          echo "-----------------------------------------------------"
+          invoke waitfordbs
+          invoke migrations
+          echo "-----------------------------------------------------"
+          echo "Geonode migration tasks done $(date)"
+          echo "-----------------------------------------------------"
+
+          echo "-----------------------------------------------------"
+          echo "Starting Geonode fixture tasks (prepare, fixtures, waitforgeoserver, geoserverfixture) $(date)"
+          echo "-----------------------------------------------------"
+          # insert fixtures for geonode into database
+          invoke prepare
+          invoke fixtures
+          # create geoserver store
+          invoke waitforgeoserver
+          invoke geoserverfixture
+          echo "-----------------------------------------------------"
+          echo "Geonode fixture tasks done $(date)"
+          echo "-----------------------------------------------------"
+          echo "-----------------------------------------------------"
+          echo "Starting Geonode set admin password tasks (updateadmin) $(date)"
+          echo "-----------------------------------------------------"
+          invoke updateadmin
+          echo "-----------------------------------------------------"
+          echo "Geonode set admin password tasks done $(date)"
+          echo "-----------------------------------------------------"
+        envFrom:
+        - configMapRef:
+            name: {{ include "geonode_pod_name" . }}-env
+        - secretRef:
+            name: {{ .Values.geonode.secret.existingSecretName | default (include "geonode_secret_name" .) | quote }}
+        - secretRef:
+            name: {{ .Values.geoserver.secret.existingSecretName | default (include "geoserver_secret_name" .) | quote }}
+        env:
+        - name: GEONODE_DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "database_geonode_password_secret_key_ref" . }}
+              key: {{ include "database_geonode_password_key_ref" . }}
+        - name: GEONODE_GEODATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "database_geodata_password_secret_key_ref" . }}
+              key: {{ include "database_geodata_password_key_ref" . }}
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "database_postgres_password_secret_key_ref" . }}
+              key: {{ include "database_postgres_password_key_ref" . }}
+        - name: GEODATABASE_URL
+          value: "postgis://$(GEONODE_GEODATABASE):$(GEONODE_GEODATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(GEONODE_GEODATABASE)"
+        - name: DATABASE_URL
+          value: "postgis://$(GEONODE_DATABASE):$(GEONODE_DATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(GEONODE_DATABASE)"
+        volumeMounts:
+        - name: "{{ include "persistant_volume_name" . }}"
+          mountPath: /data
+          subPath: data
+        - name: cache-volume
+          mountPath: /tmp
+        - name: tasks-py
+          mountPath: "{{ include "geonode_root_path" .}}/tasks.py"
+          subPath: tasks.py
+          readOnly: true
+        - name: geonode-k8s-settings-py
+          mountPath: "/usr/src/geonode/geonode/geonode-k8s-settings.py"
+          subPath: geonode-k8s-settings.py
+        - name: geonode-k8s-settings-additions-py
+          mountPath: "/usr/src/geonode/geonode/geonode-k8s-settings-additions.py"
+          subPath: geonode-k8s-settings-additions.py
+          readOnly: true
+      volumes:
+      - name: "{{ include "persistant_volume_name" . }}"
+        persistentVolumeClaim:
+          claimName: pvc-{{ .Release.Name }}-geonode
+      - name: tasks-py
+        configMap:
+          name: {{ .Release.Name }}-geonode-tasks-py
+          items:
+          - key: tasks.py
+            path: "tasks.py"
+      - name: geonode-k8s-settings-py
+        configMap:
+          name: {{ .Release.Name }}-geonode-k8s-settings-py
+          defaultMode: 0744
+          items:
+          - key: geonode-k8s-settings.py
+            path: "geonode-k8s-settings.py"
+      - name: geonode-k8s-settings-additions-py
+        configMap:
+          name: {{ .Release.Name }}-geonode-k8s-settings-additions-py
+          defaultMode: 0744
+          items:
+          - key: geonode-k8s-settings-additions.py
+            path: "geonode-k8s-settings-additions.py"
+
+      # Using an emptyDir to cache compiled statics... it will survive container crashes, but not pod restarts
+      - name: cache-volume
+        emptyDir: {}
