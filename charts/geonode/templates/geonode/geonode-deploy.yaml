@@ -57,11 +57,6 @@ spec:
         - bash
         - -c
         - |
-          # install dockerize...
-          wget -q https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-            && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-            && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-
           {{ if .Values.geonode.ldap.enabled }}
           # install geonode ldap contrib if ldap enabled. it would be better to have a base model with ldap included,
           # but this way we can build the vanilla Dockerfile from geonode/geonode
@@ -77,12 +72,7 @@ spec:
           cat /usr/src/geonode/geonode/geonode-k8s-settings-additions.py >> {{ include "geonode_path" .}}/settings.py
 
           # Setup
-          touch {{ include "geonode_root_path" .}}/invoke.log
-          dockerize -stdout {{ include "geonode_root_path" .}}/invoke.log {{ include "geonode_root_path" .}}/entrypoint.sh
-
-          # Run web server
-          touch /var/log/geonode.log
-          dockerize -stdout /var/log/geonode.log /usr/local/bin/uwsgi --ini {{ include "geonode_root_path" .}}/uwsgi.ini
+          {{ include "geonode_root_path" .}}/entrypoint.sh /usr/local/bin/uwsgi --ini {{ include "geonode_root_path" .}}/uwsgi.ini
 
         ports:
         - name: http
@@ -173,11 +163,6 @@ spec:
         - bash
         - -c
         - |
-          # install dockerize...
-          wget -q https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-            && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-            && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-
           {{ if .Values.geonode.ldap.enabled }}
           # install geonode ldap contrib if ldap enabled. it would be better to have a base model with ldap included,
           # but this way we can build the vanilla Dockerfile from geonode/geonode.
@@ -198,7 +183,7 @@ spec:
           cat /usr/src/geonode/geonode/geonode-k8s-settings-additions.py >> {{ include "geonode_path" .}}/settings.py
           # Setup
           touch /var/log/celery.log
-          dockerize -stdout /var/log/celery.log {{ include "geonode_root_path" .}}/entrypoint.sh celery-cmd
+          {{ include "geonode_root_path" .}}/entrypoint.sh celery-cmd
 
         envFrom:
         - configMapRef:

@@ -429,11 +429,6 @@ data:
         print("**********************geonode-k8s pre ***************************")
         {{ .Values.geonode.tasks_pre_script | indent 8 | trim }}
 
-    @task
-    def postscript(ctx):
-        print("**********************geonode-k8s post ***************************")
-        {{ .Values.geonode.tasks_post_script | indent 8 | trim }}
-
 
     def _update_db_connstring():
         user = os.getenv('GEONODE_DATABASE', 'geonode')

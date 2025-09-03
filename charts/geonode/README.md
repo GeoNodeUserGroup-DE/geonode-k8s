@@ -122,14 +122,13 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | geonode.secret.oauth2.clientId | string | `"Jrchz2oPY3akmzndmgUTYrs9gczlgoV20YPSvqaV"` | oauth2 geoserver clientID (OAUTH2_CLIENT_ID) |
 | geonode.secret.oauth2.clientSecret | string | `"rCnp5txobUo83EpQEblM8fVj3QT5zb5qRfxNsuPzCqZaiRyIoxM4jdgMiZKFfePBHYXCLd7B8NlkfDBY9HKeIQPcy5Cp08KQNpRHQbjpLItDHv12GvkSeXp6OxaUETv3"` | oauth2 geoserver secret (OAUTH2_CLIENT_SECRET) |
 | geonode.secret.superUser.email | string | `"support@example.com"` | admin user password |
-| geonode.secret.superUser.password | string | `"geonode"` | admin panel password |
+| geonode.secret.superUser.password | string | `"geonode"` | admin panel password, will only be changed after running the init-db job. At first time deployment or after rerunning the job manually. (See docs/manage-py-jobs.md) |
 | geonode.secret.superUser.username | string | `"admin"` | admin username |
 | geonode.sentry.build_number | int | `0` | sentry build number |
 | geonode.sentry.dsn | string | `""` | sentry dsn url |
 | geonode.sentry.enabled | bool | `false` | enable sentry integration for geonode |
 | geonode.sentry.environment | string | `"development"` | sentry environment |
 | geonode.startupProbe | object | `{"failureThreshold":12,"httpGet":{"path":"/","port":"http-monitor"},"periodSeconds":10}` | configure startupProbe for geonode, make sure port is aligned with geonode.port configuration |
-| geonode.tasks_post_script | string | `"print(\"tasks_post_script not defined ...\")\n"` | additions to tasks.py script at the beginning of the tasks.py, must be additional code written in python |
 | geonode.tasks_pre_script | string | `"print(\"tasks_pre_script not defined ...\")\n"` | additions to tasks.py init script, must be additional code written in python |
 | geonode.uwsgi.buffer_size | int | `32768` | the max size of a request (request-body excluded) |
 | geonode.uwsgi.cheaper | int | `2` | Minimum number of workers allowed |
