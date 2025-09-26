@@ -614,7 +614,7 @@ data:
 
 
     ##############################################################
-    # added by mwall for https://github.com/zalf-rdm/geonode-k8s #
+    # added by mwall for https://github.com/GeoNodeUserGroup-DE/geonode-k8s #
     ##############################################################
     def _set_geoserver_database_store():
         ''' checks if a db store is already created in geoserver, if not create one '''
