@@ -7,7 +7,7 @@
 - [Geonode-k8s](#geonode-k8s)
 - [Install Guilde](#install)
 
-**Homepage:** <https://github.com/zalf-rdm/geonode-k8s>
+**Homepage:** <https://github.com/GeoNodeUserGroup-DE/geonode-k8s>
 
 Geonode
 -------
@@ -59,7 +59,7 @@ The chart will automatically install required dependencies, i.e. a RabbitMQ brok
 Update helm dependencies via:
 
 ```bash
-helm repo add geonode https://zalf-rdm.github.io/geonode-k8s/
+helm repo add geonode https://GeoNodeUserGroup-DE.github.io/geonode-k8s/
 helm repo update
 ```
 
@@ -86,7 +86,7 @@ helm delete --namespace geonode geonode geonode
 
 You found a bug :lady_beetle:? 
 You have an idea how to improve :bulb:?
-Feel free to [create an issue](https://github.com/zalf-rdm/geonode-k8s/issues/new/choose)!
+Feel free to [create an issue](https://github.com/GeoNodeUserGroup-DE/geonode-k8s/issues/new/choose)!
 
 
 ### Documentation
