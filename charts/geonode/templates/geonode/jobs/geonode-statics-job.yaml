@@ -31,15 +31,9 @@ spec:
         - -c
         - |
           set -e
-          {{ if .Values.geonode.ldap.enabled }}
-          # install geonode ldap contrib if ldap enabled. it would be better to have a base model with ldap included,
-          # but this way we can build the vanilla Dockerfile from geonode/geonode
-
-          cd /usr/src; git clone https://github.com/GeoNode/geonode-contribs.git -b master
-          cd /usr/src/geonode-contribs/ldap; pip install --upgrade  -e .
-          cd /usr/src/geonode/
-          {{ end }}
-
+          echo "**********************geonode-k8s pre ***************************"
+          {{ .Values.geonode.tasks_pre_script | indent 10 | trim }}
+          
           cd {{ include "geonode_root_path" .}}/
           # Add config overrides
           cat /usr/src/geonode/geonode/geonode-k8s-settings.py >> {{ include "geonode_path" .}}/settings.py

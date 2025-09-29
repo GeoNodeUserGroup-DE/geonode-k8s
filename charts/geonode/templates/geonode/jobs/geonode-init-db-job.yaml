@@ -43,6 +43,9 @@ spec:
         - -c
         - |
           set -e
+          echo "**********************geonode-k8s pre ***************************"
+          {{ .Values.geonode.tasks_pre_script | indent 10 | trim }}
+
           cd {{ include "geonode_root_path" .}}/
           # Add config overrides
           cat /usr/src/geonode/geonode/geonode-k8s-settings.py >> {{ include "geonode_path" .}}/settings.py

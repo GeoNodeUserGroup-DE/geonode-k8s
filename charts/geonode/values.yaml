@@ -53,9 +53,6 @@ geonode:
       password: "changeme"
       # -- define from mail-addr
       from: "changeme@web.de"
-    ldap:
-      # -- ldap password
-      bind_password: password
     oauth2:
       # -- oauth2 geoserver clientID (OAUTH2_CLIENT_ID)
       clientId: Jrchz2oPY3akmzndmgUTYrs9gczlgoV20YPSvqaV
@@ -278,33 +275,6 @@ geonode:
     tls: true
     # -- enable ssl for geonode mail (only tls or ssl can be true not both)
     use_ssl: False
-
-  ldap:
-    # -- enable ldap AUTHENTICATION_BACKENDS in DJANGO Geonode
-    enabled: False
-    # -- ldap uri
-    uri: ldap://example.com
-    # -- ldap user bind dn
-    bind_dn: "CN=Users,DC=ad,DC=example,DC=com"
-    # -- ldap user search dn
-    user_search_dn: "OU=User,DC=ad,DC=example,DC=com"
-    # -- ldap user filterstr
-    user_search_filterstr: "(sAMAccountName=%(user)s)"
-    # -- Mirror groups with ldap (see https://docs.geonode.org/en/master/advanced/contrib/index.html)
-    mirror_groups: True
-    # -- always update local user database from ldap
-    always_update_user: True
-    # -- ldap group search dn
-    group_search_dn: "OU=Groups,DC=ad,DC=example,DC=com"
-    # -- ldap group filterstr
-    group_search_filterstr: "(objectClass=group)"
-    # -- given name attribute used from ldap
-    attr_map_first_name: "givenName"
-    # -- last name attribute used from ldap
-    attr_map_last_name: "sn"
-    # -- email attribute used from ldap
-    attr_map_email_addr: mailPrimaryAddress
-
   # -- Find docs for register values under:
   # - https://docs.geonode.org/en/3.3.x/basic/settings/index.html
   # - https://github.com/pinax/django-user-accounts/blob/master/docs/settings.rst
