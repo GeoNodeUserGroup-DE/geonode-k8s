@@ -386,7 +386,7 @@ geoserver:
   # -- geoserver container name
   container_name: geoserver
   image:
-    # -- geoserver image docker image (default in zalf namespace because geonode one was not up to date)
+    # -- geoserver image docker image
     name: geonode/geoserver
     # -- geoserver docker image tag
     tag: "2.24.4-latest"
@@ -462,7 +462,7 @@ geoserver:
 geoserver_data:
   container_name: geoserver-data-dir
   image:
-    # -- geoserver image docker image (default in zalf namespace because geonode one was not up to date)
+    # -- geoserver image docker image
     name: geonode/geoserver_data
     # -- geoserver docker image tag
     tag: "2.24.4-latest"

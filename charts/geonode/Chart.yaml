@@ -16,22 +16,22 @@ keywords:
   - rabbitmq
   - memcached
   - django
-icon: https://raw.githubusercontent.com/zalf-rdm/geonode-k8s/main/docs/img/geonode-k8s-logo.png
+icon: https://raw.githubusercontent.com/GeoNodeUserGroup-DE/geonode-k8s/main/docs/img/geonode-k8s-logo.png
 annotations:
   artifacthub.io/links: |
     - name: Chart Source
-      url: https://github.com/zalf-rdm/geonode-k8s/
+      url: https://github.com/GeoNodeUserGroup-DE/geonode-k8s/
     - name: Docs
       url: https://geonode-k8s.readthedocs.io/en/latest/
     - name: support
-      url: https://github.com/zalf-rdm/geonode-k8s/issues/
+      url: https://github.com/GeoNodeUserGroup-DE/geonode-k8s/issues/
     - name: Geonode
       url: https://www.geonode.org/
   artifacthub.io/category: "storage"
   artifacthub.io/license: "GPL3"
 home: https://geonode.org/
 sources:
-  - https://github.com/zalf-rdm/geonode-k8s
+  - https://github.com/GeoNodeUserGroup-DE/geonode-k8s
   - https://github.com/geonode/geonode
 maintainers:
   - name: mwallschlaeger
