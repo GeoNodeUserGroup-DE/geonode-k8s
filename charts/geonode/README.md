@@ -1,6 +1,6 @@
 # geonode-k8s
 
-![Version: 1.2.6](https://img.shields.io/badge/Version-1.2.6-informational?style=flat-square)
+![Version: 1.3.0](https://img.shields.io/badge/Version-1.3.0-informational?style=flat-square)
 
 Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-latest, pyCSW: 2.6.1
 
@@ -21,9 +21,9 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | memcached | ~7.5.2 |
-| https://charts.bitnami.com/bitnami | rabbitmq | ~15.0.3 |
-| https://opensource.zalando.com/postgres-operator/charts/postgres-operator/ | postgres-operator | ~1.12.0 |
+| https://opensource.zalando.com/postgres-operator/charts/postgres-operator | postgres-operator | ~1.12.0 |
+| oci://registry-1.docker.io/cloudpirates | memcached | 0.2.0 |
+| oci://registry-1.docker.io/cloudpirates | rabbitmq | 0.2.12 |
 
 ## Values
 
@@ -176,8 +176,13 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | geoserver_data.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
 | global.accessMode | string | `"ReadWriteMany"` | storage access mode used by helm dependency pvc |
 | global.storageClass | string | `nil` | storageClass used by helm dependencies pvc |
-| memcached.architecture | string | `"high-availability"` | memcached replica. Loadbalanaced via kubernetes. (only one entry in django settings.py) im memcached is activated under geonode.memcached.enabled this takes place |
+| memcached.config.maxConnections | int | `2048` |  |
+| memcached.config.memoryLimit | int | `128` |  |
+| memcached.enabled | bool | `true` |  |
 | memcached.replicaCount | int | `1` |  |
+| memcached.resources.limits.memory | string | `"256Mi"` |  |
+| memcached.resources.requests.cpu | string | `"100m"` |  |
+| memcached.resources.requests.memory | string | `"128Mi"` |  |
 | nginx.access_control_allow.credentials | bool | `false` | control value of Access-Control-Allow-Credentials in nginx configuration |
 | nginx.container_name | string | `"nginx"` | nginx container name |
 | nginx.external_cors.domain | string | `""` | Target domain for CORS |
@@ -256,16 +261,17 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | pycsw.resources.limits.memory | string | `"1Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | pycsw.resources.requests.cpu | string | `"500m"` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | pycsw.resources.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| rabbitmq.auth.erlangCookie | string | `"jixYBsiZ9RivaLXC02pTwGjvIo0nHtVu"` |  |
-| rabbitmq.auth.existingErlangSecret | string | `""` |  |
-| rabbitmq.auth.existingPasswordSecret | string | `""` |  |
+| rabbitmq.auth.enabled | bool | `true` |  |
 | rabbitmq.auth.password | string | `"rabbitpassword"` |  |
 | rabbitmq.auth.username | string | `"rabbituser"` |  |
+| rabbitmq.config.memoryHighWatermark.enabled | bool | `true` |  |
+| rabbitmq.config.memoryHighWatermark.type | string | `"relative"` |  |
+| rabbitmq.config.memoryHighWatermark.value | float | `0.5` |  |
 | rabbitmq.enabled | bool | `true` |  |
+| rabbitmq.ingress.enabled | bool | `false` |  |
 | rabbitmq.limits.cpu | string | `"750m"` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | rabbitmq.limits.memory | string | `"1Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| rabbitmq.persistence.enabled | bool | `false` |  |
-| rabbitmq.replicaCount | int | `1` | rabbitmq raplica count |
+| rabbitmq.persistence | object | `{"enabled":true,"size":"2Gi"}` | rabbitmq raplica count |
 | rabbitmq.requests.cpu | string | `"500m"` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | rabbitmq.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 

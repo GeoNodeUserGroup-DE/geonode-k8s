@@ -45,7 +45,4 @@ postgres:
     postgres_version: 15
 
 rabbitmq:
-  replicaCount: 1
-  auth:
-    username: rabbituser
-    password: rabbit_password
+  enabled: True
