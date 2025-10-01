@@ -6,6 +6,63 @@ entries:
       artifacthub.io/license: GPL3
       artifacthub.io/links: |
         - name: Chart Source
+          url: https://github.com/GeoNodeUserGroup-DE/geonode-k8s/
+        - name: Docs
+          url: https://geonode-k8s.readthedocs.io/en/latest/
+        - name: support
+          url: https://github.com/GeoNodeUserGroup-DE/geonode-k8s/issues/
+        - name: Geonode
+          url: https://www.geonode.org/
+    apiVersion: v2
+    created: "2025-10-01T12:10:49.327280332Z"
+    dependencies:
+    - condition: postgres-operator.enabled
+      name: postgres-operator
+      repository: https://opensource.zalando.com/postgres-operator/charts/postgres-operator
+      version: ~1.12.0
+    - condition: rabbitmq.enabled
+      name: rabbitmq
+      repository: oci://registry-1.docker.io/cloudpirates
+      version: 0.2.12
+    - condition: geonode.memcached.enabled
+      name: memcached
+      repository: oci://registry-1.docker.io/cloudpirates
+      version: 0.2.0
+    description: 'Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver:
+      2.24.4-latest, pyCSW: 2.6.1'
+    digest: f87cef1b6842640181469dfccdb63fa8a0014fa797c8fd41ad106119eabee50d
+    home: https://geonode.org/
+    icon: https://raw.githubusercontent.com/GeoNodeUserGroup-DE/geonode-k8s/main/docs/img/geonode-k8s-logo.png
+    keywords:
+    - geonode
+    - geospatial
+    - geodata
+    - SDI
+    - http
+    - web
+    - python
+    - geoserver
+    - postresql
+    - postgis
+    - rabbitmq
+    - memcached
+    - django
+    maintainers:
+    - email: marcel.wallschlaeger@zalf.de
+      name: mwallschlaeger
+      url: https://github.com/mwallschlaeger
+    name: geonode-k8s
+    sources:
+    - https://github.com/GeoNodeUserGroup-DE/geonode-k8s
+    - https://github.com/geonode/geonode
+    urls:
+    - https://github.com/GeoNodeUserGroup-DE/geonode-k8s/releases/download/geonode-k8s-1.3.0/geonode-k8s-1.3.0.tgz
+    version: 1.3.0
+  - annotations:
+      artifacthub.io/category: storage
+      artifacthub.io/license: GPL3
+      artifacthub.io/links: |
+        - name: Chart Source
           url: https://github.com/zalf-rdm/geonode-k8s/
         - name: Docs
           url: https://geonode-k8s.readthedocs.io/en/latest/
@@ -1221,4 +1278,4 @@ entries:
     urls:
     - https://github.com/zalf-rdm/geonode-k8s/releases/download/geonode-k8s-1.0.0/geonode-k8s-1.0.0.tgz
     version: 1.0.0
-generated: "2025-08-21T09:13:11.801590572Z"
+generated: "2025-10-01T12:10:49.327470116Z"
