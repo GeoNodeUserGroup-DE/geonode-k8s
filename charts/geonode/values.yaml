@@ -668,7 +668,7 @@ pycsw:
         # workers=
         timeout=30
     [manager]
-        transactions=false
+        transactions=true
         # allowed_ips=
         # csw_harvest_pagesize=
     [metadata:main]
@@ -711,25 +711,31 @@ pycsw:
         temp_extent=YYYY-MM-DD/YYYY-MM-DD
 
 # MEMCACHED CONFIGURATION
-# https://artifacthub.io/packages/helm/bitnami/memcached
+# https://artifacthub.io/packages/helm/cloudpirates-memcached/memcached
 memcached:
-  # -- memcached replica. Loadbalanaced via kubernetes. (only one entry in django settings.py) im memcached is activated under geonode.memcached.enabled this takes place
-  architecture: high-availability
-  replicaCount: 1
-
-# VALUES DEFINITION https://github.com/bitnami/charts/blob/master/bitnami/rabbitmq/values.yaml
-rabbitmq:
   enabled: true
-  # -- rabbitmq raplica count
+  # Basic installation
   replicaCount: 1
-  auth:
-    username: rabbituser
-    password: rabbitpassword
-    erlangCookie: jixYBsiZ9RivaLXC02pTwGjvIo0nHtVu
-    existingPasswordSecret: ""
-    existingErlangSecret: ""
+  config:
+    memoryLimit: 128
+    maxConnections: 2048
+
+  resources:
+    limits:
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# RABBITMQ CONFIGURATION
+# https://artifacthub.io/packages/helm/cloudpirates-rabbitmq/rabbitmq
+rabbitmq:
+  enabled: True
+
+  # -- rabbitmq raplica count
   persistence:
-    enabled: False
+    enabled: true
+    size: 2Gi
 
   requests:
     # -- requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
@@ -741,6 +747,20 @@ rabbitmq:
     memory: "1Gi"
     # -- limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
     cpu: "750m"
+
+  auth:
+    enabled: true
+    username: rabbituser
+    password: rabbitpassword
+
+  config:
+    memoryHighWatermark:
+      enabled: true
+      type: "relative"
+      value: 0.5
+
+  ingress:
+    enabled: false
 
 postgres:
   # -- type of used postgres: "operator" or "external". \
