@@ -2,7 +2,7 @@
 
 OpenID Connect integration, for SSIO applications such as keycloak, into Django applications are usually implemented using the django.allauth package. This requires a number of configurations to be added to settings.py. Geonode-k8s provides the capability to add configuration to your settings.py, also without predefined environment variable parsing. There for the `.geonode.general.settings_additions` value can be used. The python code defined inside this value will be attached to the end of the settings.py of geonode.
 
-In the example below a simple OpenID Connect endpoint is configured forcing email authentication with `ACCOUNT_EMAIL_REQUIRED = True` and `ACCOUNT_AUTHENTICATION_METHOD = "email"`. A social account provider is configured within: `SOCIALACCOUNT_PROVIDERS`. This is a OpenID proider (https://docs.allauth.org/en/latest/socialaccount/providers/openid.html#openid). It requires the `provider_id`, the `client_id`, the `secret`, the `realm` and the `server_url` of your keycloak installation. 
+In the example below, a simple OpenID Connect endpoint is configured, forcing email authentication with `ACCOUNT_EMAIL_REQUIRED = True` and `ACCOUNT_AUTHENTICATION_METHOD = "email"`. A social account provider is configured within `SOCIALACCOUNT_PROVIDERS`. This is an OpenID Connect provider (see [django-allauth documentation](https://docs.allauth.org/en/latest/socialaccount/providers/openid_connect.html)). The example uses placeholders (e.g., `$KEYCLOAK_PROVIDER_ID`, `$KEYCLOAK_CLIENT_ID`) which you must replace with the actual values from your Keycloak client configuration.
 
 ```
 geonode:
