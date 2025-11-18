@@ -260,8 +260,7 @@ geonode:
 
     # -- extraEnvVars can be used to add geonode environment variable configuration from https://docs.geonode.org/en/master/basic/settings/index.html
     # which are not available in the helm chart. Where the key is the env-var name comming from the geonode docs.
-    extraEnvVars:
-      {}
+    extraEnvVars: {}
       # SOCIAL_BUTTONS: True
       # DEFAULT_SEARCH_SIZE: 10
 
@@ -487,11 +486,11 @@ nginx:
 
   # -- max file upload size for geonode upload. Only set this value if it should be different from geonode.general.upload.size.
   # to use e.g. if geonode.general.upload.document_size > geonode.general.upload.size
-  geonodeMaxClientBodySize:
+  geonodeMaxClientBodySize: 2000M
   # -- maximum upload size for geoserver in nginx configuration. Changes here may also require changes in geoserver configuration of the individual services (WFS, ...)
   geoServerMaxClientBodySize: 10G
   # -- maximum upload size for pycsw server in nginx configuration. Only used if `.Values.pycsw.enabled: true`.
-  pycswMaxClientBodySize: 10M
+  pycswMaxClientBodySize: 100M
 
   resources:
     requests:
@@ -583,7 +582,7 @@ pycsw:
   mappings: |-
     MD_CORE_MODEL = {
       "typename": "pycsw:CoreMetadata",
-      "outputschema": "http://pycsw.org/metadata",
+      "outputschema": "http://www.isotc211.org/2005/gmd",
       "mappings": {
           "pycsw:Identifier": "uuid",
           "pycsw:Typename": "csw_typename",
@@ -650,21 +649,20 @@ pycsw:
   config: |-
     [server]
         home=/home/pycsw
-        url=$(PYCSW_SERVER_URL)
+        url=${PYCSW_SERVER_URL}
         mimetype=application/xml; charset=UTF-8
         encoding=UTF-8
-        language= en-US
+        language=en-US
         maxrecords=10
-        # loglevel=
-        # logfile=
+        # level=DEBUG
         # ogc_schemas_base=
         # federatedcatalogues=
-        # pretty_print=
-        gzip_compresslevel=0
-        # domainquerytype=
-        # domaincounts=
+        gzip_compresslevel=5
+        pretty_print=true
+        domainquerytype=range
+        domaincounts=true
         # spatial_ranking=
-        profiles=apiso
+        profiles=apiso,ebrim
         # workers=
         timeout=30
     [manager]
@@ -679,7 +677,7 @@ pycsw:
         identification_fees=None
         identification_accessconstraints=None
         provider_name=GeoNode Kubernetes
-        provider_url=https://pycsw.org/
+        provider_url=${GEONODE_SITE_URL}
         contact_name=Lastname, Firstname
         contact_position=Position Title
         contact_address=Mailing Address
@@ -698,7 +696,6 @@ pycsw:
         database=${PYCSW_REPOSITORY_DATABASE_URI}
         mappings=/etc/pycsw/pycsw-mappings.py
         table=base_resourcebase
-        # filter=
     [metadata:inspire]
         enabled="true"
         languages_supported=eng,gre
