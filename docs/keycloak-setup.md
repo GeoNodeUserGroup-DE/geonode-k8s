@@ -28,5 +28,5 @@ geonode:
       }
       INSTALLED_APPS += ('allauth.socialaccount.providers.openid_connect',)
       AUTHENTICATION_BACKENDS += ('allauth.account.auth_backends.AuthenticationBackend', )
-      CSRF_TRUSTED_ORIGINS = ['https://identity.example.keycloak.org/*']
+      CSRF_TRUSTED_ORIGINS = ['https://identity.example.keycloak.org']
 ```
