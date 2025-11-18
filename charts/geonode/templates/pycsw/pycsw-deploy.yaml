@@ -46,8 +46,6 @@ spec:
           - configMapRef:
               name: {{ include "pycsw_pod_name" . }}-env
         env: 
-        - name: PYCSW_SERVER_URL
-          value: "{{ include "public_url" . }}{{ .Values.pycsw.endpoint }}"
         - name: GEONODE_DATABASE_PASSWORD
           valueFrom:
             secretKeyRef:

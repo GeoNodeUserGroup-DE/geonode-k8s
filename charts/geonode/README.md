@@ -188,7 +188,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | nginx.external_cors.domain | string | `""` | Target domain for CORS |
 | nginx.external_cors.enabled | bool | `false` | Add Access-Control-Allow-Origin directive to allow integration from an external domain |
 | nginx.geoServerMaxClientBodySize | string | `"10G"` | maximum upload size for geoserver in nginx configuration. Changes here may also require changes in geoserver configuration of the individual services (WFS, ...) |
-| nginx.geonodeMaxClientBodySize | string | `nil` | max file upload size for geonode upload. Only set this value if it should be different from geonode.general.upload.size. to use e.g. if geonode.general.upload.document_size > geonode.general.upload.size |
+| nginx.geonodeMaxClientBodySize | string | `"2000M"` | max file upload size for geonode upload. Only set this value if it should be different from geonode.general.upload.size. to use e.g. if geonode.general.upload.document_size > geonode.general.upload.size |
 | nginx.image.name | string | `"nginx"` | nginx docker image |
 | nginx.image.tag | string | `"1.25"` | nginx docker image tag |
 | nginx.imagePullPolicy | string | `"IfNotPresent"` | nginx image pull policy |
@@ -197,7 +197,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | nginx.livenessProbe.httpGet.port | string | `"http"` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `50` |  |
 | nginx.livenessProbe.timeoutSeconds | int | `5` |  |
-| nginx.pycswMaxClientBodySize | string | `"10M"` | maximum upload size for pycsw server in nginx configuration. Only used if `.Values.pycsw.enabled: true`. |
+| nginx.pycswMaxClientBodySize | string | `"100M"` | maximum upload size for pycsw server in nginx configuration. Only used if `.Values.pycsw.enabled: true`. |
 | nginx.replicaCount | int | `1` | nginx container replicas |
 | nginx.resources.limits.cpu | string | `"800m"` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | nginx.resources.limits.memory | string | `"1Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |

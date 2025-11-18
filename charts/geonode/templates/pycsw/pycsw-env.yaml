@@ -10,4 +10,6 @@ data:
   DATABASE_PORT: "{{ include "database_port" .}}"
   GEONODE_DATABASE: {{ .Values.postgres.geonode_databasename_and_username | quote }}
   GEONODE_DATABASE_SCHEMA: {{ .Values.postgres.schema }}
+  GEONODE_SITE_URL: "{{ include "public_url" . }}"
+  PYCSW_SERVER_URL: "{{ include "public_url" . }}{{ .Values.pycsw.endpoint }}"
 {{ end }}
