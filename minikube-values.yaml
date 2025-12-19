@@ -43,6 +43,8 @@ postgres:
     storageSize: 2Gi
     numberOfInstances: 1
     postgres_version: 15
+    storageClass: "standard"
+    enableMasterLoadBalancer: false
 
 rabbitmq:
   enabled: True
