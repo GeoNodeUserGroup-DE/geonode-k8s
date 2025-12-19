@@ -32,7 +32,8 @@ This repository provides a helm chart for **geonode** including additional servi
 - memcached (optional): as django cache (scalable)
 - nginx: webserver to deliver static content (scalable)
 - pycsw: CSW interface (scalable)
-  This helm chart provides the possibility to run most of the services redundant to increase performance on the one hand and increase fail safe on the other hand.
+
+This helm chart provides the possibility to run most of the services redundant to increase performance on the one hand and increase fail safe on the other hand.
 
 ## Documentation
 
