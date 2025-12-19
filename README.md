@@ -20,7 +20,7 @@ You can find the Sourcecode and more information about geonode under:
 - Github: https://github.com/GeoNode/geonode
 - Docs: https://docs.geonode.org
 
-Due to growing needs for high availability and scalability this repository aims at running Geonode with all required services in a cloud based manner. To do so, we use Kubernetes (https://kubernetes.io/), a cloud management software, which runs on public and private clouds. As the Kubernetes echosystem can be confusing for people getting new to this field, there are packages for most services which are able to run on top of kubernetes. This packages are managed via helm (https://helm.sh/).
+Due to growing needs for high availability and scalability this repository aims at running GeoNode with all required services in a cloud based manner. To do so, we use Kubernetes (https://kubernetes.io/), a cloud management software, which runs on public and private clouds. As the Kubernetes ecosystem can be confusing for people getting new to this field, there are packages for most services which are able to run on top of Kubernetes. These packages are managed via helm (https://helm.sh/).
 
 ## Geonode-k8s
 
