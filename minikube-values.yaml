@@ -43,6 +43,3 @@ postgres:
     storageSize: 2Gi
     numberOfInstances: 1
     postgres_version: 15
-
-rabbitmq:
-  enabled: True

@@ -7,7 +7,7 @@ global:
 # geonode configuration
 geonode:
   # -- geonode version, used for some distinguassion between version of GeoNode
-  version: 4.4.3
+  version: 5.0.0
   # -- container name
   container_name: geonode
   # -- number of geonode replicas (! not working properly yet)
@@ -21,7 +21,7 @@ geonode:
     # -- used geonode image
     name: geonode/geonode
     # -- tag of used geonode image
-    tag: "4.4.3"
+    tag: "5.0.0"
 
   # -- image pull policy
   imagePullPolicy: IfNotPresent
@@ -388,7 +388,7 @@ geoserver:
     # -- geoserver image docker image
     name: geonode/geoserver
     # -- geoserver docker image tag
-    tag: "2.24.4-latest"
+    tag: "2.27.3-latest"
 
   # -- geoserver image pull policy
   imagePullPolicy: "IfNotPresent"
@@ -464,7 +464,7 @@ geoserver_data:
     # -- geoserver image docker image
     name: geonode/geoserver_data
     # -- geoserver docker image tag
-    tag: "2.24.4-latest"
+    tag: "2.27.3-latest"
   # -- geoserver image pull policy
   imagePullPolicy: "IfNotPresent"
 
@@ -478,7 +478,7 @@ nginx:
     # -- nginx docker image
     name: nginx
     # -- nginx docker image tag
-    tag: "1.25"
+    tag: "1.28"
   # -- nginx image pull policy
   imagePullPolicy: "IfNotPresent"
   # -- pull secret to use for nginx image
@@ -532,7 +532,7 @@ pycsw:
     # -- pycsw docker image
     name: geopython/pycsw
     # -- pycsw docker image tag
-    tag: "2.6.1"
+    tag: "3.0.0-beta2"
   # -- pycsw image pull policy
   imagePullPolicy: "IfNotPresent"
   # -- pull secret to use for pycsw image
@@ -726,8 +726,9 @@ memcached:
 
 # RABBITMQ CONFIGURATION
 # https://artifacthub.io/packages/helm/cloudpirates-rabbitmq/rabbitmq
+# Activate if you are running geonode below 5.0.0
 rabbitmq:
-  enabled: True
+  enabled: False
 
   # -- rabbitmq raplica count
   persistence:
@@ -757,7 +758,38 @@ rabbitmq:
       value: 0.5
 
   ingress:
-    enabled: false
+    enabled: False
+
+# REDIS CONFIGURATION
+# https://artifacthub.io/packages/helm/cloudpirates-redis/redis/0.19.0
+
+redis:
+  # -- enable redis deployment
+  enabled: True
+  # -- Redis architecture. standalone: Single instance, cluster: Multi-master cluster, replication: Master-replica (use sentinel.enabled to control automatic failover)
+  architecture: standalone
+  # -- redis container replicas
+  replicaCount: 1
+  auth:
+    # -- Enable Redis authentication
+    enabled: True
+    password: redispassword
+  # -- Redis Sentinel provides high availability for Redis through automatic failover. When enabled in replication mode, Sentinel monitors the master and replicas, and promotes a replica to master if the current master becomes unavailable. When disabled with replication mode, pod-0 is always the master.
+  sentinel:
+    # -- Enable Redis Sentinel for high availability. When disabled, pod-0 is master (manual failover)
+    enabled: False
+
+  resources:
+    requests:
+      # -- requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
+      memory: "256Mi"
+      # -- requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
+      cpu: "100m"
+    limits:
+      # -- limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
+      memory: "512Mi"
+      # -- limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
+      cpu: "200m"
 
 postgres:
   # -- type of used postgres: "operator" or "external". \

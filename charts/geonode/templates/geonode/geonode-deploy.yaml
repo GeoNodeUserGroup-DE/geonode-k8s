@@ -5,6 +5,12 @@
   {{- fail "Deploymnent FAILED, unknown postgres.type defined, please set postgres.type to operator or external ..." }}
 {{ end }}
 
+{{ $rabbitmq_enabled := .Values.rabbitmq.enabled }}
+{{ $redis_enabled := .Values.redis.enabled }}
+{{ if (and $rabbitmq_enabled  $redis_enabled) }}
+  {{- fail "Deploymnent FAILED, cannot have both rabbitmq and redis enabled at the same time, check if you want to run geonode 5.0.0 or above (redis) or below (rabbitmq) ..." }}
+{{ end }}
+
 # geonode stateful set
 apiVersion: apps/v1
 kind: StatefulSet
@@ -45,8 +51,14 @@ spec:
         - -timeout=60s
         - -wait
         - tcp://{{ include "database_hostname" . }}:{{ include "database_port" . }}
+        {{ if $rabbitmq_enabled }}
         - -wait
         - tcp://{{ include "rabbit_host" .}}
+        {{ end }}
+        {{ if $redis_enabled }}
+        - -wait
+        - tcp://{{ include "redis_host" . }}
+        {{ end }}
 
       containers:
       # This is the django app server
@@ -72,7 +84,7 @@ spec:
           cat /usr/src/geonode/geonode/geonode-k8s-settings-additions.py >> {{ include "geonode_path" .}}/settings.py
 
           # Setup
-          {{ include "geonode_root_path" .}}/entrypoint.sh /usr/local/bin/uwsgi --ini {{ include "geonode_root_path" .}}/uwsgi.ini
+          {{ include "geonode_root_path" .}}/entrypoint.sh uwsgi --ini {{ include "geonode_root_path" .}}/uwsgi.ini
 
         ports:
         - name: http
