@@ -172,7 +172,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | geoserver.secret.extraSecrets | string | `"#  key_1: value_1\n"` | additional elements to include in the secret provided to GeoServer, if not using an existing secret |
 | geoserver_data.container_name | string | `"geoserver-data-dir"` |  |
 | geoserver_data.image.name | string | `"geonode/geoserver_data"` | geoserver image docker image |
-| geoserver_data.image.tag | string | `"2.24.4-latest"` | geoserver docker image tag |
+| geoserver_data.image.tag | string | `"2.27.3-latest"` | geoserver docker image tag |
 | geoserver_data.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
 | global.accessMode | string | `"ReadWriteMany"` | storage access mode used by helm dependency pvc |
 | global.storageClass | string | `nil` | storageClass used by helm dependencies pvc |

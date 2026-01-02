@@ -464,7 +464,7 @@ geoserver_data:
     # -- geoserver image docker image
     name: geonode/geoserver_data
     # -- geoserver docker image tag
-    tag: "2.24.4-latest"
+    tag: "2.27.3-latest"
   # -- geoserver image pull policy
   imagePullPolicy: "IfNotPresent"
 
