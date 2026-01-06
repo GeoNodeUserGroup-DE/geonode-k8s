@@ -95,7 +95,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | geonode.ldap.uri | string | `"ldap://example.com"` | ldap uri |
 | geonode.ldap.user_search_dn | string | `"OU=User,DC=ad,DC=example,DC=com"` | ldap user search dn |
 | geonode.ldap.user_search_filterstr | string | `"(sAMAccountName=%(user)s)"` | ldap user filterstr |
-| geonode.livenessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/","port":"http-monitor"},"initialDelaySeconds":90,"periodSeconds":5}` | configure livenessProbe for geonode, make sure port is aligned with geonode.port configuration |
+| geonode.livenessProbe | object | `{"failureThreshold":3,"initialDelaySeconds":90,"periodSeconds":5,"tcpSocket":{"port":8000}}` | configure livenessProbe for geonode, make sure port is aligned with geonode.port configuration |
 | geonode.mail.backend | string | `"django.core.mail.backends.smtp.EmailBackend"` | set mail backend in geonode settings |
 | geonode.mail.enabled | bool | `false` | enables mail configuration for geonode |
 | geonode.mail.host | string | `"smtp.gmail.com"` | set mail host for genode mail |
@@ -129,7 +129,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | geonode.sentry.dsn | string | `""` | sentry dsn url |
 | geonode.sentry.enabled | bool | `false` | enable sentry integration for geonode |
 | geonode.sentry.environment | string | `"development"` | sentry environment |
-| geonode.startupProbe | object | `{"failureThreshold":12,"httpGet":{"path":"/","port":"http-monitor"},"periodSeconds":10}` | configure startupProbe for geonode, make sure port is aligned with geonode.port configuration |
+| geonode.startupProbe | object | `{"failureThreshold":18,"periodSeconds":5,"tcpSocket":{"port":8000}}` | configure startupProbe for geonode, make sure port is aligned with geonode.port configuration |
 | geonode.tasks_pre_script | string | `"print(\"tasks_pre_script not defined ...\")\n"` | additions to tasks.py init script, must be additional code written in python |
 | geonode.uwsgi.buffer_size | int | `32768` | the max size of a request (request-body excluded) |
 | geonode.uwsgi.cheaper | int | `2` | Minimum number of workers allowed |
@@ -156,7 +156,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | geoserver.image.tag | string | `"2.27.3-latest"` | geoserver docker image tag |
 | geoserver.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
 | geoserver.imagePullSecret | string | `""` | pull secret to use for geoserver image |
-| geoserver.livenessProbe | object | `{"failureThreshold":15,"initialDelaySeconds":90,"periodSeconds":5,"tcpSocket":{"port":8080}}` | configure livenessProbe for geoserver, make sure port is aligned with geoserver.port configuration |
+| geoserver.livenessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities","port":8080},"initialDelaySeconds":60,"periodSeconds":10,"timeoutSeconds":5}` | configure livenessProbe for geoserver, make sure port is aligned with geoserver.port configuration Using HTTP probe to detect GeoServer 2.27.3 circular dependency startup failure and trigger automatic restart |
 | geoserver.port | int | `8080` | geoserver port |
 | geoserver.printing.extraHosts | string | `""` |  |
 | geoserver.readinessProbe | object | `{"failureThreshold":15,"periodSeconds":5,"tcpSocket":{"port":8080}}` | configure readinessProbe for geoserver, make sure port is aligned with geoserver.port configuration |

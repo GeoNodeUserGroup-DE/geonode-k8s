@@ -6,8 +6,6 @@ data:
   uwsgi.ini: |
     [uwsgi]
     uwsgi-socket = 0.0.0.0:8000
-    http-socket = 0.0.0.0:8001
-    # pidfile = /tmp/geonode.pid
 
     chdir = {{ include "geonode_root_path" . }}/
     module = {{ .Values.geonode.general.geonode_project }}.wsgi:application
@@ -22,7 +20,8 @@ data:
 
     # logging
     # path to where uwsgi logs will be saved
-    logto = /var/log/geonode.log
+    # logto = /var/log/geonode.log
+    log-master = true
 
     touch-reload = {{ include "geonode_path" . }}/wsgi.py
     buffer-size = {{ .Values.geonode.uwsgi.buffer_size }}

@@ -78,6 +78,14 @@ spec:
           cd /usr/src/geonode/
           {{ end }}
 
+          # Install xmljson for GeoNode monitoring module (missing dependency in 4.4.x)
+          if ! python -c "import xmljson" 2>/dev/null; then
+            echo "Installing xmljson..."
+            pip install --no-cache-dir xmljson
+          else
+            echo "xmljson already installed, skipping..."
+          fi
+
           cd {{ include "geonode_root_path" .}}/
           # Add config overrides
           cat /usr/src/geonode/geonode/geonode-k8s-settings.py >> {{ include "geonode_path" .}}/settings.py
@@ -89,8 +97,6 @@ spec:
         ports:
         - name: http
           containerPort: 8000
-        - name: http-monitor
-          containerPort: 8001
         envFrom:
         - configMapRef:
             name: {{ include "geonode_pod_name" . }}-env
@@ -183,6 +189,14 @@ spec:
           cd /usr/src/geonode-contribs/ldap; pip install --upgrade  -e .
           cd /usr/src/geonode/
           {{ end }}
+
+          # Install xmljson for GeoNode monitoring module (missing dependency in 4.4.x)
+          if ! python -c "import xmljson" 2>/dev/null; then
+            echo "Installing xmljson..."
+            pip install --no-cache-dir xmljson
+          else
+            echo "xmljson already installed, skipping..."
+          fi
 
           cd {{ include "geonode_root_path" .}}/
 

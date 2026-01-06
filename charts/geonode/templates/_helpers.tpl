@@ -140,6 +140,16 @@ redis://:{{ .Values.redis.auth.password }}@{{ include "redis_host" . }}/0
 {{- end -}}
 {{- end -}}
 
+{{- define "result_backend_url" -}}
+{{- if .Values.redis.enabled -}}
+{{- if .Values.redis.auth.enabled -}}
+redis://:{{ .Values.redis.auth.password }}@{{ include "redis_host" . }}/1
+{{- else -}}
+redis://{{ include "redis_host" . }}/1
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "public_url" -}}
 {{ .Values.geonode.general.externalScheme }}://{{ .Values.geonode.general.externalDomain }}
 {{- end -}}

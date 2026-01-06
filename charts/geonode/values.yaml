@@ -82,17 +82,15 @@ geonode:
 
   # -- configure startupProbe for geonode, make sure port is aligned with geonode.port configuration
   startupProbe:
-    httpGet:
-      path: /
-      port: http-monitor
-    failureThreshold: 12
-    periodSeconds: 10
+    tcpSocket:
+      port: 8000
+    failureThreshold: 18
+    periodSeconds: 5
 
   # -- configure livenessProbe for geonode, make sure port is aligned with geonode.port configuration
   livenessProbe:
-    httpGet:
-      path: /
-      port: http-monitor
+    tcpSocket:
+      port: 8000
     initialDelaySeconds: 90
     periodSeconds: 5
     failureThreshold: 3
@@ -451,12 +449,15 @@ geoserver:
     failureThreshold: 15
 
   # -- configure livenessProbe for geoserver, make sure port is aligned with geoserver.port configuration
+  # Using HTTP probe to detect GeoServer 2.27.3 circular dependency startup failure and trigger automatic restart
   livenessProbe:
-    tcpSocket:
+    httpGet:
+      path: /geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities
       port: 8080
-    initialDelaySeconds: 90
-    periodSeconds: 5
-    failureThreshold: 15
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    failureThreshold: 3
+    timeoutSeconds: 5
 
 geoserver_data:
   container_name: geoserver-data-dir
