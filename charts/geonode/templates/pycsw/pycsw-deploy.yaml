@@ -33,7 +33,7 @@ spec:
         image: "{{ .Values.pycsw.init.image.name }}:{{ .Values.pycsw.init.image.tag }}"
         imagePullPolicy: {{ .Values.pycsw.init.imagePullPolicy }}
         command: ["/bin/sh","-c"]
-        args: ['while [ $(curl -ksw "%{http_code}" "$GEONODE_ENDPOINT:8001" -o /dev/null) -ne 200 ]; do sleep 5; echo "health check failed . Waiting for GeoNode ($GEONODE_ENDPOINT:8001) ..."; done']
+        args: ['while [ $(curl -ksw "%{http_code}" "geonode-nginx" -o /dev/null) -ne 200 ]; do sleep 5; echo "health check failed . Waiting for GeoNode (geonode-nginx) ..."; done']
         env:
         - name: GEONODE_ENDPOINT
           value: "{{ include "geonode_pod_name" . }}"

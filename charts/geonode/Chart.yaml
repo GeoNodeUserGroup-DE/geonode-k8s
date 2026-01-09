@@ -46,6 +46,10 @@ dependencies:
     repository: oci://registry-1.docker.io/cloudpirates
     version: 0.2.12
     condition: rabbitmq.enabled
+  - name: redis
+    repository: oci://registry-1.docker.io/cloudpirates
+    version: 0.19.0
+    condition: redis.enabled
   - name: memcached
     repository: oci://registry-1.docker.io/cloudpirates
     version: 0.2.0
