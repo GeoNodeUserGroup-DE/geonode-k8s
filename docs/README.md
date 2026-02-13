@@ -16,12 +16,12 @@ Geonode is a geospatial content management system, a platform for the management
 and stable open-source software projects under a consistent and easy-to-use interface allowing non-specialized users to share data and
 create interactive maps.
 
-You can find the Sourcecode and more information about geonode under:
+You can find the source code and more information about geonode under:
 - Homepage: https://geonode.org/
 - Github: https://github.com/GeoNode/geonode
 - Docs: https://docs.geonode.org
 
-Due to growing needs for high availability and scalability this repository aims at running Geonode with all required services in a cloud based manner. To due so we use Kubernetes (https://kubernetes.io/), a cloud management software, which runs on public and private clouds. As the Kubernetes echosystem can be confusing for people getting new to this field, there are packages for most services which are able to run on top of kubernetes. This packages are managed via helm (https://helm.sh/).
+Due to growing needs for high availability and scalability, this repository aims at running Geonode with all required services in a cloud based manner. To do so, we use Kubernetes (https://kubernetes.io/), a cloud management software, which runs on public and private clouds. As the Kubernetes echosystem can be confusing for people getting new to this field, there are packages for most services which are able to run on top of kubernetes. These packages are managed via helm (https://helm.sh/).
 
 Geonode-k8s
 -----------
@@ -33,16 +33,16 @@ This repository provides a helm chart for **geonode** including additional servi
 - memcached (optional): as django cache (scalable)
 - nginx: webserver to deliver static content (scalable)
 - pycsw: CSW interface (scalable)
-This helm chart provides the possibility to run most of the services redundant to increase performance on the one hand and increase fail safe on the other hand.
+This helm chart provides the possibility to run most of the services redundantly to increase performance on the one hand and increase fail safe on the other hand.
 
 ## Documentation
 
 
-To get an overview of the available configuration check out the values [docs](charts/geonode/README.md). If you want to run the helm chart first on a minikube cluster check out the [minikube](docs/minikube-installation.md) guide. Also check the minikube-values.yaml for basic configuration. 
+To get an overview of the available configuration, check out the values [docs](charts/geonode/README.md). If you want to run the helm chart first on a minikube cluster, check out the [minikube](docs/minikube-installation.md) guide. Also check the minikube-values.yaml for basic configuration. 
 
-If you want to go straight for a production installation follow the [installation](#install) guide.
+If you want to go straight for a production installation, follow the [installation](#install) guide.
 
-Furhter docs you can find on [readthedocs](https://geonode-k8s.readthedocs.io/en/latest/).
+Further documentation can be found at [readthedocs](https://geonode-k8s.readthedocs.io/en/latest/).
 
 Install
 -------

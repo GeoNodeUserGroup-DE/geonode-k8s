@@ -2,7 +2,7 @@
 
 ## Install Minikube
 
-To install minikube itself follow the instruction on https://kubernetes.io/de/docs/tasks/tools/install-minikube/
+To install minikube itself, follow the instructions on https://kubernetes.io/de/docs/tasks/tools/install-minikube/
 
 ## Install chart dependencies
 
@@ -24,7 +24,7 @@ To run the installation on minikube run:
 helm upgrade --cleanup-on-fail   --install --namespace geonode --create-namespace --values minikube-values.yaml geonode charts/geonode
 ```
 
-You can check the installtion process with:
+You can check the installation process with:
 
 ```bash
 watch kubectl get pods,services,pvc,secrets,postgresql -n geonode
@@ -74,7 +74,7 @@ NAME                                        TEAM      VERSION   PODS   VOLUME   
 postgresql.acid.zalan.do/geonode-postgres   geonode   15        1      2Gi      100m          0.5Gi            5m19s   Running
 ```
 
-The initial start takes some time, due to init process of the django application. You can check the status via:
+The initial start takes some time, due to the init process of the django application. You can check the status via:
 ```bash
 kubectl -n geonode logs pod/geonode-geonode-0 -f 
 ```
@@ -105,10 +105,10 @@ service/geonode-rabbitmq-headless   ClusterIP   None             <none>        4
 Find the ip addr of the geonode-nginx service. and add an entry to your hosts file:
 
 ```
-10.110.152.86   geonode.local
+10.110.152.86   geonode-nginx.geonode.svc.cluster.local
 ```
 
-After that the service has to be exposed form minikube. I prefer to use minikube tunnel. Start it via, it will require root access:
+After that the service has to be exposed from minikube. I prefer to use minikube tunnel. Start it via sudo, as the tunnel will require root access:
 
 ```bash
 minikube tunnel
@@ -116,6 +116,6 @@ minikube tunnel
 
 There are several ways to expose services from minikube, find information in the minikube docs under: https://minikube.sigs.k8s.io/docs/handbook/accessing/
 
-Now you are able to access the geonode installation by opening your browser and open http://geonode.local for geonode and http://geonode.local/geoserver for geoserver
+Now you are able to access the geonode installation by opening your browser and open http://geonode-nginx.geonode.svc.cluster.local for geonode and http://geonode-nginx.geonode.svc.cluster.local/geoserver for geoserver
 
-Have Fun!
+Have fun!
