@@ -6,9 +6,7 @@ global:
 
 # geonode configuration
 geonode:
-  # -- geonode version, used for some distinguassion between version of GeoNode
-  version: 5.0.0
-  # -- container name
+  version: 5.0.1
   container_name: geonode
   # -- number of geonode replicas (! not working properly yet)
   replicaCount: 1
@@ -18,10 +16,8 @@ geonode:
     storageSize: 10Gi
 
   image:
-    # -- used geonode image
     name: geonode/geonode
-    # -- tag of used geonode image
-    tag: "5.0.0"
+    tag: "5.0.1"
 
   # -- image pull policy
   imagePullPolicy: IfNotPresent
@@ -339,7 +335,7 @@ geonode:
   memcached:
     # -- enable memcache, this will spawn one or more seperate memcache container(s)
     enabled: True
-    # -- set the MEMCAHED_ENABLED env var for GeoNode (django). Dynamic caching (see https://docs.djangoproject.com/en/4.0/topics/cache/)
+    # -- set the MEMCACHED_ENABLED env var for GeoNode (django). Dynamic caching (see https://docs.djangoproject.com/en/4.0/topics/cache/)
     enabled_geonode: False
     # -- memcached backend to use
     # if geonode ">=4.3.0" use django.core.cache.backends.memcached.PyLibMCCache
@@ -357,15 +353,15 @@ geonode:
       # init container image
       name: jwilder/dockerize
       # init container image tag
-      tag: "0.6.1"
-      # init container image pull policy
-    imagePullPolicy: "IfNotPresent"
+      tag: "v0.10.0"
+    # init container image pull policy
+    imagePullPolicy: IfNotPresent
 
   celery:
     # -- celery container name
     container_name: celery
     # -- celery image pull policy
-    imagePullPolicy: "IfNotPresent"
+    imagePullPolicy: IfNotPresent
     resources:
       requests:
         # -- requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
@@ -386,7 +382,7 @@ geoserver:
     # -- geoserver image docker image
     name: geonode/geoserver
     # -- geoserver docker image tag
-    tag: "2.27.3-latest"
+    tag: "2.27.4-latest"
 
   # -- geoserver image pull policy
   imagePullPolicy: "IfNotPresent"
@@ -465,7 +461,7 @@ geoserver_data:
     # -- geoserver image docker image
     name: geonode/geoserver_data
     # -- geoserver docker image tag
-    tag: "2.27.3-latest"
+    tag: "2.27.4-latest"
   # -- geoserver image pull policy
   imagePullPolicy: "IfNotPresent"
 

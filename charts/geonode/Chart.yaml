@@ -52,5 +52,5 @@ dependencies:
     condition: redis.enabled
   - name: memcached
     repository: oci://registry-1.docker.io/cloudpirates
-    version: 0.2.0
+    version: 0.9.6
     condition: geonode.memcached.enabled
