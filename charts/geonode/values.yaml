@@ -397,6 +397,8 @@ geoserver:
   # -- set force reinit true so that changing passwords etc. in Values.yaml will take effect after restarting the pod
   # this on the other hand will increase pod initializing time, only change if you know what you are doing
   force_reinit: true
+  # -- Enable/disable datetime support for shapefiles (Dorg.geotools.shapefile.datetime JVM option)
+  shapefile_datetime: false
   # -- geoserver port
   port: 8080
   printing:
