@@ -2,7 +2,7 @@
 
 ![Version: 1.3.1](https://img.shields.io/badge/Version-1.3.1-informational?style=flat-square)
 
-Helm Chart for Geonode. Supported versions: Geonode: 4.4.3 and 5.0.1, Geoserver: 2.24.4-latest, pyCSW: 2.6.1
+Helm Chart for Geonode. Supported versions: Geonode: 4.4.3 and 5.0.1, Geoserver: 2.27.4-latest, pyCSW: 2.6.1
 
 **Homepage:** <https://geonode.org/>
 
@@ -81,7 +81,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3 and 5.0.1, Geoserver:
 | geonode.ingress.tlsSecret | string | `"geonode-tls-secret"` | tls certificate for geonode ingress https://kubernetes.io/docs/tasks/tls/managing-tls-in-a-cluster/ (for the use of cert-manager, configure the acme section properly). is used when geonode.general.externalScheme is set to 'https' |
 | geonode.init.container_name | string | `"geonode-wait-for-db-and-rabbit"` | init container name |
 | geonode.init.image.name | string | `"jwilder/dockerize"` |  |
-| geonode.init.image.tag | string | `"0.10.0"` |  |
+| geonode.init.image.tag | string | `"v0.10.0"` |  |
 | geonode.init.imagePullPolicy | string | `"IfNotPresent"` |  |
 | geonode.ldap.always_update_user | bool | `true` | always update local user database from ldap |
 | geonode.ldap.attr_map_email_addr | string | `"mailPrimaryAddress"` | email attribute used from ldap |
