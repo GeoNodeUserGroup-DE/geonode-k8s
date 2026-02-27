@@ -5,6 +5,12 @@
   {{- fail "Deploymnent FAILED, unknown postgres.type defined, please set postgres.type to operator or external ..." }}
 {{ end }}
 
+{{ $rabbitmq_enabled := .Values.rabbitmq.enabled }}
+{{ $redis_enabled := .Values.redis.enabled }}
+{{ if (and $rabbitmq_enabled  $redis_enabled) }}
+  {{- fail "Deploymnent FAILED, cannot have both rabbitmq and redis enabled at the same time, check if you want to run geonode 5.0.0 or above (redis) or below (rabbitmq) ..." }}
+{{ end }}
+
 # geonode stateful set
 apiVersion: apps/v1
 kind: StatefulSet
@@ -45,8 +51,14 @@ spec:
         - -timeout=60s
         - -wait
         - tcp://{{ include "database_hostname" . }}:{{ include "database_port" . }}
+        {{ if $rabbitmq_enabled }}
         - -wait
         - tcp://{{ include "rabbit_host" .}}
+        {{ end }}
+        {{ if $redis_enabled }}
+        - -wait
+        - tcp://{{ include "redis_host" . }}
+        {{ end }}
 
       containers:
       # This is the django app server
@@ -66,19 +78,25 @@ spec:
           cd /usr/src/geonode/
           {{ end }}
 
+          # Install xmljson for GeoNode monitoring module (missing dependency in 4.4.x)
+          if ! python -c "import xmljson" 2>/dev/null; then
+            echo "Installing xmljson..."
+            pip install --no-cache-dir xmljson
+          else
+            echo "xmljson already installed, skipping..."
+          fi
+
           cd {{ include "geonode_root_path" .}}/
           # Add config overrides
           cat /usr/src/geonode/geonode/geonode-k8s-settings.py >> {{ include "geonode_path" .}}/settings.py
           cat /usr/src/geonode/geonode/geonode-k8s-settings-additions.py >> {{ include "geonode_path" .}}/settings.py
 
           # Setup
-          {{ include "geonode_root_path" .}}/entrypoint.sh /usr/local/bin/uwsgi --ini {{ include "geonode_root_path" .}}/uwsgi.ini
+          {{ include "geonode_root_path" .}}/entrypoint.sh uwsgi --ini {{ include "geonode_root_path" .}}/uwsgi.ini
 
         ports:
         - name: http
           containerPort: 8000
-        - name: http-monitor
-          containerPort: 8001
         envFrom:
         - configMapRef:
             name: {{ include "geonode_pod_name" . }}-env
@@ -171,6 +189,14 @@ spec:
           cd /usr/src/geonode-contribs/ldap; pip install --upgrade  -e .
           cd /usr/src/geonode/
           {{ end }}
+
+          # Install xmljson for GeoNode monitoring module (missing dependency in 4.4.x)
+          if ! python -c "import xmljson" 2>/dev/null; then
+            echo "Installing xmljson..."
+            pip install --no-cache-dir xmljson
+          else
+            echo "xmljson already installed, skipping..."
+          fi
 
           cd {{ include "geonode_root_path" .}}/
 

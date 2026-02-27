@@ -1,14 +1,28 @@
+# default values for minikube deployment of geonode 5.0.1
+
 global:
   storageClass: standard
 
 geonode:
   replicaCount: 1 # not working yet
+  version: 5.0.1
+  image:
+    # -- used geonode image
+    name: geonode/geonode
+    # -- tag of used geonode image
+    tag: "5.0.1"
+  imagePullPolicy: IfNotPresent
 
   general:
     debug: True
     debug_static: True
     externalScheme: http
     externalDomain: geonode.local
+    extraEnvVars:
+      # provide internal URL for catalogue service so geonode finds it
+      # IMPORTANT: This URL assumes a release named "geonode" in the "geonode" namespace.
+      # If using a different name or namespace, this URL must be updated.
+      CATALOGUE_URL: "http://geonode-pycsw.geonode.svc.cluster.local:8000/"
 
   persistant:
     storageSize: 2Gi
@@ -46,5 +60,22 @@ postgres:
     storageClass: standard
     enableMasterLoadBalancer: False
 
-rabbitmq:
-  enabled: True
+redis:
+  persistence:
+    enabled: False
+  image:
+    name: redis
+    tag: "8.4.0"
+    # override digest included in redis subchart, to allow using other registries
+    digest: ""
+    pullPolicy: IfNotPresent
+
+memcached:
+  image:
+    repository: memcached
+    tag: "1.6.40"
+    pullPolicy: IfNotPresent
+  metrics:
+    image:
+      pullPolicy: IfNotPresent
+

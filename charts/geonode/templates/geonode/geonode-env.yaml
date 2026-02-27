@@ -34,6 +34,7 @@ data:
 
   # Rabbitmq
   BROKER_URL: "{{ include "broker_url" . }}"
+  CELERY_RESULT_BACKEND: "{{ include "result_backend_url" . }}"
 
   # DJANGO SITE CONF
   SITEURL: "{{ include "public_url" . }}/"

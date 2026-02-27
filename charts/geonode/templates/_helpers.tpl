@@ -126,8 +126,28 @@ persistence
 {{ .Release.Name }}-rabbitmq:5672
 {{- end -}}
 
+{{- define "redis_host" -}}
+{{ .Release.Name }}-redis:6379
+{{- end -}}
+
 {{- define "broker_url" -}}
+{{- if .Values.rabbitmq.enabled -}}
 amqp://{{ .Values.rabbitmq.auth.username }}:{{ .Values.rabbitmq.auth.password }}@{{ include "rabbit_host" . }}/
+{{- else if .Values.redis.enabled -}}
+{{- if .Values.redis.auth.enabled -}}
+redis://:{{ .Values.redis.auth.password }}@{{ include "redis_host" . }}/0
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "result_backend_url" -}}
+{{- if .Values.redis.enabled -}}
+{{- if .Values.redis.auth.enabled -}}
+redis://:{{ .Values.redis.auth.password }}@{{ include "redis_host" . }}/1
+{{- else -}}
+redis://{{ include "redis_host" . }}/1
+{{- end -}}
+{{- end -}}
 {{- end -}}
 
 {{- define "public_url" -}}

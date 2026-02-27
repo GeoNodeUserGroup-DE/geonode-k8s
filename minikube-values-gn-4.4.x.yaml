@@ -1,0 +1,61 @@
+global:
+  storageClass: standard
+
+geonode:
+  replicaCount: 1 # not working yet
+  version: 4.4.4
+  image:
+    # -- used geonode image
+    name: geonode/geonode
+    # -- tag of used geonode image
+    tag: "4.4.4"
+
+  general:
+    debug: True
+    debug_static: True
+    externalScheme: http
+    externalDomain: geonode.local
+
+  persistant:
+    storageSize: 2Gi
+
+  ingress:
+    enabled: False
+
+  secret:
+    superUser:
+      password: geonode
+
+  mail:
+    enabled: False
+
+  ldap:
+    enabled: False
+
+  register:
+    open_signup: True
+    email_verification: "False"
+    authentication_method: username_email
+
+pycsw:
+  enabled: True
+
+postgres-operator:
+  enabled: True
+
+postgres:
+  type: operator
+  operator:
+    storageSize: 2Gi
+    numberOfInstances: 1
+    postgres_version: 15
+
+# rabbitmq is required in geonode 4.4.x
+rabbitmq:
+  enabled: true
+
+# redis got introduced with geonode 5.0.0, not needed in 4.4.x as it uses rabbitmq
+redis:
+  enabled: false
+  persistence:
+    enabled: False
