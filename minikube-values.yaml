@@ -20,6 +20,8 @@ geonode:
     externalDomain: geonode.local
     extraEnvVars:
       # provide internal URL for catalogue service so geonode finds it
+      # IMPORTANT: This URL assumes a release named "geonode" in the "geonode" namespace.
+      # If using a different name or namespace, this URL must be updated.
       CATALOGUE_URL: "http://geonode-pycsw.geonode.svc.cluster.local:8000/"
 
   persistant:
