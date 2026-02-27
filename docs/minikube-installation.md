@@ -105,7 +105,7 @@ service/geonode-rabbitmq-headless   ClusterIP   None             <none>        4
 Find the ip addr of the geonode-nginx service. and add an entry to your hosts file:
 
 ```
-10.110.152.86   geonode-nginx.geonode.svc.cluster.local
+10.110.152.86   geonode.local
 ```
 
 After that the service has to be exposed from minikube. I prefer to use minikube tunnel. Start it via sudo, as the tunnel will require root access:
@@ -116,6 +116,6 @@ minikube tunnel
 
 There are several ways to expose services from minikube, find information in the minikube docs under: https://minikube.sigs.k8s.io/docs/handbook/accessing/
 
-Now you are able to access the geonode installation by opening your browser and open http://geonode-nginx.geonode.svc.cluster.local for geonode and http://geonode-nginx.geonode.svc.cluster.local/geoserver for geoserver
+Now you are able to access the geonode installation by opening your browser and open http://geonode.local for geonode and http://geonode.local/geoserver for geoserver.
 
 Have fun!
