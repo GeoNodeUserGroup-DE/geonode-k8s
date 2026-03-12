@@ -2,7 +2,7 @@
 
 ![Version: 1.3.1](https://img.shields.io/badge/Version-1.3.1-informational?style=flat-square)
 
-Helm Chart for Geonode. Supported versions: Geonode: 4.4.3 and 5.0.1, Geoserver: 2.27.4-latest, pyCSW: 2.6.1
+Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-latest, pyCSW: 2.6.1
 
 **Homepage:** <https://geonode.org/>
 
@@ -22,7 +22,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3 and 5.0.1, Geoserver:
 | Repository | Name | Version |
 |------------|------|---------|
 | https://opensource.zalando.com/postgres-operator/charts/postgres-operator | postgres-operator | ~1.12.0 |
-| oci://registry-1.docker.io/cloudpirates | memcached | 0.2.0 |
+| oci://registry-1.docker.io/cloudpirates | memcached | 0.9.6 |
 | oci://registry-1.docker.io/cloudpirates | rabbitmq | 0.2.12 |
 | oci://registry-1.docker.io/cloudpirates | redis | 0.19.0 |
 
@@ -41,7 +41,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3 and 5.0.1, Geoserver:
 | geonode.celery.resources.limits.memory | string | `"2Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geonode.celery.resources.requests.cpu | int | `1` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geonode.celery.resources.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| geonode.container_name | string | `"geonode"` | container name |
+| geonode.container_name | string | `"geonode"` |  |
 | geonode.general.api_limit_per_page | int | `1000` | to describe |
 | geonode.general.debug | bool | `false` | django debug mode |
 | geonode.general.debug_static | bool | `false` | enable django static debug |
@@ -71,8 +71,8 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3 and 5.0.1, Geoserver:
 | geonode.general.upload.document_size | int | `60` | max upload document size in MB |
 | geonode.general.upload.max_parallel_uploads_per_user | int | `10` | DEFAULT_MAX_PARALLEL_UPLOADS_PER_USER (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-parallel-uploads-per-user) Default: 5 When uploading datasets, this value limits the number os parallel uploads. The parallelism limit is set during installation using the value of this variable. After installation, only an user with administrative rights can change it. These limits can be changed in the admin panel or accessing by api. |
 | geonode.general.upload.size | string | `"2097152000"` | DEFAULT_MAX_UPLOAD_SIZE (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-upload-size) Important: This value must be syncronized with nginx.maxClientBodySize Default: 2097152000 (2000 MB in bytes) (104857600 = 100 MB) When uploading datasets or uploading documents, the total size of the uploaded files is verified. The size limits are set during installation using the value of this variable. After installation, only an user with administrative rights can change it. These limits can be changed in the admin panel or accessing by api. |
-| geonode.image.name | string | `"geonode/geonode"` | used geonode image |
-| geonode.image.tag | string | `"5.0.0"` | tag of used geonode image |
+| geonode.image.name | string | `"geonode/geonode"` |  |
+| geonode.image.tag | string | `"5.0.1"` |  |
 | geonode.imagePullPolicy | string | `"IfNotPresent"` | image pull policy |
 | geonode.imagePullSecret | string | `""` | pull secret to use for geonode image |
 | geonode.ingress.annotations | object | `{}` | adds ingress annotations for nginx ingress class |
@@ -104,7 +104,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3 and 5.0.1, Geoserver:
 | geonode.mail.use_ssl | bool | `false` | enable ssl for geonode mail (only tls or ssl can be true not both) |
 | geonode.memcached.backend | string | `"django.core.cache.backends.memcached.PyLibMCCache"` | memcached backend to use if geonode ">=4.3.0" use django.core.cache.backends.memcached.PyLibMCCache before use django.core.cache.backends.memcached.MemcachedCache |
 | geonode.memcached.enabled | bool | `true` | enable memcache, this will spawn one or more seperate memcache container(s) |
-| geonode.memcached.enabled_geonode | bool | `false` | set the MEMCAHED_ENABLED env var for GeoNode (django). Dynamic caching (see https://docs.djangoproject.com/en/4.0/topics/cache/) |
+| geonode.memcached.enabled_geonode | bool | `false` | set the MEMCACHED_ENABLED env var for GeoNode (django). Dynamic caching (see https://docs.djangoproject.com/en/4.0/topics/cache/) |
 | geonode.memcached.lock_expire | string | `"3600"` | memcached lock expire time |
 | geonode.memcached.lock_timeout | string | `"10"` | memcached lock timeout |
 | geonode.persistant.storageSize | string | `"10Gi"` | size of persistant geonode storage |
@@ -148,12 +148,12 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3 and 5.0.1, Geoserver:
 | geonode.uwsgi.reload_on_rss | int | `2048` | Restart workers after this much resident memory |
 | geonode.uwsgi.threads | int | `24` | number of threads per process |
 | geonode.uwsgi.worker_reload_mercy | int | `60` | How long to wait before forcefully killing workers |
-| geonode.version | string | `"5.0.0"` | geonode version, used for some distinguassion between version of GeoNode |
+| geonode.version | string | `"5.0.1"` |  |
 | geonodeFixtures | map of fixture files | `{"somefixture.json":"[\n  {\n    \"pk\": 0,\n    \"model\": \"myapp.sample\"\n    \"description\": \"nice little content\"\n  }\n]\n"}` | Fixture files which shall be made available under /usr/src/geonode/geonode/fixtures (refer to https://docs.djangoproject.com/en/4.2/howto/initial-data/) |
 | geoserver.container_name | string | `"geoserver"` | geoserver container name |
 | geoserver.force_reinit | bool | `true` | set force reinit true so that changing passwords etc. in Values.yaml will take effect after restarting the pod this on the other hand will increase pod initializing time, only change if you know what you are doing |
 | geoserver.image.name | string | `"geonode/geoserver"` | geoserver image docker image |
-| geoserver.image.tag | string | `"2.27.3-latest"` | geoserver docker image tag |
+| geoserver.image.tag | string | `"2.27.4-latest"` | geoserver docker image tag |
 | geoserver.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
 | geoserver.imagePullSecret | string | `""` | pull secret to use for geoserver image |
 | geoserver.livenessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities","port":8080},"initialDelaySeconds":60,"periodSeconds":10,"timeoutSeconds":5}` | configure livenessProbe for geoserver, make sure port is aligned with geoserver.port configuration Using HTTP probe to detect GeoServer 2.27.3 circular dependency startup failure and trigger automatic restart |
@@ -173,7 +173,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3 and 5.0.1, Geoserver:
 | geoserver.secret.extraSecrets | string | `"#  key_1: value_1\n"` | additional elements to include in the secret provided to GeoServer, if not using an existing secret |
 | geoserver_data.container_name | string | `"geoserver-data-dir"` |  |
 | geoserver_data.image.name | string | `"geonode/geoserver_data"` | geoserver image docker image |
-| geoserver_data.image.tag | string | `"2.27.3-latest"` | geoserver docker image tag |
+| geoserver_data.image.tag | string | `"2.27.4-latest"` | geoserver docker image tag |
 | geoserver_data.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
 | global.accessMode | string | `"ReadWriteMany"` | storage access mode used by helm dependency pvc |
 | global.storageClass | string | `nil` | storageClass used by helm dependencies pvc |
