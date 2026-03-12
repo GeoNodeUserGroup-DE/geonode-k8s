@@ -40,7 +40,7 @@ spec:
             name: "{{ include "geoserver_pod_name" . }}"
             port:
               number: {{ .Values.geoserver.port }}
-  {{ if .Values.pycsw.enabled }}
+      {{- if .Values.pycsw.enabled }}
       - path: {{ .Values.pycsw.endpoint }}
         pathType: Prefix
         backend:
@@ -48,7 +48,7 @@ spec:
             name: "{{ include "pycsw_pod_name" . }}"
             port:
               number: 8000
-  {{ end }}
+      {{- end }}
 
 ---
 

@@ -31,8 +31,14 @@ spec:
         - -timeout=60s
         - -wait
         - tcp://{{ include "database_hostname" . }}:{{ include "database_port" . }}
+        {{ if .Values.rabbitmq.enabled }}
         - -wait
         - tcp://{{ include "rabbit_host" .}}
+        {{ end }}
+        {{ if .Values.redis.enabled }}
+        - -wait
+        - tcp://{{ include "redis_host" . }}
+        {{ end }}
 
       containers:
       - name: {{ .Values.geonode.container_name }}-init-db-job
