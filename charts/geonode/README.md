@@ -1,8 +1,8 @@
 # geonode-k8s
 
-![Version: 1.3.1](https://img.shields.io/badge/Version-1.3.1-informational?style=flat-square)
+![Version: 1.3.2](https://img.shields.io/badge/Version-1.3.2-informational?style=flat-square)
 
-Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-latest, pyCSW: 2.6.1
+Helm Chart for Geonode. Supported versions: Geonode: 5.0.1, Geoserver: 2.24.4-latest, pyCSW: 3.0.0-beta2
 
 **Homepage:** <https://geonode.org/>
 
@@ -152,7 +152,6 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | geonodeFixtures | map of fixture files | `{"somefixture.json":"[\n  {\n    \"pk\": 0,\n    \"model\": \"myapp.sample\"\n    \"description\": \"nice little content\"\n  }\n]\n"}` | Fixture files which shall be made available under /usr/src/geonode/geonode/fixtures (refer to https://docs.djangoproject.com/en/4.2/howto/initial-data/) |
 | geoserver.container_name | string | `"geoserver"` | geoserver container name |
 | geoserver.force_reinit | bool | `true` | set force reinit true so that changing passwords etc. in Values.yaml will take effect after restarting the pod this on the other hand will increase pod initializing time, only change if you know what you are doing |
-| geoserver.shapefile_datetime | bool | `false` | Enable/disable datetime support for shapefiles (Dorg.geotools.shapefile.datetime JVM option) |
 | geoserver.image.name | string | `"geonode/geoserver"` | geoserver image docker image |
 | geoserver.image.tag | string | `"2.27.4-latest"` | geoserver docker image tag |
 | geoserver.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
@@ -172,6 +171,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | geoserver.secret.extraConfigMap | string | `"# file_1: conf content\n"` | additional elements to include in the config map provided to GeoServer |
 | geoserver.secret.extraPodEnv | string | `""` | Define this for extra GeoServer environment variables Format: extraPodEnv: |   - name: KEY_1     value: "VALUE_1"   - name: KEY_2     value: "VALUE_2" |
 | geoserver.secret.extraSecrets | string | `"#  key_1: value_1\n"` | additional elements to include in the secret provided to GeoServer, if not using an existing secret |
+| geoserver.shapefile_datetime | bool | `false` | Enable/disable datetime support for shapefiles (Dorg.geotools.shapefile.datetime JVM option) |
 | geoserver_data.container_name | string | `"geoserver-data-dir"` |  |
 | geoserver_data.image.name | string | `"geonode/geoserver_data"` | geoserver image docker image |
 | geoserver_data.image.tag | string | `"2.27.4-latest"` | geoserver docker image tag |
