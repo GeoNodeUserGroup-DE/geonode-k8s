@@ -61,6 +61,7 @@ postgres:
     enableMasterLoadBalancer: False
 
 redis:
+  enabled: True
   persistence:
     enabled: False
   image:
@@ -69,6 +70,9 @@ redis:
     # override digest included in redis subchart, to allow using other registries
     digest: ""
     pullPolicy: IfNotPresent
+
+rabbitmq:
+  enabled: False
 
 memcached:
   image:
