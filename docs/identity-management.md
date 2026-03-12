@@ -5,7 +5,7 @@ This documentation describes how to integrate different identity backends, which
 
 ## LDAP integration
 
-To integrate LDAP into a GeoNOde instance, there are well known ways to do so. The firs
+To integrate LDAP into a GeoNOde instance, there are well known ways to do so. The first
 
 ```
   ldap:
