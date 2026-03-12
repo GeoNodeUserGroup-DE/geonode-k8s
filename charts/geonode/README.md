@@ -263,7 +263,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | pycsw.resources.requests.cpu | string | `"500m"` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | pycsw.resources.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | rabbitmq.auth.enabled | bool | `true` |  |
-| rabbitmq.auth.password | string | `"rabbitpassword"` |  |
+| rabbitmq.auth.password | string | `"rabbitpassword"` | RabbitMQ password. **WARNING: Change this for production deployments!** The default value is insecure. |
 | rabbitmq.auth.username | string | `"rabbituser"` |  |
 | rabbitmq.config.memoryHighWatermark.enabled | bool | `true` |  |
 | rabbitmq.config.memoryHighWatermark.type | string | `"relative"` |  |
@@ -277,7 +277,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | rabbitmq.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | redis.architecture | string | `"standalone"` | Redis architecture. standalone: Single instance, cluster: Multi-master cluster, replication: Master-replica (use sentinel.enabled to control automatic failover) |
 | redis.auth.enabled | bool | `true` | Enable Redis authentication |
-| redis.auth.password | string | `"redispassword"` |  |
+| redis.auth.password | string | `"redispassword"` | Redis password. **WARNING: Change this for production deployments!** The default value is insecure. |
 | redis.enabled | bool | `true` | enable redis deployment |
 | redis.replicaCount | int | `1` | redis container replicas |
 | redis.resources.limits.cpu | string | `"200m"` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |

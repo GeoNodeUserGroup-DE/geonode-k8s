@@ -734,7 +734,7 @@ memcached:
 # https://artifacthub.io/packages/helm/cloudpirates-rabbitmq/rabbitmq
 # Activate if you are running geonode below 5.0.0
 rabbitmq:
-  enabled: False
+  enabled: false
 
   # -- rabbitmq raplica count
   persistence:
@@ -755,6 +755,7 @@ rabbitmq:
   auth:
     enabled: true
     username: rabbituser
+    # -- RabbitMQ password. **WARNING: Change this for production deployments!** The default value is insecure.
     password: rabbitpassword
 
   config:
@@ -779,6 +780,7 @@ redis:
   auth:
     # -- Enable Redis authentication
     enabled: True
+    # -- Redis password. **WARNING: Change this for production deployments!** The default value is insecure.
     password: redispassword
   # -- Redis Sentinel provides high availability for Redis through automatic failover. When enabled in replication mode, Sentinel monitors the master and replicas, and promotes a replica to master if the current master becomes unavailable. When disabled with replication mode, pod-0 is always the master.
   sentinel:

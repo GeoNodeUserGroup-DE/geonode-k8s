@@ -136,6 +136,8 @@ amqp://{{ .Values.rabbitmq.auth.username }}:{{ .Values.rabbitmq.auth.password }}
 {{- else if .Values.redis.enabled -}}
 {{- if .Values.redis.auth.enabled -}}
 redis://:{{ .Values.redis.auth.password }}@{{ include "redis_host" . }}/0
+{{- else -}}
+redis://{{ include "redis_host" . }}/0
 {{- end -}}
 {{- end -}}
 {{- end -}}
