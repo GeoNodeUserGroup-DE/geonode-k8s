@@ -30,54 +30,5 @@ data:
             send_default_pii=True,
         )
     {{ end }}
-    {{ if .Values.geonode.ldap.enabled }}
-    ########
-    # LDAP #
-    ########
-    from django_auth_ldap import config as ldap_config
-    from geonode_ldap.config import GeonodeNestedGroupOfNamesType
-    import ldap
-    from distutils.util import strtobool
-
-    LDAP_ENABLED = strtobool(os.getenv("LDAP_ENABLED", "False"))
-    if LDAP_ENABLED:
-        # add both standard ModelBackend auth and geonode.contrib.ldap auth
-        AUTHENTICATION_BACKENDS += ("geonode_ldap.backend.GeonodeLdapBackend",)
-
-    # django_auth_ldap configuration
-    AUTH_LDAP_SERVER_URI = os.getenv("LDAP_SERVER_URL")
-    AUTH_LDAP_BIND_DN = os.getenv("LDAP_BIND_DN")
-    AUTH_LDAP_BIND_PASSWORD = os.getenv("LDAP_BIND_PASSWORD")
-    AUTH_LDAP_USER_SEARCH = ldap_config.LDAPSearch(
-        os.getenv("LDAP_USER_SEARCH_DN"), ldap.SCOPE_SUBTREE, os.getenv("LDAP_USER_SEARCH_FILTERSTR")
-    )
-
-    # should LDAP groups be used to spawn groups in GeoNode?
-    AUTH_LDAP_MIRROR_GROUPS = True
-    AUTH_LDAP_GROUP_SEARCH = ldap_config.LDAPSearch(
-        os.getenv("LDAP_GROUP_SEARCH_DN"), ldap.SCOPE_SUBTREE, os.getenv("LDAP_GROUP_SEARCH_FILTERSTR")
-    )
-
-    AUTH_LDAP_GROUP_TYPE = GeonodeNestedGroupOfNamesType()
-    AUTH_LDAP_USER_ATTR_MAP_FIRST_NAME = os.getenv("LDAP_USER_ATTR_MAP_FIRST_NAME", "givenName")
-    AUTH_LDAP_USER_ATTR_MAP_LAST_NAME = os.getenv("LDAP_USER_ATTR_MAP_LAST_NAME", "sn")
-    AUTH_LDAP_USER_ATTR_MAP_EMAIL_ADDR = os.getenv("LDAP_USER_ATTR_MAP_EMAIL_ADDR", "mailPrimaryAddress")
-    AUTH_LDAP_USER_ATTR_MAP = {
-        "first_name": AUTH_LDAP_USER_ATTR_MAP_FIRST_NAME,
-        "last_name": AUTH_LDAP_USER_ATTR_MAP_LAST_NAME,
-        "email": AUTH_LDAP_USER_ATTR_MAP_EMAIL_ADDR,
-    }
-
-    AUTH_LDAP_FIND_GROUP_PERMS = True
-    AUTH_LDAP_ALWAYS_UPDATE_USER = strtobool(os.getenv("LDAP_ALWAYS_UPDATE_USER", "True"))
-    AUTH_LDAP_FIND_GROUP_PERMS = True
-    AUTH_LDAP_CACHE_TIMEOUT = 3600
-    
-    # these are not needed by django_auth_ldap - we use them to find and match
-    # GroupProfiles and GroupCategories
-    # GEONODE_LDAP_GROUP_NAME_ATTRIBUTE = os.getenv("LDAP_GROUP_NAME_ATTRIBUTE", default="cn")
-    # GEONODE_LDAP_GROUP_PROFILE_FILTERSTR = os.getenv("LDAP_GROUP_SEARCH_FILTERSTR", default='(ou=research group)')
-    # GEONODE_LDAP_GROUP_PROFILE_MEMBER_ATTR = os.getenv("LDAP_GROUP_PROFILE_MEMBER_ATTR", default='member')
-    {{ end }}
 
     THESAURUS_DEFAULT_LANG = os.environ.get("THESAURUS_DEFAULT_LANG", "en")
