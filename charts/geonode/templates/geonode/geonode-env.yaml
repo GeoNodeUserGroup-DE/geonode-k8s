@@ -95,9 +95,6 @@ data:
   SHOW_PROFILE_EMAIL: {{  include "boolean2str" .Values.geonode.register.show_profile_email | quote }}
   SOCIALACCOUNT_WITH_GEONODE_LOCAL_SINGUP: "True"
 
-  # SOCIAL CONNECTOR
-  # SOCIALACCOUNT_AUTO_SIGNUP: "False"
-
   # Configure PYCSW
   {{ if .Values.pycsw.enabled }}
   CATALOGUE_ENGINE: geonode.catalogue.backends.pycsw_http
