@@ -83,7 +83,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | geonode.init.image.name | string | `"jwilder/dockerize"` |  |
 | geonode.init.image.tag | string | `"v0.10.0"` |  |
 | geonode.init.imagePullPolicy | string | `"IfNotPresent"` |  |
-| geonode.livenessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/","port":"http-monitor"},"initialDelaySeconds":90,"periodSeconds":5}` | configure livenessProbe for geonode, make sure port is aligned with geonode.port configuration |
+| geonode.livenessProbe | object | {"failureThreshold":3,"httpGet":{"path":"/","port":"http-monitor"},"initialDelaySeconds":90,"periodSeconds":5} | configure livenessProbe for geonode, make sure port is aligned with geonode.port configuration |
 | geonode.mail.backend | string | `"django.core.mail.backends.smtp.EmailBackend"` | set mail backend in geonode settings |
 | geonode.mail.enabled | bool | `false` | enables mail configuration for geonode |
 | geonode.mail.host | string | `"smtp.gmail.com"` | set mail host for genode mail |

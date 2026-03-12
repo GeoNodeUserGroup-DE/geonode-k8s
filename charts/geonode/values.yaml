@@ -268,10 +268,7 @@ geonode:
     tls: true
     # -- enable ssl for geonode mail (only tls or ssl can be true not both)
     use_ssl: False
-<<<<<<< HEAD
 
-=======
->>>>>>> 18e34f63f7d1511cf065b913f7bdfcbd6167288c
   # -- Find docs for register values under:
   # - https://docs.geonode.org/en/3.3.x/basic/settings/index.html
   # - https://github.com/pinax/django-user-accounts/blob/master/docs/settings.rst

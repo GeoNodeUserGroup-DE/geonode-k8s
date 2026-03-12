@@ -411,6 +411,11 @@ data:
         )
 
     @task
+    def prescript(ctx):
+        print("**********************geonode-k8s pre ***************************")
+        {{ .Values.geonode.tasks_pre_script | indent 8 | trim }}
+
+    @task
     def collectmetrics(ctx):
         print("************************collect metrics******************************")
         ctx.run(
