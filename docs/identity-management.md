@@ -1,6 +1,6 @@
 # Identity Management
 
-This docuentation describes how to integrate different identity backends, which are generally support by geonode, in the geonode helm deployment. As the geonode-k8s chart wants to use the official geonode images provided by geosolutions, this requires that users A build their own images to integrate e.g. further requirements, like python packages or installing contrib modules. This documentation describes howto integrate LDAP and OAUTH2 identity management without changing the geonode images itself, for the sake of slower starttime performance of geonode related containers and jobs.
+This documentation describes how to integrate different identity backends, which are generally support by geonode, in the geonode helm deployment. As the geonode-k8s chart wants to use the official geonode images provided by geosolutions, this requires that users A build their own images to integrate e.g. further requirements, like python packages or installing contrib modules. This documentation describes howto integrate LDAP and OAUTH2 identity management without changing the geonode images itself, for the sake of slower starttime performance of geonode related containers and jobs.
 
 
 ## LDAP integration
