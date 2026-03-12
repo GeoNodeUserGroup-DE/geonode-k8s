@@ -357,6 +357,14 @@ geonode:
     # init container image pull policy
     imagePullPolicy: IfNotPresent
 
+  hooks:
+    # -- enable automatic cleanup of old init/migration jobs before helm upgrade
+    cleanupOnUpgrade: true
+    # -- kubectl image used for the cleanup hook job (official Kubernetes project image)
+    kubectlImage: registry.k8s.io/kubectl
+    # -- kubectl image tag used for the cleanup hook job
+    kubectlTag: "v1.32.0"
+
   celery:
     # -- celery container name
     container_name: celery

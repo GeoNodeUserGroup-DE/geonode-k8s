@@ -1,0 +1,96 @@
+{{- if .Values.geonode.hooks.cleanupOnUpgrade }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: "{{ include "geonode_pod_name" . }}-cleanup"
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/hook: pre-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    helm.sh/hook-weight: "-10"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: "{{ include "geonode_pod_name" . }}-cleanup"
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/hook: pre-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    helm.sh/hook-weight: "-10"
+rules:
+- apiGroups: ["batch"]
+  resources: ["jobs"]
+  verbs: ["get", "list", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: "{{ include "geonode_pod_name" . }}-cleanup"
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/hook: pre-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    helm.sh/hook-weight: "-10"
+subjects:
+- kind: ServiceAccount
+  name: "{{ include "geonode_pod_name" . }}-cleanup"
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: Role
+  name: "{{ include "geonode_pod_name" . }}-cleanup"
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ include "geonode_pod_name" . }}-cleanup"
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/hook: pre-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    helm.sh/hook-weight: "-5"
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        org.geonode.instance: "{{ include "geonode_pod_name" . }}-cleanup"
+    spec:
+      serviceAccountName: "{{ include "geonode_pod_name" . }}-cleanup"
+      restartPolicy: Never
+      initContainers:
+      - name: cleanup-init-db-job
+        image: "{{ .Values.geonode.hooks.kubectlImage }}:{{ .Values.geonode.hooks.kubectlTag }}"
+        imagePullPolicy: IfNotPresent
+        command:
+        - kubectl
+        args:
+        - delete
+        - job
+        - "{{ include "geonode_pod_name" . }}-init-db-job"
+        - -n
+        - {{ .Release.Namespace }}
+        - --ignore-not-found=true
+      - name: cleanup-statics-job
+        image: "{{ .Values.geonode.hooks.kubectlImage }}:{{ .Values.geonode.hooks.kubectlTag }}"
+        imagePullPolicy: IfNotPresent
+        command:
+        - kubectl
+        args:
+        - delete
+        - job
+        - "{{ include "geonode_pod_name" . }}-statics-job"
+        - -n
+        - {{ .Release.Namespace }}
+        - --ignore-not-found=true
+      containers:
+      - name: cleanup-done
+        image: "{{ .Values.geonode.hooks.kubectlImage }}:{{ .Values.geonode.hooks.kubectlTag }}"
+        imagePullPolicy: IfNotPresent
+        command:
+        - kubectl
+        args:
+        - version
+        - --client=true
+{{- end }}
