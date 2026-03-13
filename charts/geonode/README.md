@@ -71,6 +71,9 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.0.1, Geoserver: 2.24.4-la
 | geonode.general.upload.document_size | int | `60` | max upload document size in MB |
 | geonode.general.upload.max_parallel_uploads_per_user | int | `10` | DEFAULT_MAX_PARALLEL_UPLOADS_PER_USER (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-parallel-uploads-per-user) Default: 5 When uploading datasets, this value limits the number os parallel uploads. The parallelism limit is set during installation using the value of this variable. After installation, only an user with administrative rights can change it. These limits can be changed in the admin panel or accessing by api. |
 | geonode.general.upload.size | string | `"2097152000"` | DEFAULT_MAX_UPLOAD_SIZE (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-upload-size) Important: This value must be syncronized with nginx.maxClientBodySize Default: 2097152000 (2000 MB in bytes) (104857600 = 100 MB) When uploading datasets or uploading documents, the total size of the uploaded files is verified. The size limits are set during installation using the value of this variable. After installation, only an user with administrative rights can change it. These limits can be changed in the admin panel or accessing by api. |
+| geonode.hooks.cleanupOnUpgrade | bool | `true` | enable automatic cleanup of old init/migration jobs before helm upgrade |
+| geonode.hooks.kubectlImage | string | `"registry.k8s.io/kubectl"` | kubectl image used for the cleanup hook job (official Kubernetes project image) |
+| geonode.hooks.kubectlTag | string | `"v1.32.0"` | kubectl image tag used for the cleanup hook job |
 | geonode.image.name | string | `"geonode/geonode"` |  |
 | geonode.image.tag | string | `"5.0.1"` |  |
 | geonode.imagePullPolicy | string | `"IfNotPresent"` | image pull policy |
@@ -83,19 +86,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.0.1, Geoserver: 2.24.4-la
 | geonode.init.image.name | string | `"jwilder/dockerize"` |  |
 | geonode.init.image.tag | string | `"v0.10.0"` |  |
 | geonode.init.imagePullPolicy | string | `"IfNotPresent"` |  |
-| geonode.ldap.always_update_user | bool | `true` | always update local user database from ldap |
-| geonode.ldap.attr_map_email_addr | string | `"mailPrimaryAddress"` | email attribute used from ldap |
-| geonode.ldap.attr_map_first_name | string | `"givenName"` | given name attribute used from ldap |
-| geonode.ldap.attr_map_last_name | string | `"sn"` | last name attribute used from ldap |
-| geonode.ldap.bind_dn | string | `"CN=Users,DC=ad,DC=example,DC=com"` | ldap user bind dn |
-| geonode.ldap.enabled | bool | `false` | enable ldap AUTHENTICATION_BACKENDS in DJANGO Geonode |
-| geonode.ldap.group_search_dn | string | `"OU=Groups,DC=ad,DC=example,DC=com"` | ldap group search dn |
-| geonode.ldap.group_search_filterstr | string | `"(objectClass=group)"` | ldap group filterstr |
-| geonode.ldap.mirror_groups | bool | `true` | Mirror groups with ldap (see https://docs.geonode.org/en/master/advanced/contrib/index.html) |
-| geonode.ldap.uri | string | `"ldap://example.com"` | ldap uri |
-| geonode.ldap.user_search_dn | string | `"OU=User,DC=ad,DC=example,DC=com"` | ldap user search dn |
-| geonode.ldap.user_search_filterstr | string | `"(sAMAccountName=%(user)s)"` | ldap user filterstr |
-| geonode.livenessProbe | object | `{"failureThreshold":3,"initialDelaySeconds":90,"periodSeconds":5,"tcpSocket":{"port":8000}}` | configure livenessProbe for geonode, make sure port is aligned with geonode.port configuration |
+| geonode.livenessProbe | object | {"failureThreshold":3,"httpGet":{"path":"/","port":"http-monitor"},"initialDelaySeconds":90,"periodSeconds":5} | configure livenessProbe for geonode, make sure port is aligned with geonode.port configuration |
 | geonode.mail.backend | string | `"django.core.mail.backends.smtp.EmailBackend"` | set mail backend in geonode settings |
 | geonode.mail.enabled | bool | `false` | enables mail configuration for geonode |
 | geonode.mail.host | string | `"smtp.gmail.com"` | set mail host for genode mail |
@@ -116,7 +107,6 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.0.1, Geoserver: 2.24.4-la
 | geonode.secret.bing.apiKey | string | `""` |  |
 | geonode.secret.django.secretKey | string | `"myv-y4#7j-d*p-__@j#*3z@!y24fz8%^z2v6atuy4bo9vqr1_a"` |  |
 | geonode.secret.existingSecretName | string | `""` | name of an existing Secret to use. Set, if you want to separately maintain the Secret. |
-| geonode.secret.ldap.bind_password | string | `"password"` | ldap password |
 | geonode.secret.mail.from | string | `"changeme@web.de"` | define from mail-addr |
 | geonode.secret.mail.password | string | `"changeme"` | set password for mailuser in geonode |
 | geonode.secret.mail.user | string | `"changeme"` | define mail user to send mails from |
@@ -289,4 +279,4 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.0.1, Geoserver: 2.24.4-la
 | redis.sentinel.enabled | bool | `false` | Enable Redis Sentinel for high availability. When disabled, pod-0 is master (manual failover) |
 
 ----------------------------------------------
-Autogenerated from chart metadata using [helm-docs v1.11.0](https://github.com/norwoodj/helm-docs/releases/v1.11.0)
+Autogenerated from chart metadata using [helm-docs v1.13.1](https://github.com/norwoodj/helm-docs/releases/v1.13.1)
