@@ -1,4 +1,44 @@
+{{/*
+Pre-upgrade cleanup hook — runs only when the GeoNode image tag changes.
+
+Background:
+  Kubernetes Jobs have an immutable spec.template field. When Helm upgrades a
+  release with a new image tag, it cannot update existing Jobs in-place, causing
+  the upgrade to fail with an immutability error. Old Jobs must therefore be
+  deleted before the new ones can be created.
+
+How it works:
+  At template-render time, the hook uses Helm's `lookup` function to read the
+  currently deployed init-db-job from the cluster. It compares the container
+  image of the existing job against the desired image (geonode.image.name:tag).
+  If the images match, the entire hook is skipped — no cleanup is needed.
+  If they differ (or the job doesn't exist yet), the hook runs and deletes
+  both old jobs so Helm can recreate them with the new image.
+
+  hook-delete-policy: before-hook-creation,hook-succeeded
+    - before-hook-creation: removes any previous cleanup job before creating a
+      new one, preventing "already exists" errors on repeated upgrades.
+    - hook-succeeded: removes the completed cleanup job after it finishes,
+      keeping the cluster tidy.
+
+RBAC:
+  A dedicated ServiceAccount, Role (batch/jobs: get,list,delete), and
+  RoleBinding are created by geonode-cleanup-rbac.yaml at hook-weight -10,
+  before this Job runs at hook-weight -5. All RBAC resources use
+  "before-hook-creation,hook-succeeded,hook-failed" so they are always cleaned
+  up regardless of outcome.
+
+Toggle:
+  Set geonode.hooks.cleanupOnUpgrade=false to disable this hook entirely.
+*/}}
 {{- if .Values.geonode.hooks.cleanupOnUpgrade }}
+{{- $desiredImage := printf "%s:%s" .Values.geonode.image.name (.Values.geonode.image.tag | toString) }}
+{{- $existingJob := (lookup "batch/v1" "Job" .Release.Namespace (printf "%s-init-db-job" (include "geonode_pod_name" .))) }}
+{{- $existingImage := "" }}
+{{- if $existingJob }}
+  {{- $existingImage = (index $existingJob.spec.template.spec.containers 0).image }}
+{{- end }}
+{{- if ne $desiredImage $existingImage }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -51,4 +91,5 @@ spec:
         args:
         - version
         - --client=true
-{{- end }}
+{{- end }}{{/* ne $desiredImage $existingImage */}}
+{{- end }}{{/* cleanupOnUpgrade */}}
