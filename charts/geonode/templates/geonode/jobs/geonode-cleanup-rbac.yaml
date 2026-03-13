@@ -1,0 +1,61 @@
+{{/*
+RBAC resources for the pre-upgrade cleanup hook (see geonode-cleanup-job.yaml).
+
+A minimal Role granting only batch/jobs get+list+delete in the release namespace
+is bound to a dedicated ServiceAccount used exclusively by the cleanup Job.
+
+All three resources use hook-weight -10 so they exist before the cleanup Job
+(hook-weight -5) is scheduled. The delete policy includes hook-failed so RBAC
+is always cleaned up, even when the cleanup Job fails.
+*/}}
+{{- if .Values.geonode.hooks.cleanupOnUpgrade }}
+{{- $desiredImage := printf "%s:%s" .Values.geonode.image.name (.Values.geonode.image.tag | toString) }}
+{{- $existingJob := (lookup "batch/v1" "Job" .Release.Namespace (printf "%s-init-db-job" (include "geonode_pod_name" .))) }}
+{{- $existingImage := "" }}
+{{- if $existingJob }}
+  {{- $existingImage = (index $existingJob.spec.template.spec.containers 0).image }}
+{{- end }}
+{{- if ne $desiredImage $existingImage }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: "{{ include "geonode_pod_name" . }}-cleanup"
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/hook: pre-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded,hook-failed
+    helm.sh/hook-weight: "-10"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: "{{ include "geonode_pod_name" . }}-cleanup"
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/hook: pre-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded,hook-failed
+    helm.sh/hook-weight: "-10"
+rules:
+- apiGroups: ["batch"]
+  resources: ["jobs"]
+  verbs: ["get", "list", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: "{{ include "geonode_pod_name" . }}-cleanup"
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/hook: pre-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded,hook-failed
+    helm.sh/hook-weight: "-10"
+subjects:
+- kind: ServiceAccount
+  name: "{{ include "geonode_pod_name" . }}-cleanup"
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: Role
+  name: "{{ include "geonode_pod_name" . }}-cleanup"
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}{{/* ne $desiredImage $existingImage */}}
+{{- end }}{{/* cleanupOnUpgrade */}}
