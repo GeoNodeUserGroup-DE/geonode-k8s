@@ -71,6 +71,9 @@ Helm Chart for Geonode. Supported versions: Geonode: 4.4.3, Geoserver: 2.24.4-la
 | geonode.general.upload.document_size | int | `60` | max upload document size in MB |
 | geonode.general.upload.max_parallel_uploads_per_user | int | `10` | DEFAULT_MAX_PARALLEL_UPLOADS_PER_USER (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-parallel-uploads-per-user) Default: 5 When uploading datasets, this value limits the number os parallel uploads. The parallelism limit is set during installation using the value of this variable. After installation, only an user with administrative rights can change it. These limits can be changed in the admin panel or accessing by api. |
 | geonode.general.upload.size | string | `"2097152000"` | DEFAULT_MAX_UPLOAD_SIZE (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-upload-size) Important: This value must be syncronized with nginx.maxClientBodySize Default: 2097152000 (2000 MB in bytes) (104857600 = 100 MB) When uploading datasets or uploading documents, the total size of the uploaded files is verified. The size limits are set during installation using the value of this variable. After installation, only an user with administrative rights can change it. These limits can be changed in the admin panel or accessing by api. |
+| geonode.hooks.cleanupOnUpgrade | bool | `true` | enable automatic cleanup of old init/migration jobs before helm upgrade |
+| geonode.hooks.kubectlImage | string | `"registry.k8s.io/kubectl"` | kubectl image used for the cleanup hook job (official Kubernetes project image) |
+| geonode.hooks.kubectlTag | string | `"v1.32.0"` | kubectl image tag used for the cleanup hook job |
 | geonode.image.name | string | `"geonode/geonode"` |  |
 | geonode.image.tag | string | `"5.0.1"` |  |
 | geonode.imagePullPolicy | string | `"IfNotPresent"` | image pull policy |
