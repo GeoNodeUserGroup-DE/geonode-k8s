@@ -411,6 +411,11 @@ data:
         )
 
     @task
+    def prescript(ctx):
+        print("**********************geonode-k8s pre ***************************")
+        {{ .Values.geonode.tasks_pre_script | indent 8 | trim }}
+
+    @task
     def collectmetrics(ctx):
         print("************************collect metrics******************************")
         ctx.run(
@@ -423,11 +428,6 @@ data:
     def initialized(ctx):
         print("**************************init file********************************")
         ctx.run("date > /mnt/volumes/statics/geonode_init.lock")
-
-    @task
-    def prescript(ctx):
-        print("**********************geonode-k8s pre ***************************")
-        {{ .Values.geonode.tasks_pre_script | indent 8 | trim }}
 
 
     def _update_db_connstring():

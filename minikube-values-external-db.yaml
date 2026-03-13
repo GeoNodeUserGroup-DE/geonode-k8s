@@ -23,9 +23,6 @@ geonode:
   mail:
     enabled: False
 
-  ldap:
-    enabled: False
-
   register:
     open_signup: True
     email_verification: "False"
