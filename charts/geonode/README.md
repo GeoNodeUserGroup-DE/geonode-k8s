@@ -2,7 +2,7 @@
 
 ![Version: 1.3.2](https://img.shields.io/badge/Version-1.3.2-informational?style=flat-square)
 
-Helm Chart for Geonode. Supported versions: Geonode: 5.0.1, Geoserver: 2.24.4-latest, pyCSW: 3.0.0-beta2
+Helm Chart for Geonode. Supported versions: Geonode: 5.0.1, Geoserver: 2.27.4-latest, pyCSW: 3.0.0-beta2
 
 **Homepage:** <https://geonode.org/>
 

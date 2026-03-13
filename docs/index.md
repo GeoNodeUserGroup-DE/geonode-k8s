@@ -1,292 +1,101 @@
-# geonode-k8s
-
 ![Version: 1.3.2](https://img.shields.io/badge/Version-1.3.2-informational?style=flat-square)
 
-Helm Chart for Geonode. Supported versions: Geonode: 5.0,1, Geoserver: 2.24.4-latest, pyCSW: 3.0.0-beta2
+# Helm Chart for Geonode
 
-**Homepage:** <https://geonode.org/>
+- [GeoWhat?](#Geonode)
+- [Geonode-k8s](#geonode-k8s)
+- [Install Guilde](#install)
 
-## Maintainers
+**Homepage:** <https://github.com/GeoNodeUserGroup-DE/geonode-k8s>
 
-| Name | Email | Url |
-| ---- | ------ | --- |
-| mwallschlaeger | <marcel.wallschlaeger@zalf.de> | <https://github.com/mwallschlaeger> |
+## Geonode
 
-## Source Code
+GeoNode is a geospatial content management system, a platform for the management and publication of geospatial data. It brings together mature
+and stable open-source software projects under a consistent and easy-to-use interface allowing non-specialized users to share data and
+create interactive maps.
 
-* <https://github.com/GeoNodeUserGroup-DE/geonode-k8s>
-* <https://github.com/geonode/geonode>
+You can find the Sourcecode and more information about geonode under:
 
-## Requirements
+- Homepage: https://geonode.org/
+- Github: https://github.com/GeoNode/geonode
+- Docs: https://docs.geonode.org
 
-| Repository | Name | Version |
-|------------|------|---------|
-| https://opensource.zalando.com/postgres-operator/charts/postgres-operator | postgres-operator | ~1.12.0 |
-| oci://registry-1.docker.io/cloudpirates | memcached | 0.9.6 |
-| oci://registry-1.docker.io/cloudpirates | rabbitmq | 0.2.12 |
-| oci://registry-1.docker.io/cloudpirates | redis | 0.19.0 |
+Due to growing needs for high availability and scalability this repository aims at running GeoNode with all required services in a cloud based manner. To do so, we use Kubernetes (https://kubernetes.io/), a cloud management software, which runs on public and private clouds. As the Kubernetes ecosystem can be confusing for people getting new to this field, there are packages for most services which are able to run on top of Kubernetes. These packages are managed via helm (https://helm.sh/).
 
-## Values
+## Geonode-k8s
 
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| favicon | string | AAABAAMAEBAAAAEAIABoBA ... AAAA== | A base64 encoded favicon |
-| geonode.accesscontrol.lockdown | string | `"False"` | Enable/Disable lockdown mode of GeoNode |
-| geonode.acme.email | string | `"support@example.com"` | the email to be used to gain certificates |
-| geonode.acme.enabled | bool | `false` | enables cert-manager to do ACME challenges (aka certificates via letsencrypt) |
-| geonode.acme.stageUrl | string | `"https://acme-staging-v02.api.letsencrypt.org/directory"` | ACME staging environment (use acme-staging to avoid running into rate limits) stageUrl: https://acme-v02.api.letsencrypt.org/directory |
-| geonode.celery.container_name | string | `"celery"` | celery container name |
-| geonode.celery.imagePullPolicy | string | `"IfNotPresent"` | celery image pull policy |
-| geonode.celery.resources.limits.cpu | int | `2` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| geonode.celery.resources.limits.memory | string | `"2Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| geonode.celery.resources.requests.cpu | int | `1` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| geonode.celery.resources.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| geonode.container_name | string | `"geonode"` |  |
-| geonode.general.api_limit_per_page | int | `1000` | to describe |
-| geonode.general.debug | bool | `false` | django debug mode |
-| geonode.general.debug_static | bool | `false` | enable django static debug |
-| geonode.general.display.comments | bool | `true` | DISPLAY_COMMENTS If set to False comments are hidden. |
-| geonode.general.display.dataset_link | bool | `true` | DISPLAY_ORIGINAL_DATASET_LINK If set to False original dataset download is hidden. |
-| geonode.general.display.rating | bool | `true` | DISPLAY_RATINGS If set to False ratings are hidden. |
-| geonode.general.display.social | bool | `true` | DISPLAY_SOCIAL If set to False social sharing is hidden. |
-| geonode.general.display.wms_link | bool | `true` | DISPLAY_WMS_LINKS If set to False direct WMS link to GeoServer is hidden. |
-| geonode.general.externalDomain | string | `"geonode"` | external ingress hostname |
-| geonode.general.externalScheme | string | `"http"` | external ingress schema. If set to 'https', make sure to configure TLS either by configuring tls certificate or using cert-manager. Available options: (http|https) |
-| geonode.general.extraEnvVars | object | `{}` | extraEnvVars can be used to add geonode environment variable configuration from https://docs.geonode.org/en/master/basic/settings/index.html which are not available in the helm chart. Where the key is the env-var name comming from the geonode docs. |
-| geonode.general.force_reinit | bool | `true` | set force reinit true so that changing passwords etc. in Values.yaml will take effect after restarting the pod this on the other hand will increase pod initializing time, only change if you know what you are doing |
-| geonode.general.freetext_keywords_readonly | bool | `false` | FREETEXT_KEYWORDS_READONLY Make Free-Text Keywords writable from users. Or read-only when set to False. |
-| geonode.general.geonode_project | string | `"geonode"` | the name of the geonode project used (keep geonode for base image) |
-| geonode.general.ogc_request_backoff_factor | float | `0.3` | OGC_REQUEST_BACKOFF_FACTOR |
-| geonode.general.ogc_request_max_retries | int | `1` | OGC_REQUEST_MAX_RETRIES |
-| geonode.general.ogc_request_pool_connections | int | `10` | OGC_REQUEST_POOL_CONNECTIONS |
-| geonode.general.ogc_request_pool_maxsize | int | `10` | OGC_REQUEST_POOL_MAXSIZE |
-| geonode.general.ogc_request_timeout | int | `600` | OGC_REQUEST_TIMEOUT |
-| geonode.general.publishing.admin_moderate_uploads | bool | `false` | ADMIN_MODERATE_UPLOADS When this variable is set to True, every uploaded resource must be approved before becoming visible to the public users. Until a resource is in PENDING APPROVAL state, only the superusers, owner and group members can access it, unless specific edit permissions have been set for other users or groups. A Group Manager can approve the resource, but he cannot publish it whenever the setting RESOURCE_PUBLISHING is set to True. Otherwise, if RESOURCE_PUBLISHING (helm: resource_publishing_by_staff) is set to False, the resource becomes accessible as soon as it is approved. |
-| geonode.general.publishing.resource_publishing_by_staff | bool | `false` | RESOURCE_PUBLISHING By default, the GeoNode application allows GeoNode staff members to publish/unpublish resources. By default, resources are published when created. When this setting is set to True the staff members will be able to unpublish a resource (and eventually publish it back). |
-| geonode.general.session_expired_control_enabled | string | `"True"` | SESSION_EXPIRED_CONTROL_ENABLED (https://docs.geonode.org/en/master/basic/settings/index.html#session-expired-control-enabled) By enabling this variable, a new middleware geonode.security.middleware.SessionControlMiddleware will be added to the MIDDLEWARE_CLASSES. The class will check every request to GeoNode and it will force a log out whenever one of the following conditions occurs:: Whether the uploaded resources should be public by default. |
-| geonode.general.settings_additions | string | `""` | add additional settings to the settings py. This code will be appended to the end of the geonode settings.py |
-| geonode.general.settings_module | string | `"geonode.settings"` | the settings module to load |
-| geonode.general.upload.anonymous_download_permission | string | `"True"` | DEFAULT_ANONYMOUS_DOWNLOAD_PERMISSION (https://docs.geonode.org/en/master/basic/settings/index.html#default-anonymous-download-permission) Whether the uploaded resources should downloadable by default. |
-| geonode.general.upload.anonymous_view_permission | string | `"True"` | DEFAULT_ANONYMOUS_VIEW_PERMISSION (https://docs.geonode.org/en/master/basic/settings/index.html#default-anonymous-view-permission) Whether the uploaded resources should be public by default. |
-| geonode.general.upload.document_size | int | `60` | max upload document size in MB |
-| geonode.general.upload.max_parallel_uploads_per_user | int | `10` | DEFAULT_MAX_PARALLEL_UPLOADS_PER_USER (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-parallel-uploads-per-user) Default: 5 When uploading datasets, this value limits the number os parallel uploads. The parallelism limit is set during installation using the value of this variable. After installation, only an user with administrative rights can change it. These limits can be changed in the admin panel or accessing by api. |
-| geonode.general.upload.size | string | `"2097152000"` | DEFAULT_MAX_UPLOAD_SIZE (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-upload-size) Important: This value must be syncronized with nginx.maxClientBodySize Default: 2097152000 (2000 MB in bytes) (104857600 = 100 MB) When uploading datasets or uploading documents, the total size of the uploaded files is verified. The size limits are set during installation using the value of this variable. After installation, only an user with administrative rights can change it. These limits can be changed in the admin panel or accessing by api. |
-| geonode.image.name | string | `"geonode/geonode"` |  |
-| geonode.image.tag | string | `"5.0.1"` |  |
-| geonode.imagePullPolicy | string | `"IfNotPresent"` | image pull policy |
-| geonode.imagePullSecret | string | `""` | pull secret to use for geonode image |
-| geonode.ingress.annotations | object | `{}` | adds ingress annotations for nginx ingress class |
-| geonode.ingress.enabled | bool | `true` | enables external access |
-| geonode.ingress.ingressClassName | string | `nil` | define kubernetes ingress class for geonode ingress |
-| geonode.ingress.tlsSecret | string | `"geonode-tls-secret"` | tls certificate for geonode ingress https://kubernetes.io/docs/tasks/tls/managing-tls-in-a-cluster/ (for the use of cert-manager, configure the acme section properly). is used when geonode.general.externalScheme is set to 'https' |
-| geonode.init.container_name | string | `"geonode-wait-for-db-and-rabbit"` | init container name |
-| geonode.init.image.name | string | `"jwilder/dockerize"` |  |
-| geonode.init.image.tag | string | `"v0.10.0"` |  |
-| geonode.init.imagePullPolicy | string | `"IfNotPresent"` |  |
-| geonode.ldap.always_update_user | bool | `true` | always update local user database from ldap |
-| geonode.ldap.attr_map_email_addr | string | `"mailPrimaryAddress"` | email attribute used from ldap |
-| geonode.ldap.attr_map_first_name | string | `"givenName"` | given name attribute used from ldap |
-| geonode.ldap.attr_map_last_name | string | `"sn"` | last name attribute used from ldap |
-| geonode.ldap.bind_dn | string | `"CN=Users,DC=ad,DC=example,DC=com"` | ldap user bind dn |
-| geonode.ldap.enabled | bool | `false` | enable ldap AUTHENTICATION_BACKENDS in DJANGO Geonode |
-| geonode.ldap.group_search_dn | string | `"OU=Groups,DC=ad,DC=example,DC=com"` | ldap group search dn |
-| geonode.ldap.group_search_filterstr | string | `"(objectClass=group)"` | ldap group filterstr |
-| geonode.ldap.mirror_groups | bool | `true` | Mirror groups with ldap (see https://docs.geonode.org/en/master/advanced/contrib/index.html) |
-| geonode.ldap.uri | string | `"ldap://example.com"` | ldap uri |
-| geonode.ldap.user_search_dn | string | `"OU=User,DC=ad,DC=example,DC=com"` | ldap user search dn |
-| geonode.ldap.user_search_filterstr | string | `"(sAMAccountName=%(user)s)"` | ldap user filterstr |
-| geonode.livenessProbe | object | `{"failureThreshold":3,"initialDelaySeconds":90,"periodSeconds":5,"tcpSocket":{"port":8000}}` | configure livenessProbe for geonode, make sure port is aligned with geonode.port configuration |
-| geonode.mail.backend | string | `"django.core.mail.backends.smtp.EmailBackend"` | set mail backend in geonode settings |
-| geonode.mail.enabled | bool | `false` | enables mail configuration for geonode |
-| geonode.mail.host | string | `"smtp.gmail.com"` | set mail host for genode mail |
-| geonode.mail.port | string | `"587"` | mail port fo geonode mail |
-| geonode.mail.tls | bool | `true` | activate tls for geonode mail (only tls or ssl can be true not both) |
-| geonode.mail.use_ssl | bool | `false` | enable ssl for geonode mail (only tls or ssl can be true not both) |
-| geonode.memcached.backend | string | `"django.core.cache.backends.memcached.PyLibMCCache"` | memcached backend to use if geonode ">=4.3.0" use django.core.cache.backends.memcached.PyLibMCCache before use django.core.cache.backends.memcached.MemcachedCache |
-| geonode.memcached.enabled | bool | `true` | enable memcache, this will spawn one or more seperate memcache container(s) |
-| geonode.memcached.enabled_geonode | bool | `false` | set the MEMCACHED_ENABLED env var for GeoNode (django). Dynamic caching (see https://docs.djangoproject.com/en/4.0/topics/cache/) |
-| geonode.memcached.lock_expire | string | `"3600"` | memcached lock expire time |
-| geonode.memcached.lock_timeout | string | `"10"` | memcached lock timeout |
-| geonode.persistant.storageSize | string | `"10Gi"` | size of persistant geonode storage |
-| geonode.replicaCount | int | `1` | number of geonode replicas (! not working properly yet) |
-| geonode.resources.limits.cpu | int | `2` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| geonode.resources.limits.memory | string | `"2Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| geonode.resources.requests.cpu | int | `1` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| geonode.resources.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| geonode.secret.bing.apiKey | string | `""` |  |
-| geonode.secret.django.secretKey | string | `"myv-y4#7j-d*p-__@j#*3z@!y24fz8%^z2v6atuy4bo9vqr1_a"` |  |
-| geonode.secret.existingSecretName | string | `""` | name of an existing Secret to use. Set, if you want to separately maintain the Secret. |
-| geonode.secret.ldap.bind_password | string | `"password"` | ldap password |
-| geonode.secret.mail.from | string | `"changeme@web.de"` | define from mail-addr |
-| geonode.secret.mail.password | string | `"changeme"` | set password for mailuser in geonode |
-| geonode.secret.mail.user | string | `"changeme"` | define mail user to send mails from |
-| geonode.secret.oauth2.clientId | string | `"Jrchz2oPY3akmzndmgUTYrs9gczlgoV20YPSvqaV"` | oauth2 geoserver clientID (OAUTH2_CLIENT_ID) |
-| geonode.secret.oauth2.clientSecret | string | `"rCnp5txobUo83EpQEblM8fVj3QT5zb5qRfxNsuPzCqZaiRyIoxM4jdgMiZKFfePBHYXCLd7B8NlkfDBY9HKeIQPcy5Cp08KQNpRHQbjpLItDHv12GvkSeXp6OxaUETv3"` | oauth2 geoserver secret (OAUTH2_CLIENT_SECRET) |
-| geonode.secret.superUser.email | string | `"support@example.com"` | admin user password |
-| geonode.secret.superUser.password | string | `"geonode"` | admin panel password, will only be changed after running the init-db job. At first time deployment or after rerunning the job manually. (See docs/manage-py-jobs.md) |
-| geonode.secret.superUser.username | string | `"admin"` | admin username |
-| geonode.sentry.build_number | int | `0` | sentry build number |
-| geonode.sentry.dsn | string | `""` | sentry dsn url |
-| geonode.sentry.enabled | bool | `false` | enable sentry integration for geonode |
-| geonode.sentry.environment | string | `"development"` | sentry environment |
-| geonode.startupProbe | object | `{"failureThreshold":18,"periodSeconds":5,"tcpSocket":{"port":8000}}` | configure startupProbe for geonode, make sure port is aligned with geonode.port configuration |
-| geonode.tasks_pre_script | string | `"print(\"tasks_pre_script not defined ...\")\n"` | additions to tasks.py init script, must be additional code written in python |
-| geonode.uwsgi.buffer_size | int | `32768` | the max size of a request (request-body excluded) |
-| geonode.uwsgi.cheaper | int | `2` | Minimum number of workers allowed |
-| geonode.uwsgi.cheaper_busyness_backlog_alert | int | `16` | Spawn emergency workers if more than this many requests are waiting in the queue |
-| geonode.uwsgi.cheaper_busyness_backlog_step | int | `2` | How many emergency workers to create if there are too many requests in the queue |
-| geonode.uwsgi.cheaper_busyness_max | int | `70` | Above this threshold, spawn new workers |
-| geonode.uwsgi.cheaper_busyness_min | int | `20` | Below this threshold, kill workers (if stable for multiplier cycles) |
-| geonode.uwsgi.cheaper_busyness_multiplier | int | `30` | How many cycles to wait before killing workers |
-| geonode.uwsgi.cheaper_initial | int | `2` | Workers created at startup |
-| geonode.uwsgi.cheaper_overload | int | `1` | Length of a cycle in seconds |
-| geonode.uwsgi.cheaper_step | int | `1` | How many workers to spawn at a time |
-| geonode.uwsgi.harakiri | int | `300` | forcefully kill workers after 300 seconds (MOSTLY REASON FOR TIMEOUTS WHILE UPLOAD) |
-| geonode.uwsgi.max_requests | int | `600` | Restart workers after this many requests |
-| geonode.uwsgi.max_worker_lifetime | int | `3600` | Restart workers after this many seconds |
-| geonode.uwsgi.processes | int | `4` | Maximum number of workers allowed |
-| geonode.uwsgi.reload_on_rss | int | `2048` | Restart workers after this much resident memory |
-| geonode.uwsgi.threads | int | `24` | number of threads per process |
-| geonode.uwsgi.worker_reload_mercy | int | `60` | How long to wait before forcefully killing workers |
-| geonode.version | string | `"5.0.1"` |  |
-| geonodeFixtures | map of fixture files | `{"somefixture.json":"[\n  {\n    \"pk\": 0,\n    \"model\": \"myapp.sample\"\n    \"description\": \"nice little content\"\n  }\n]\n"}` | Fixture files which shall be made available under /usr/src/geonode/geonode/fixtures (refer to https://docs.djangoproject.com/en/4.2/howto/initial-data/) |
-| geoserver.container_name | string | `"geoserver"` | geoserver container name |
-| geoserver.force_reinit | bool | `true` | set force reinit true so that changing passwords etc. in Values.yaml will take effect after restarting the pod this on the other hand will increase pod initializing time, only change if you know what you are doing |
-| geoserver.shapefile_datetime | bool | `false` | Enable/disable datetime support for shapefiles (Dorg.geotools.shapefile.datetime JVM option) |
-| geoserver.image.name | string | `"geonode/geoserver"` | geoserver image docker image |
-| geoserver.image.tag | string | `"2.27.4-latest"` | geoserver docker image tag |
-| geoserver.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
-| geoserver.imagePullSecret | string | `""` | pull secret to use for geoserver image |
-| geoserver.livenessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities","port":8080},"initialDelaySeconds":60,"periodSeconds":10,"timeoutSeconds":5}` | configure livenessProbe for geoserver, make sure port is aligned with geoserver.port configuration Using HTTP probe to detect GeoServer 2.27.3 circular dependency startup failure and trigger automatic restart |
-| geoserver.port | int | `8080` | geoserver port |
-| geoserver.printing.extraHosts | string | `""` |  |
-| geoserver.readinessProbe | object | `{"failureThreshold":15,"periodSeconds":5,"tcpSocket":{"port":8080}}` | configure readinessProbe for geoserver, make sure port is aligned with geoserver.port configuration |
-| geoserver.resources.limits.cpu | int | `2` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| geoserver.resources.limits.memory | string | `"4Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| geoserver.resources.requests.cpu | int | `1` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| geoserver.resources.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| geoserver.secret.admin_factory_password | string | `"geoserver"` | geoserver factory/previous password. This password is used to change the current password for the geoserver admin_user |
-| geoserver.secret.admin_password | string | `"geoserver"` | geoserver admin password, respect admin_factory_password, if you gonna change the password from not factory password |
-| geoserver.secret.admin_username | string | `"admin"` | geoserver admin username |
-| geoserver.secret.existingSecretName | string | `""` | name of an existing Secret to use. Set, if you want to separately maintain the Secret. |
-| geoserver.secret.extraConfigMap | string | `"# file_1: conf content\n"` | additional elements to include in the config map provided to GeoServer |
-| geoserver.secret.extraPodEnv | string | `""` | Define this for extra GeoServer environment variables Format: extraPodEnv: |   - name: KEY_1     value: "VALUE_1"   - name: KEY_2     value: "VALUE_2" |
-| geoserver.secret.extraSecrets | string | `"#  key_1: value_1\n"` | additional elements to include in the secret provided to GeoServer, if not using an existing secret |
-| geoserver_data.container_name | string | `"geoserver-data-dir"` |  |
-| geoserver_data.image.name | string | `"geonode/geoserver_data"` | geoserver image docker image |
-| geoserver_data.image.tag | string | `"2.27.4-latest"` | geoserver docker image tag |
-| geoserver_data.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
-| global.accessMode | string | `"ReadWriteMany"` | storage access mode used by helm dependency pvc |
-| global.storageClass | string | `nil` | storageClass used by helm dependencies pvc |
-| memcached.config.maxConnections | int | `2048` |  |
-| memcached.config.memoryLimit | int | `128` |  |
-| memcached.enabled | bool | `true` |  |
-| memcached.replicaCount | int | `1` |  |
-| memcached.resources.limits.memory | string | `"256Mi"` |  |
-| memcached.resources.requests.cpu | string | `"100m"` |  |
-| memcached.resources.requests.memory | string | `"128Mi"` |  |
-| nginx.access_control_allow.credentials | bool | `false` | control value of Access-Control-Allow-Credentials in nginx configuration |
-| nginx.container_name | string | `"nginx"` | nginx container name |
-| nginx.external_cors.domain | string | `""` | Target domain for CORS |
-| nginx.external_cors.enabled | bool | `false` | Add Access-Control-Allow-Origin directive to allow integration from an external domain |
-| nginx.geoServerMaxClientBodySize | string | `"10G"` | maximum upload size for geoserver in nginx configuration. Changes here may also require changes in geoserver configuration of the individual services (WFS, ...) |
-| nginx.geonodeMaxClientBodySize | string | `"2000M"` | max file upload size for geonode upload. Only set this value if it should be different from geonode.general.upload.size. to use e.g. if geonode.general.upload.document_size > geonode.general.upload.size |
-| nginx.image.name | string | `"nginx"` | nginx docker image |
-| nginx.image.tag | string | `"1.28"` | nginx docker image tag |
-| nginx.imagePullPolicy | string | `"IfNotPresent"` | nginx image pull policy |
-| nginx.imagePullSecret | string | `""` | pull secret to use for nginx image |
-| nginx.livenessProbe.httpGet.path | string | `"/"` |  |
-| nginx.livenessProbe.httpGet.port | string | `"http"` |  |
-| nginx.livenessProbe.initialDelaySeconds | int | `50` |  |
-| nginx.livenessProbe.timeoutSeconds | int | `5` |  |
-| nginx.pycswMaxClientBodySize | string | `"100M"` | maximum upload size for pycsw server in nginx configuration. Only used if `.Values.pycsw.enabled: true`. |
-| nginx.replicaCount | int | `1` | nginx container replicas |
-| nginx.resources.limits.cpu | string | `"800m"` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| nginx.resources.limits.memory | string | `"1Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| nginx.resources.requests.cpu | string | `"500m"` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| nginx.resources.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| postgres-operator.configLoggingRestApi.api_port | int | `8080` | REST API listener listens to this port |
-| postgres-operator.enabled | bool | `false` | enable postgres-operator (this or postgresql.enabled NOT both ) |
-| postgres-operator.operatorApiUrl | string | `"http://{{ .Release.Name }}-postgres-operator:8080"` | ??? |
-| postgres-operator.podServiceAccount | object | `{"name":""}` | not setting the podServiceAccount name will leed to generation of this name. This allows to run multiple postgres-operators in a single kubernetes cluster. just seperating them by namespace. |
-| postgres.external.hostname | string | `"my-external-postgres.com"` |  |
-| postgres.external.port | int | `5432` |  |
-| postgres.external.secret.existingSecretName | string | `""` | name of an existing Secret to use. Set, if you want to separately maintain the Secret. |
-| postgres.external.secret.geodata_password | string | `"geogeonode"` |  |
-| postgres.external.secret.geonode_password | string | `"geonode"` |  |
-| postgres.external.secret.postgres_password | string | `"postgres"` |  |
-| postgres.external.ssl | string | `"prefer"` |  |
-| postgres.geodata_databasename_and_username | string | `"geodata"` | geoserver database name and username |
-| postgres.geonode_databasename_and_username | string | `"geonode"` | geonode database name and username |
-| postgres.operator.allowedSourceRanges | list | `[]` | when one or more load balancers are enabled for the cluster, this parameter defines the comma-separated range of IP networks (in CIDR-notation). The corresponding load balancer is accessible only to the networks defined by this parameter. Optional, when empty the load balancer service becomes inaccessible from outside of the Kubernetes cluster. |
-| postgres.operator.annotations | object | `{}` | additional annotation for postgresql object |
-| postgres.operator.clone | object | `{}` |  |
-| postgres.operator.enableMasterLoadBalancer | string | `nil` | boolean flag to override the operator defaults (set by the enable_master_load_balancer parameter) to define whether to enable the load balancer pointing to the Postgres primary. Optional. |
-| postgres.operator.env | list | `[]` | a dictionary of environment variables. Use usual Kubernetes definition (https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/) for environment variables. Optional. |
-| postgres.operator.numberOfInstances | int | `1` | number of database instances |
-| postgres.operator.parameters | object | `{"max_connections":"20","shared_buffers":"250MB","work_mem":"12.5Mb"}` | postgres parameters resources |
-| postgres.operator.patroni | object | `{}` | patroni related configuration (https://patroni.readthedocs.io/en/master/patroni_configuration.html) |
-| postgres.operator.pod_name | string | `"postgresql"` | pod name for postgres containers == teamID for mainifest |
-| postgres.operator.postgres_version | int | `15` | postgres version |
-| postgres.operator.resources | object | `{"limits":{"cpu":"400m","memory":"1Gi"},"requests":{"cpu":"100m","memory":"0.5Gi"}}` | Those parameters define CPU and memory requests and limits for the Postgres container. They are grouped under the resources top-level key with subgroups requests and limits |
-| postgres.operator.resources.limits.cpu | string | `"400m"` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| postgres.operator.resources.limits.memory | string | `"1Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| postgres.operator.resources.requests.cpu | string | `"100m"` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| postgres.operator.resources.requests.memory | string | `"0.5Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| postgres.operator.storageClass | string | `nil` | postgress pv storageclass |
-| postgres.operator.storageSize | string | `"3Gi"` | Database storage size |
-| postgres.schema | string | `"public"` | database schema |
-| postgres.type | string | `"operator"` | type of used postgres: "operator" or "external". \ if external is used, host, port and password have to be set in postgres.external using values or external secret if operator is used, host port and passwords get set automatically using postgres-operator. If your Kubernetes cluster does not have a running postgres-operator, you can install the postgres-operator with  postgres-operator.enabled = true |
-| postgres.username | string | `"postgres"` | postgres username |
-| pycsw.config | string | based of pycsw example.cfg: https://github.com/geopython/pycsw/blob/master/docker/pycsw.cfg | pycsw config file parameters, see docs: https://docs.pycsw.org/_/downloads/en/latest/pdf/ |
-| pycsw.container_name | string | `"pycsw"` | pycsw container name |
-| pycsw.enabled | bool | `true` | enable single pycsw pod |
-| pycsw.endpoint | string | `"/catalogue/csw"` | pycsw url below geonode.general.externalDomain |
-| pycsw.image.name | string | `"geopython/pycsw"` | pycsw docker image |
-| pycsw.image.tag | string | `"3.0.0-beta2"` | pycsw docker image tag |
-| pycsw.imagePullPolicy | string | `"IfNotPresent"` | pycsw image pull policy |
-| pycsw.imagePullSecret | string | `""` | pull secret to use for pycsw image |
-| pycsw.init.container_name | string | `"pycsw-wait-for-geonode"` |  |
-| pycsw.init.image.name | string | `"alpine/curl"` | pycsw docker image |
-| pycsw.init.image.tag | string | `"8.5.0"` | pycsw docker image tag |
-| pycsw.init.imagePullPolicy | string | `"IfNotPresent"` | pycsw image pull policy |
-| pycsw.livenessProbe.failureThreshold | int | `3` |  |
-| pycsw.livenessProbe.httpGet.path | string | `"/"` |  |
-| pycsw.livenessProbe.httpGet.port | int | `8000` |  |
-| pycsw.livenessProbe.initialDelaySeconds | int | `10` |  |
-| pycsw.livenessProbe.timeoutSeconds | int | `5` |  |
-| pycsw.mappings | string | copied from 4.1.x: https://github.com/GeoNode/geonode/blob/master/geonode/catalogue/backends/pycsw_local_mappings.py | pycsw config file parameters, see docs: https://docs.pycsw.org/_/downloads/en/latest/pdf/ |
-| pycsw.port | int | `8000` | pycsw endpoint port |
-| pycsw.readinessProbe | object | `{"httpGet":{"path":"/","port":8000},"timeoutSeconds":5}` | configure readinessProbe for pycsw, make sure port is aligned with pycsw.port configuration |
-| pycsw.replicaCount | int | `1` | pycsw container replicas |
-| pycsw.resources.limits.cpu | string | `"500m"` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| pycsw.resources.limits.memory | string | `"1Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| pycsw.resources.requests.cpu | string | `"500m"` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| pycsw.resources.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| rabbitmq.auth.enabled | bool | `true` |  |
-| rabbitmq.auth.password | string | `"rabbitpassword"` | RabbitMQ password. **WARNING: Change this for production deployments!** The default value is insecure. |
-| rabbitmq.auth.username | string | `"rabbituser"` |  |
-| rabbitmq.config.memoryHighWatermark.enabled | bool | `true` |  |
-| rabbitmq.config.memoryHighWatermark.type | string | `"relative"` |  |
-| rabbitmq.config.memoryHighWatermark.value | float | `0.5` |  |
-| rabbitmq.enabled | bool | `false` |  |
-| rabbitmq.ingress.enabled | bool | `false` |  |
-| rabbitmq.limits.cpu | string | `"750m"` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| rabbitmq.limits.memory | string | `"1Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| rabbitmq.persistence | object | `{"enabled":true,"size":"2Gi"}` | rabbitmq raplica count |
-| rabbitmq.requests.cpu | string | `"500m"` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| rabbitmq.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| redis.architecture | string | `"standalone"` | Redis architecture. standalone: Single instance, cluster: Multi-master cluster, replication: Master-replica (use sentinel.enabled to control automatic failover) |
-| redis.auth.enabled | bool | `true` | Enable Redis authentication |
-| redis.auth.password | string | `"redispassword"` | Redis password. **WARNING: Change this for production deployments!** The default value is insecure. |
-| redis.enabled | bool | `true` | enable redis deployment |
-| redis.replicaCount | int | `1` | redis container replicas |
-| redis.resources.limits.cpu | string | `"200m"` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| redis.resources.limits.memory | string | `"512Mi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| redis.resources.requests.cpu | string | `"100m"` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| redis.resources.requests.memory | string | `"256Mi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| redis.sentinel | object | `{"enabled":false}` | Redis Sentinel provides high availability for Redis through automatic failover. When enabled in replication mode, Sentinel monitors the master and replicas, and promotes a replica to master if the current master becomes unavailable. When disabled with replication mode, pod-0 is always the master. |
-| redis.sentinel.enabled | bool | `false` | Enable Redis Sentinel for high availability. When disabled, pod-0 is master (manual failover) |
+This repository provides a helm chart for **geonode** including additional services as:
 
-----------------------------------------------
-Autogenerated from chart metadata using [helm-docs v1.11.0](https://github.com/norwoodj/helm-docs/releases/v1.11.0)
+- geoserver: source server for sharing geospatial data (https://geoserver.org/)
+- rabbitmq: message broker (scalable)
+- postgresql database: using zalando postgres-operator for distributed database for geonode and postgis db for geoserver (https://github.com/zalando/postgres-operator) (scalable)
+- memcached (optional): as django cache (scalable)
+- nginx: webserver to deliver static content (scalable)
+- pycsw: CSW interface (scalable)
+
+This helm chart provides the possibility to run most of the services redundant to increase performance on the one hand and increase fail safe on the other hand.
+
+## Documentation
+
+To get an overview of the available configuration check out the values [docs](charts/geonode/README.md). If you want to run the helm chart first on a minikube cluster check out the [minikube](docs/minikube-installation.md) guide. Also check the minikube-values.yaml for basic configuration.
+
+If you want to go straight for a production installation follow the [installation](#install) guide.
+
+Furhter docs you can find on [readthedocs](https://geonode-k8s.readthedocs.io/en/latest/).
+
+## Install
+
+## Prerequisites
+
+- A Kubernetes cluster (or [minikube](docs/minikube-installation.md))
+- [Helm](https://helm.sh/)
+
+The chart will automatically install required dependencies, i.e. a RabbitMQ broker and a Postgres database with `postgis` extensions installed, and link them up. If you want to run an older geonode version with geonode-k8s check the [release-to-version list](docs/list-of-releases-and-versions.md).
+
+## Install chart dependencies
+
+Update helm dependencies via:
+
+```bash
+helm repo add geonode https://GeoNodeUserGroup-DE.github.io/geonode-k8s/
+helm repo update
+```
+
+## Override desired values in your own override file
+
+Define your own values.yaml to configure your geonode installation. Use the [docs](charts/geonode/README.md) to understand the parameters.
+
+```bash
+vi my-values.yaml
+```
+
+## Install chart
+
+```bash
+helm upgrade --cleanup-on-fail --install --namespace geonode --create-namespace --values my-values.yaml geonode charts/geonode
+```
+
+## Delete Installation
+
+```bash
+helm delete --namespace geonode geonode geonode
+```
+
+## Contribution
+
+### Create an Issue
+
+You found a bug :lady_beetle:?
+You have an idea how to improve :bulb:?
+Feel free to [create an issue](https://github.com/GeoNodeUserGroup-DE/geonode-k8s/issues/new/choose)!
+
+### Documentation
+
+Ensure values.yaml documentation is up-to-date.
+The [parameter documentation](charts/geonode/README.md) is generated via [`helm-docs`](https://github.com/norwoodj/helm-docs).
+There is a pre-commit hook configuration so please ensure you install it into your local working copy via
+
+```
+pre-commit install
+pre-commit install-hooks
+```
