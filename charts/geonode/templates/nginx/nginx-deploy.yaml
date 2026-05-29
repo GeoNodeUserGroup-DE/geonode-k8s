@@ -1,4 +1,3 @@
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -17,44 +16,58 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/nginx/nginx-conf.yaml") . | sha256sum }}
     spec:
       terminationGracePeriodSeconds: 3
-
 {{- if not (empty .Values.nginx.imagePullSecret) }}
       imagePullSecrets:
       - name: {{ .Values.nginx.imagePullSecret }}
 {{ end }}
-
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: {{ .Values.nginx.securityContext.runAsUser }}
+        fsGroup: {{ .Values.nginx.securityContext.runAsUser }}
       containers:
       - name: {{ .Values.nginx.container_name }}
         image: "{{ .Values.nginx.image.name }}:{{ .Values.nginx.image.tag }}"
         imagePullPolicy: {{ .Values.nginx.imagePullPolicy }}
         ports:
           - name: http
-            containerPort: 80
-
+            containerPort: 8080
+        securityContext:
+          runAsUser: {{ .Values.nginx.securityContext.runAsUser }}
+          runAsNonRoot: {{ .Values.nginx.securityContext.runAsNonRoot }}
+          allowPrivilegeEscalation: {{ .Values.nginx.securityContext.allowPrivilegeEscalation }}
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
         volumeMounts:
-        - name: "{{ include "persistant_volume_name" . }}"
+        - name: pvc-statics
           mountPath: /mnt/volumes/statics
-          subPath: statics
-        - name: geonode-favicon
-          mountPath: /mnt/volumes/statics/static/geonode/img/favicon.ico
-          subPath: favicon.ico
         - name: nginx-confd
           mountPath: /etc/nginx/conf.d
-
-        # this will fail as long as statics are not build by the geonode sts
+        # Writable scratch directories for nginx
+        - name: nginx-cache
+          mountPath: /var/cache/nginx
+        - name: nginx-run
+          mountPath: /var/run
+        - name: nginx-tmp
+          mountPath: /tmp
         livenessProbe:
           {{- toYaml $.Values.nginx.livenessProbe | nindent 10 }}
-
         resources:
           {{- toYaml $.Values.nginx.resources | nindent 10 }}
-
       volumes:
       - name: nginx-confd
         configMap:
           name: {{ .Release.Name }}-nginx-confd
-      - name: geonode-favicon
-        configMap:
-          name: {{ .Release.Name }}-geonode-favicon
-      - name: "{{ include "persistant_volume_name" . }}"
+      - name: pvc-statics
         persistentVolumeClaim:
-          claimName: pvc-{{ .Release.Name }}-geonode
+          claimName: {{ include "pvc_statics_name" . }}
+      # emptyDir for all nginx scratch directories
+      - name: nginx-cache
+        emptyDir: {}
+      - name: nginx-run
+        emptyDir: {}
+      - name: nginx-tmp
+        emptyDir: {}

@@ -8,6 +8,6 @@ spec:
   selector:
     org.geonode.instance: "{{ include "nginx_pod_name" . }}"
   ports:
-  - targetPort: 80
+  - targetPort: 8080
     port: 80
   type: ClusterIP
