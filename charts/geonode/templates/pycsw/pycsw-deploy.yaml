@@ -20,7 +20,9 @@ spec:
         checksum/pycsw-mappings-py: {{ include (print $.Template.BasePath "/pycsw/pycsw-mappings-py.yaml") . | sha256sum }}
     spec:
       terminationGracePeriodSeconds: 3
-
+      securityContext:
+        runAsNonRoot: true
+        fsGroup: {{ .Values.pycsw.securityContext.fsGroup | default .Values.global.securityContext.fsGroup }}
 {{- if not (empty .Values.pycsw.imagePullSecret) }}
       imagePullSecrets:
       - name: {{ .Values.pycsw.imagePullSecret }}
@@ -32,6 +34,16 @@ spec:
       - name: {{ .Values.pycsw.init.container_name }}
         image: "{{ .Values.pycsw.init.image.name }}:{{ .Values.pycsw.init.image.tag }}"
         imagePullPolicy: {{ .Values.pycsw.init.imagePullPolicy }}
+        securityContext:
+          runAsUser: {{ .Values.pycsw.securityContext.runAsUser | default .Values.global.securityContext.runAsUser }}
+          runAsGroup: {{ .Values.pycsw.securityContext.runAsGroup | default .Values.global.securityContext.runAsGroup }}
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
         command: ["/bin/sh","-c"]
         args: ['while [ $(curl -ksw "%{http_code}" "{{ include "nginx_pod_name" . }}" -o /dev/null) -ne 200 ]; do sleep 5; echo "health check failed . Waiting for GeoNode ({{ include "nginx_pod_name" . }}) ..."; done']
         env:
@@ -42,6 +54,16 @@ spec:
       - name: {{ .Values.pycsw.container_name }}
         image: "{{ .Values.pycsw.image.name }}:{{ .Values.pycsw.image.tag }}"
         imagePullPolicy: {{ .Values.pycsw.imagePullPolicy }}
+        securityContext:
+          runAsUser: {{ .Values.pycsw.securityContext.runAsUser | default .Values.global.securityContext.runAsUser }}
+          runAsGroup: {{ .Values.pycsw.securityContext.runAsGroup | default .Values.global.securityContext.runAsGroup }}
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
         envFrom:
           - configMapRef:
               name: {{ include "pycsw_pod_name" . }}-env
@@ -78,14 +100,14 @@ spec:
       - name: pycsw-cfg
         configMap:
           name: {{ .Release.Name }}-pycsw-cfg
-          defaultMode: 0744
+          defaultMode: 0555
           items:
           - key: pycsw.cfg
             path: "pycsw.cfg"
       - name: pycsw-mappings-py
         configMap:
           name: {{ .Release.Name }}-pycsw-mappings-py
-          defaultMode: 0744
+          defaultMode: 0555
           items:
           - key: pycsw-mappings.py
             path: "pycsw-mappings.py"

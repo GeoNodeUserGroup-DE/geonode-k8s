@@ -3,6 +3,15 @@ global:
   storageClass:
   # -- storage access mode used by helm dependency pvc
   accessMode: ReadWriteMany
+  # -- Global security context defaults for all pods
+  # Can be overridden per component via component.securityContext.runAsUser etc.
+  securityContext:
+    # -- User ID to run the containers
+    runAsUser: 1000
+    # -- Group ID to run the containers
+    runAsGroup: 1000
+    # -- Group ID for volume mounts
+    fsGroup: 1000
 
 # geonode configuration
 geonode:
@@ -10,6 +19,8 @@ geonode:
   container_name: geonode
   # -- number of geonode replicas (! not working properly yet)
   replicaCount: 1
+  # -- Security context for geonode pods (overrides global.securityContext)
+  securityContext: {}
 
   persistant:
     # -- size of persistant geonode storage
@@ -381,7 +392,8 @@ geoserver:
     name: geonode/geoserver
     # -- geoserver docker image tag
     tag: "2.27.4-latest"
-
+  # -- Security context for geoserver pods (overrides global.securityContext)
+  securityContext: {}
   # -- geoserver image pull policy
   imagePullPolicy: "IfNotPresent"
   # -- pull secret to use for geoserver image
@@ -473,13 +485,18 @@ nginx:
   replicaCount: 1
   image:
     # -- nginx docker image
-    name: nginx
+    name: nginxinc/nginx-unprivileged
     # -- nginx docker image tag
-    tag: "1.28"
+    tag: "1.26.3-alpine3.20"
   # -- nginx image pull policy
   imagePullPolicy: "IfNotPresent"
   # -- pull secret to use for nginx image
   imagePullSecret: ""
+  # Use nginx typical userId for running
+  securityContext:
+    runAsUser: 101
+    runAsNonRoot: true
+    allowPrivilegeEscalation: false
 
   # -- max file upload size for geonode upload. Only set this value if it should be different from geonode.general.upload.size.
   # to use e.g. if geonode.general.upload.document_size > geonode.general.upload.size
@@ -530,6 +547,8 @@ pycsw:
     name: geopython/pycsw
     # -- pycsw docker image tag
     tag: "3.0.0-beta2"
+  # -- Security context for pycsw pods (overrides global.securityContext)
+  securityContext: {}
   # -- pycsw image pull policy
   imagePullPolicy: "IfNotPresent"
   # -- pull secret to use for pycsw image
@@ -719,6 +738,17 @@ memcached:
   enabled: true
   # Basic installation
   replicaCount: 1
+  containerSecurityContext:
+    # Use memcached typical userid for runtime
+    runAsUser: 11211
+    runAsNonRoot: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+
   config:
     memoryLimit: 128
     maxConnections: 2048
@@ -729,7 +759,6 @@ memcached:
     requests:
       cpu: 100m
       memory: 128Mi
-
 # RABBITMQ CONFIGURATION
 # https://artifacthub.io/packages/helm/cloudpirates-rabbitmq/rabbitmq
 # Activate if you are running geonode below 5.0.0
@@ -882,18 +911,29 @@ postgres-operator:
   # -- not setting the podServiceAccount name will leed to generation of this name. This allows to run multiple postgres-operators in a single kubernetes cluster. just seperating them by namespace.
   podServiceAccount:
     name: ""
-
+  # Override securityContext of subchart
+  securityContext:
+    runAsUser: 1000
+    runAsNonRoot: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
 # -- (map of fixture files) Fixture files which shall be made available under /usr/src/geonode/geonode/fixtures (refer to https://docs.djangoproject.com/en/4.2/howto/initial-data/)
 geonodeFixtures:
   # @gignore
-  somefixture.json: |
-    [
-      {
-        "pk": 0,
-        "model": "myapp.sample"
-        "description": "nice little content"
-      }
-    ]
+#  somefixture.json: |
+#    [
+#      {
+#        "pk": 0,
+#        "model": "myapp.sample",
+#        "fields": {
+#          "description": "nice little content"
+#        }
+#      }
+#    ]
 
 # -- A base64 encoded favicon
 # @default -- AAABAAMAEBAAAAEAIABoBA ... AAAA==

@@ -35,6 +35,9 @@ spec:
         checksum/geonode-settings-additions: {{ include (print $.Template.BasePath "/geonode/geonode-settings-additions.yaml") . | sha256sum }}
         checksum/geonode-uwsig: {{ include (print $.Template.BasePath "/geonode/geonode-uwsgi-ini-conf.yaml") . | sha256sum }}
     spec:
+      securityContext:
+        runAsNonRoot: true
+        fsGroup: {{ .Values.geonode.securityContext.fsGroup | default .Values.global.securityContext.fsGroup }}
       terminationGracePeriodSeconds: 3
 
 {{- if not (empty .Values.geonode.imagePullSecret) }}
@@ -45,6 +48,16 @@ spec:
       initContainers:
       # Wait for Postgres and rabbit
       - name: {{ .Values.geonode.init.container_name }}
+        securityContext:
+          runAsUser: {{ .Values.geonode.securityContext.runAsUser | default .Values.global.securityContext.runAsUser }}
+          runAsGroup: {{ .Values.geonode.securityContext.runAsGroup | default .Values.global.securityContext.runAsGroup }}
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
         image: "{{ .Values.geonode.init.image.name }}:{{ .Values.geonode.init.image.tag }}"
         imagePullPolicy: {{ .Values.geonode.init.imagePullPolicy }}
         args:
@@ -63,6 +76,16 @@ spec:
       containers:
       # This is the django app server
       - name: {{ .Values.geonode.container_name }}
+        securityContext:
+          runAsUser: {{ .Values.geonode.securityContext.runAsUser | default .Values.global.securityContext.runAsUser }}
+          runAsGroup: {{ .Values.geonode.securityContext.runAsGroup | default .Values.global.securityContext.runAsGroup }}
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
         image: "{{ .Values.geonode.image.name }}:{{ .Values.geonode.image.tag }}"
         imagePullPolicy: {{ .Values.geonode.imagePullPolicy }}
         command:
@@ -123,18 +146,14 @@ spec:
           value: "postgis://$(GEONODE_DATABASE):$(GEONODE_DATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(GEONODE_DATABASE)"
 
         volumeMounts:
-        - name: "{{ include "persistant_volume_name" . }}"
+        - name: pvc-statics
           mountPath: /mnt/volumes/statics
-          subPath: statics
-        - name: "{{ include "persistant_volume_name" . }}"
+        - name: pvc-geoserver-data
           mountPath: /geoserver_data/data
-          subPath: geoserver-data-dir
-        - name: "{{ include "persistant_volume_name" . }}"
+        - name: pvc-backup-restore
           mountPath: /backup_restore
-          subPath: backup-restore
-        - name: "{{ include "persistant_volume_name" . }}"
+        - name: pvc-data
           mountPath: /data
-          subPath: data
         - name: cache-volume
           mountPath: /tmp
         - name: tasks-py
@@ -171,6 +190,16 @@ spec:
 
       # Celery is the task worker
       - name: {{ .Values.geonode.celery.container_name }}
+        securityContext:
+          runAsUser: {{ .Values.geonode.securityContext.runAsUser | default .Values.global.securityContext.runAsUser }}
+          runAsGroup: {{ .Values.geonode.securityContext.runAsGroup | default .Values.global.securityContext.runAsGroup }}
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
         image: "{{ .Values.geonode.image.name }}:{{ .Values.geonode.image.tag }}"
         imagePullPolicy: {{ .Values.geonode.celery.imagePullPolicy }}
         command:
@@ -195,7 +224,6 @@ spec:
           cat /usr/src/geonode/geonode/geonode-k8s-settings.py >> {{ include "geonode_path" .}}/settings.py
           cat /usr/src/geonode/geonode/geonode-k8s-settings-additions.py >> {{ include "geonode_path" .}}/settings.py
           # Setup
-          touch /var/log/celery.log
           {{ include "geonode_root_path" .}}/entrypoint.sh celery-cmd
 
         envFrom:
@@ -228,23 +256,25 @@ spec:
           value: "postgis://$(GEONODE_GEODATABASE):$(GEONODE_GEODATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(GEONODE_GEODATABASE)"
         - name: DATABASE_URL
           value: "postgis://$(GEONODE_DATABASE):$(GEONODE_DATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(GEONODE_DATABASE)"
+        # Celery should not write to log files (in container-native approach). 
+        # The value "-" is the Celery convention for writing to stdout/stderr instead.
+        - name: CELERY__LOG_FILE
+          value: {{ .Values.geonode.celery.logFile | default "-" | quote }}
+        - name: CELERY__BEAT_LOG
+          value: {{ .Values.geonode.celery.beatLog | default "-" | quote }}
 
         ports:
         - containerPort: 5555
 
         volumeMounts:
-        - name: "{{ include "persistant_volume_name" . }}"
+        - name: pvc-statics
           mountPath: /mnt/volumes/statics
-          subPath: statics
-        - name: "{{ include "persistant_volume_name" . }}"
+        - name: pvc-geoserver-data
           mountPath: /geoserver_data/data
-          subPath: geoserver-data-dir
-        - name: "{{ include "persistant_volume_name" . }}"
+        - name: pvc-backup-restore
           mountPath: /backup_restore
-          subPath: backup-restore
-        - name: "{{ include "persistant_volume_name" . }}"
+        - name: pvc-data
           mountPath: /data
-          subPath: data
         - name: cache-volume
           mountPath: /tmp
         - name: entrypoint-sh
@@ -276,9 +306,18 @@ spec:
             cpu: {{ .Values.geonode.celery.resources.limits.cpu }}
 
       volumes:
-        - name: "{{ include "persistant_volume_name" . }}"
+        - name: pvc-statics
           persistentVolumeClaim:
-            claimName: pvc-{{ .Release.Name }}-geonode
+            claimName: {{ include "pvc_statics_name" . }}
+        - name: pvc-geoserver-data
+          persistentVolumeClaim:
+            claimName: {{ include "pvc_geoserver_data_name" . }}
+        - name: pvc-backup-restore
+          persistentVolumeClaim:
+            claimName: {{ include "pvc_backup_restore_name" . }}
+        - name: pvc-data
+          persistentVolumeClaim:
+            claimName: {{ include "pvc_data_name" . }}
         - name: tasks-py
           configMap:
             name: {{ .Release.Name }}-geonode-tasks-py
@@ -288,28 +327,28 @@ spec:
         - name: entrypoint-sh
           configMap:
             name: {{ .Release.Name }}-geonode-entrypoint-sh
-            defaultMode: 0744
+            defaultMode: 0555
             items:
             - key: entrypoint.sh
               path: "entrypoint.sh"
         - name: uwsgi-ini
           configMap:
             name: {{ .Release.Name }}-geonode-uwsgi-ini
-            defaultMode: 0744
+            defaultMode: 0555
             items:
             - key: uwsgi.ini
               path: "uwsgi.ini"
         - name: geonode-k8s-settings-py
           configMap:
             name: {{ .Release.Name }}-geonode-k8s-settings-py
-            defaultMode: 0744
+            defaultMode: 0555
             items:
             - key: geonode-k8s-settings.py
               path: "geonode-k8s-settings.py"
         - name: geonode-k8s-settings-additions-py
           configMap:
             name: {{ .Release.Name }}-geonode-k8s-settings-additions-py
-            defaultMode: 0744
+            defaultMode: 0555
             items:
             - key: geonode-k8s-settings-additions.py
               path: "geonode-k8s-settings-additions.py"
@@ -317,7 +356,7 @@ spec:
         - name: geonode-fixtures
           configMap:
             name: {{ .Release.Name }}-geonode-fixtures
-            defaultMode: 0744
+            defaultMode: 0555
             items:
             {{- range $key, $value := .Values.geonodeFixtures }}
             - key: {{ $key | quote }}
@@ -327,4 +366,5 @@ spec:
         # Using an emptyDir to cache compiled statics... it will survive container crashes, but not pod restarts
         - name: cache-volume
           emptyDir: {}
+
 
