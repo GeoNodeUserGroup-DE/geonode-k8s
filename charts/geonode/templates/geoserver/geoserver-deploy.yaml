@@ -19,9 +19,26 @@ spec:
         checksum/geoserver-secret: {{ include (print $.Template.BasePath "/geoserver/geoserver-secret.yaml") . | sha256sum }}
 
     spec:
+      securityContext:
+        runAsNonRoot: true
+        fsGroup: {{ .Values.geoserver.securityContext.fsGroup | default .Values.global.securityContext.fsGroup }}
+        fsGroupChangePolicy: OnRootMismatch
+
       terminationGracePeriodSeconds: 3
       initContainers:
       - name: {{ .Values.geoserver_data.container_name }}
+        securityContext:
+          runAsUser: {{ .Values.geoserver.securityContext.runAsUser | default .Values.global.securityContext.runAsUser }}
+          runAsGroup: {{ .Values.geoserver.securityContext.runAsGroup | default .Values.global.securityContext.runAsGroup }}
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+
+          capabilities:
+            drop:
+              - ALL
+
+          seccompProfile:
+            type: RuntimeDefault
         image: "{{ .Values.geoserver_data.image.name }}:{{ .Values.geoserver_data.image.tag }}"
         imagePullPolicy: {{ .Values.geoserver_data.imagePullPolicy }}
         command:
@@ -46,9 +63,8 @@ spec:
         - secretRef:
             name: {{ .Values.geoserver.secret.existingSecretName | default (include "geoserver_secret_name" .) | quote }}
         volumeMounts:
-        - name: "{{ include "persistant_volume_name" . }}"
+        - name: pvc-geoserver-data
           mountPath: /geoserver_data/data
-          subPath: geoserver-data-dir
         - name: geoserver-printing-config-yaml
           mountPath: /overrides
 
@@ -59,6 +75,16 @@ spec:
 
       containers:
       - name: {{ .Values.geoserver.container_name }}
+        securityContext:
+          runAsUser: {{ .Values.geoserver.securityContext.runAsUser | default .Values.global.securityContext.runAsUser }}
+          runAsGroup: {{ .Values.geoserver.securityContext.runAsGroup | default .Values.global.securityContext.runAsGroup }}
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
         image: "{{ .Values.geoserver.image.name }}:{{ .Values.geoserver.image.tag }}"
         imagePullPolicy: {{ .Values.geoserver.imagePullPolicy }}
         ports:
@@ -82,12 +108,10 @@ spec:
           {{- end }}
 
         volumeMounts:
-        - name: "{{ include "persistant_volume_name" . }}"
+        - name: pvc-geoserver-data
           mountPath: /geoserver_data/data
-          subPath: geoserver-data-dir
-        - name: "{{ include "persistant_volume_name" . }}"
+        - name: pvc-statics
           mountPath: /mnt/volumes/statics
-          subPath: statics
         
         readinessProbe:
           {{- toYaml $.Values.geoserver.readinessProbe | nindent 10 }}
@@ -102,6 +126,9 @@ spec:
       - name: geoserver-printing-config-yaml
         configMap:
           name: {{ .Release.Name }}-geoserver-printing-config-yaml
-      - name: "{{ include "persistant_volume_name" . }}"
+      - name: pvc-geoserver-data
         persistentVolumeClaim:
-          claimName: pvc-{{ .Release.Name }}-geonode
+          claimName: {{ include "pvc_geoserver_data_name" . }}
+      - name: pvc-statics
+        persistentVolumeClaim:
+          claimName: {{ include "pvc_statics_name" . }}
