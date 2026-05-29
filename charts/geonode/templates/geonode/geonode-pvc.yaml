@@ -1,7 +1,46 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pvc-{{ .Release.Name }}-geonode
+  name: pvc-{{ .Release.Name }}-geonode-statics
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes:
+  - {{ .Values.global.accessMode }}
+  storageClassName: {{ .Values.global.storageClass }}
+  resources:
+    requests:
+      storage: {{ .Values.geonode.persistant.storageSize }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-{{ .Release.Name }}-geonode-geoserver-data
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes:
+  - {{ .Values.global.accessMode }}
+  storageClassName: {{ .Values.global.storageClass }}
+  resources:
+    requests:
+      storage: {{ .Values.geonode.persistant.storageSize }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-{{ .Release.Name }}-geonode-backup-restore
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes:
+  - {{ .Values.global.accessMode }}
+  storageClassName: {{ .Values.global.storageClass }}
+  resources:
+    requests:
+      storage: {{ .Values.geonode.persistant.storageSize }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-{{ .Release.Name }}-geonode-data
   namespace: {{ .Release.Namespace }}
 spec:
   accessModes:
