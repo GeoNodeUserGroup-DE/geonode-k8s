@@ -20,9 +20,6 @@ data:
         echo "$@ tasks done"
     }
 
-    # Start cron && memcached services
-    service cron restart
-
     echo $"\n\n\n"
     echo "-----------------------------------------------------"
     echo "STARTING DJANGO ENTRYPOINT $(date)"
