@@ -353,6 +353,13 @@ geonode:
         # -- limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
         cpu: 2
 
+  mapstore:
+    # Patch to override nominatim hard-coded url
+    nominatim_patch:
+      enabled: false
+      # host: "someotherhost.example.com"
+      # protocol: "https"
+
 # CONFIGURATION FOR GEOSERVER DEPLOYMENT
 geoserver:
   # -- geoserver container name

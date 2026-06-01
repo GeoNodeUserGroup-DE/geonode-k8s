@@ -44,6 +44,15 @@ spec:
           echo "-----------------------------------------------------"
           echo "GeoNode static tasks done $(date)"
           echo "-----------------------------------------------------"
+{{- if .Values.geonode.mapstore.nominatim_patch.enabled }}
+          echo "-----------------------------------------------------"
+          echo "Applying Mapstore Nominatim patch $(date)"
+          echo "-----------------------------------------------------"
+          python3 /usr/src/geonode/mapstore_nominatim_patch.py
+          echo "-----------------------------------------------------"
+          echo "Mapstore Nominatim patch done $(date)"
+          echo "-----------------------------------------------------"
+{{- end }}
         envFrom:
         - configMapRef:
             name: {{ include "geonode_pod_name" . }}-env
@@ -88,6 +97,12 @@ spec:
           mountPath: "/usr/src/geonode/geonode/geonode-k8s-settings-additions.py"
           subPath: geonode-k8s-settings-additions.py
           readOnly: true
+{{- if .Values.geonode.mapstore.nominatim_patch.enabled }}
+        - name: mapstore-nominatim-patch-py
+          mountPath: /usr/src/geonode/mapstore_nominatim_patch.py
+          subPath: mapstore_nominatim_patch.py
+          readOnly: true
+{{- end }}
         - name: "{{ include "persistant_volume_name" . }}"
           mountPath: /mnt/volumes/statics
           subPath: statics
@@ -115,6 +130,11 @@ spec:
           items:
           - key: geonode-k8s-settings-additions.py
             path: "geonode-k8s-settings-additions.py"
+{{- if .Values.geonode.mapstore.nominatim_patch.enabled }}
+      - name: mapstore-nominatim-patch-py
+        configMap:
+          name: "{{ include "geonode_pod_name" . }}-mapstore-nominatim-patch"
+{{- end }}
 
       # Using an emptyDir to cache compiled statics... it will survive container crashes, but not pod restarts
       - name: cache-volume
