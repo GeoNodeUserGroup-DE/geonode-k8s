@@ -1,0 +1,51 @@
+{{- if .Values.geonode.mapstore_nominatim_patch.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ include "geonode_pod_name" . }}-mapstore-nominatim-patch"
+  namespace: {{ .Release.Namespace }}
+data:
+  mapstore_nominatim_patch.py: |
+    import glob, shutil
+
+    # ── JS-Bundle patchen und ins PV kopieren ─────────────────────
+    nominatim_host = {{ .Values.geonode.mapstore_nominatim_patch.host | squote }}
+    nominatim_protocol = {{ .Values.geonode.mapstore_nominatim_patch.protocol | squote }}
+
+    venv_js_files = sorted(glob.glob(
+        '/usr/src/venv/lib/python*/site-packages/'
+        'geonode_mapstore_client/static/mapstore/dist/js/gn-*.js'
+    ))
+
+    if not venv_js_files:
+        print("WARNUNG: gn-*.js im venv nicht gefunden!")
+    else:
+        for venv_file in venv_js_files:
+            with open(venv_file, 'r') as f:
+                js_content = f.read()
+
+            if 'nominatim.openstreetmap.org' not in js_content:
+                continue
+
+            print("=== Mapstore: patche JS-Bundle", venv_file, "===")
+
+            js_content = js_content.replace(
+                'protocol:"https",host:"nominatim.openstreetmap.org"',
+                f'protocol:"{nominatim_protocol}",host:"{nominatim_host}"'
+            )
+            js_content = js_content.replace(
+                'protocol:"https",host:"nominatim.openstreetmap.org/reverse"',
+                f'protocol:"{nominatim_protocol}",host:"{nominatim_host}/reverse"'
+            )
+
+            import os
+            filename = os.path.basename(venv_file)
+            static_file = f'/mnt/volumes/statics/static/mapstore/dist/js/{filename}'
+            if os.path.exists(static_file):
+                with open(static_file, 'w') as f:
+                    f.write(js_content)
+                print(f"=== Mapstore: {filename} → PV kopiert (host={nominatim_host} protocol={nominatim_protocol}) ===")
+            else:
+                print(f"WARNUNG: {static_file} nicht gefunden, überspringe PV-Kopie")
+
+{{- end }}
