@@ -44,7 +44,7 @@ spec:
           echo "-----------------------------------------------------"
           echo "GeoNode static tasks done $(date)"
           echo "-----------------------------------------------------"
-{{- if .Values.geonode.mapstore_nominatim_patch.enabled }}
+{{- if .Values.geonode.mapstore.nominatim_patch.enabled }}
           echo "-----------------------------------------------------"
           echo "Applying Mapstore Nominatim patch $(date)"
           echo "-----------------------------------------------------"
@@ -97,7 +97,7 @@ spec:
           mountPath: "/usr/src/geonode/geonode/geonode-k8s-settings-additions.py"
           subPath: geonode-k8s-settings-additions.py
           readOnly: true
-{{- if .Values.geonode.mapstore_nominatim_patch.enabled }}
+{{- if .Values.geonode.mapstore.nominatim_patch.enabled }}
         - name: mapstore-nominatim-patch-py
           mountPath: /usr/src/geonode/mapstore_nominatim_patch.py
           subPath: mapstore_nominatim_patch.py
@@ -130,7 +130,7 @@ spec:
           items:
           - key: geonode-k8s-settings-additions.py
             path: "geonode-k8s-settings-additions.py"
-{{- if .Values.geonode.mapstore_nominatim_patch.enabled }}
+{{- if .Values.geonode.mapstore.nominatim_patch.enabled }}
       - name: mapstore-nominatim-patch-py
         configMap:
           name: "{{ include "geonode_pod_name" . }}-mapstore-nominatim-patch"
