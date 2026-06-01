@@ -8,7 +8,7 @@ data:
   mapstore_nominatim_patch.py: |
     import glob, shutil
 
-    # ── JS-Bundle patchen und ins PV kopieren ─────────────────────
+    # Patch the JS-Bundle
     nominatim_host = {{ .Values.geonode.mapstore_nominatim_patch.host | squote }}
     nominatim_protocol = {{ .Values.geonode.mapstore_nominatim_patch.protocol | squote }}
 
@@ -18,7 +18,7 @@ data:
     ))
 
     if not venv_js_files:
-        print("WARNUNG: gn-*.js im venv nicht gefunden!")
+        print("WARNING: gn-*.js not found in venv!")
     else:
         for venv_file in venv_js_files:
             with open(venv_file, 'r') as f:
@@ -27,7 +27,7 @@ data:
             if 'nominatim.openstreetmap.org' not in js_content:
                 continue
 
-            print("=== Mapstore: patche JS-Bundle", venv_file, "===")
+            print("=== Mapstore: patching JS-Bundle", venv_file, "===")
 
             js_content = js_content.replace(
                 'protocol:"https",host:"nominatim.openstreetmap.org"',
@@ -44,8 +44,8 @@ data:
             if os.path.exists(static_file):
                 with open(static_file, 'w') as f:
                     f.write(js_content)
-                print(f"=== Mapstore: {filename} → PV kopiert (host={nominatim_host} protocol={nominatim_protocol}) ===")
+                print(f"=== Mapstore: {filename} → copied to PV (host={nominatim_host} protocol={nominatim_protocol}) ===")
             else:
-                print(f"WARNUNG: {static_file} nicht gefunden, überspringe PV-Kopie")
+                print(f"WARNING: {static_file} not found, not copying to PV")
 
 {{- end }}
