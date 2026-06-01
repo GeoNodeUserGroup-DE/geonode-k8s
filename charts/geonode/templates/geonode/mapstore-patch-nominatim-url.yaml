@@ -1,4 +1,7 @@
 {{- if .Values.geonode.mapstore_nominatim_patch.enabled }}
+{{- $host := required "geonode.mapstore_nominatim_patch.host is required when geonode.mapstore_nominatim_patch.enabled=true" .Values.geonode.mapstore_nominatim_patch.host }}
+{{- $protocol := required "geonode.mapstore_nominatim_patch.protocol is required when geonode.mapstore_nominatim_patch.enabled=true" .Values.geonode.mapstore_nominatim_patch.protocol }}
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
