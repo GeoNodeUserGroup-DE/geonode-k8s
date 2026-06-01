@@ -93,6 +93,9 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.0.1, Geoserver: 2.27.4-la
 | geonode.mail.port | string | `"587"` | mail port fo geonode mail |
 | geonode.mail.tls | bool | `true` | activate tls for geonode mail (only tls or ssl can be true not both) |
 | geonode.mail.use_ssl | bool | `false` | enable ssl for geonode mail (only tls or ssl can be true not both) |
+| geonode.mapstore.nominatim_patch.enabled | bool | `false` | enable patch to override nominatim geographical search backend host name |
+| geonode.mapstore.nominatim_patch.host | string | `"someotherhost.example.com"` | host name for geographical searches with nominatim |
+| geonode.mapstore.nominatim_patch.protocol | string | `"https"` | protocol for geographical searches with nominatim |
 | geonode.memcached.backend | string | `"django.core.cache.backends.memcached.PyLibMCCache"` | memcached backend to use if geonode ">=4.3.0" use django.core.cache.backends.memcached.PyLibMCCache before use django.core.cache.backends.memcached.MemcachedCache |
 | geonode.memcached.enabled | bool | `true` | enable memcache, this will spawn one or more seperate memcache container(s) |
 | geonode.memcached.enabled_geonode | bool | `false` | set the MEMCACHED_ENABLED env var for GeoNode (django). Dynamic caching (see https://docs.djangoproject.com/en/4.0/topics/cache/) |
