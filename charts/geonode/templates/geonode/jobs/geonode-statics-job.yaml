@@ -96,8 +96,6 @@ spec:
         - name: DATABASE_URL
           value: "postgis://$(GEONODE_DATABASE):$(GEONODE_DATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(GEONODE_DATABASE)"
         volumeMounts:
-        - name: pvc-data
-          mountPath: /data
         - name: cache-volume
           mountPath: /tmp
         - name: tasks-py
@@ -123,9 +121,6 @@ spec:
       - name: pvc-statics
         persistentVolumeClaim:
           claimName: {{ include "pvc_statics_name" . }}
-      - name: pvc-data
-        persistentVolumeClaim:
-          claimName: {{ include "pvc_data_name" . }}
       - name: tasks-py
         configMap:
           name: {{ .Release.Name }}-geonode-tasks-py
