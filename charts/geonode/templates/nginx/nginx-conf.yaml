@@ -48,7 +48,7 @@ data:
         application/json;
 
       location = /favicon.ico {
-        alias /mnt/volumes/statics/static/img/favicon.ico;
+        alias /mnt/volumes/statics/static/geonode/img/favicon.ico;
       }
 
 

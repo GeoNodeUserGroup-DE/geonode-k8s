@@ -56,6 +56,12 @@ spec:
           echo "-----------------------------------------------------"
           invoke initialized
           invoke statics
+          if [ -f /favicon/favicon.ico ]; then
+            echo "Installing custom favicon"
+            install -m 0644 \
+              /favicon/favicon.ico \
+              /mnt/volumes/statics/static/geonode/img/favicon.ico
+          fi
           echo "-----------------------------------------------------"
           echo "GeoNode static tasks done $(date)"
           echo "-----------------------------------------------------"
@@ -117,6 +123,11 @@ spec:
 {{- end }}
         - name: pvc-statics
           mountPath: /mnt/volumes/statics
+{{- if .Values.favicon }}
+        - name: favicon
+          mountPath: /favicon
+          readOnly: true
+{{- end }}
       volumes:
       - name: pvc-statics
         persistentVolumeClaim:
@@ -146,7 +157,11 @@ spec:
         configMap:
           name: "{{ include "geonode_pod_name" . }}-mapstore-nominatim-patch"
 {{- end }}
-
+{{- if .Values.favicon }}
+      - name: favicon
+        configMap:
+          name: {{ .Release.Name }}-geonode-favicon
+{{- end }}
       # Using an emptyDir to cache compiled statics... it will survive container crashes, but not pod restarts
       - name: cache-volume
         emptyDir: {}
