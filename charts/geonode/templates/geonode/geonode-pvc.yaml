@@ -11,7 +11,7 @@ spec:
   {{- end }}
   resources:
     requests:
-      storage: {{ .Values.geonode.persistant.storageSize }}
+      storage: {{ .Values.geonode.persistant.statics.storageSize | default .Values.geonode.persistant.storageSize }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -26,7 +26,7 @@ spec:
   {{- end }}
   resources:
     requests:
-      storage: {{ .Values.geonode.persistant.storageSize }}
+      storage: {{ .Values.geonode.persistant.geoserver_data.storageSize | default .Values.geonode.persistant.storageSize }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -41,7 +41,7 @@ spec:
   {{- end }}
   resources:
     requests:
-      storage: {{ .Values.geonode.persistant.storageSize }}
+      storage: {{ .Values.geonode.persistant.backup_restore.storageSize | default .Values.geonode.persistant.storageSize }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -56,4 +56,4 @@ spec:
   {{- end }}
   resources:
     requests:
-      storage: {{ .Values.geonode.persistant.storageSize }}
+      storage: {{ .Values.geonode.persistant.data.storageSize | default .Values.geonode.persistant.storageSize }}

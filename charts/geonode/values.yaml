@@ -23,7 +23,19 @@ geonode:
   securityContext: {}
 
   persistant:
-    # -- size of persistant geonode storage
+    # -- size of statics storage
+    statics:
+      storageSize: 2Gi
+    # -- size of statics storage
+    geoserver_data:
+      storageSize: 2Gi
+    # -- size of statics storage
+    backup_restore:
+      storageSize: 2Gi
+    # -- size of statics storage
+    data:
+      storageSize: 4Gi
+    # -- fallback value for all persistant geonode storage
     storageSize: 10Gi
 
   image:
