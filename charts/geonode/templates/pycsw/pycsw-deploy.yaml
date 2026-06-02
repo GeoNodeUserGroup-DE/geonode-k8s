@@ -22,7 +22,7 @@ spec:
       terminationGracePeriodSeconds: 3
       securityContext:
         runAsNonRoot: true
-        fsGroup: {{ .Values.pycsw.securityContext.fsGroup | default .Values.global.securityContext.fsGroup }}
+        fsGroup: {{ (default dict .Values.pycsw.securityContext).fsGroup | default .Values.global.securityContext.fsGroup }}
 {{- if not (empty .Values.pycsw.imagePullSecret) }}
       imagePullSecrets:
       - name: {{ .Values.pycsw.imagePullSecret }}

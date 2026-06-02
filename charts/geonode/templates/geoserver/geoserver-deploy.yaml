@@ -21,7 +21,7 @@ spec:
     spec:
       securityContext:
         runAsNonRoot: true
-        fsGroup: {{ .Values.geoserver.securityContext.fsGroup | default .Values.global.securityContext.fsGroup }}
+        fsGroup: {{ (default dict .Values.geoserver.securityContext).fsGroup | default .Values.global.securityContext.fsGroup }}
         fsGroupChangePolicy: OnRootMismatch
 
       terminationGracePeriodSeconds: 3

@@ -22,8 +22,8 @@ spec:
 {{ end }}
       securityContext:
         runAsNonRoot: true
-        runAsUser: {{ .Values.nginx.securityContext.runAsUser | default 101 }}
-        fsGroup: {{ .Values.nginx.securityContext.fsGroup | default .Values.global.securityContext.fsGroup }}
+        runAsUser: {{ (default dict .Values.nginx.securityContext).runAsUser | default 101 }}
+        fsGroup: {{ (default dict .Values.nginx.securityContext).fsGroup | default .Values.global.securityContext.fsGroup }}
       containers:
       - name: {{ .Values.nginx.container_name }}
         image: "{{ .Values.nginx.image.name }}:{{ .Values.nginx.image.tag }}"

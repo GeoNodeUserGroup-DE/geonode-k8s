@@ -58,7 +58,7 @@ spec:
           invoke statics
           if [ -f /favicon/favicon.ico ]; then
             echo "Installing custom favicon"
-            install -m 0644 \
+            install -D -m 0644 \
               /favicon/favicon.ico \
               /mnt/volumes/statics/static/geonode/img/favicon.ico
           fi
