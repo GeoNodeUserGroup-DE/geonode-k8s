@@ -6,7 +6,9 @@ metadata:
 spec:
   accessModes:
   - {{ .Values.global.accessMode }}
+  {{- if .Values.global.storageClass }}
   storageClassName: {{ .Values.global.storageClass }}
+  {{- end }}
   resources:
     requests:
       storage: {{ .Values.geonode.persistant.storageSize }}
@@ -19,7 +21,9 @@ metadata:
 spec:
   accessModes:
   - {{ .Values.global.accessMode }}
+  {{- if .Values.global.storageClass }}
   storageClassName: {{ .Values.global.storageClass }}
+  {{- end }}
   resources:
     requests:
       storage: {{ .Values.geonode.persistant.storageSize }}
@@ -32,7 +36,9 @@ metadata:
 spec:
   accessModes:
   - {{ .Values.global.accessMode }}
+  {{- if .Values.global.storageClass }}
   storageClassName: {{ .Values.global.storageClass }}
+  {{- end }}
   resources:
     requests:
       storage: {{ .Values.geonode.persistant.storageSize }}
@@ -45,7 +51,9 @@ metadata:
 spec:
   accessModes:
   - {{ .Values.global.accessMode }}
+  {{- if .Values.global.storageClass }}
   storageClassName: {{ .Values.global.storageClass }}
+  {{- end }}
   resources:
     requests:
       storage: {{ .Values.geonode.persistant.storageSize }}
