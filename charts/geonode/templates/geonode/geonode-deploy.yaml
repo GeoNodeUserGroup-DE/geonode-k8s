@@ -38,6 +38,7 @@ spec:
       securityContext:
         runAsNonRoot: true
         fsGroup: {{ .Values.geonode.securityContext.fsGroup | default .Values.global.securityContext.fsGroup }}
+        fsGroupChangePolicy: OnRootMismatch
       terminationGracePeriodSeconds: 3
 
 {{- if not (empty .Values.geonode.imagePullSecret) }}

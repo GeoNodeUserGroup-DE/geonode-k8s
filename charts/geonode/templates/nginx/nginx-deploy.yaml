@@ -22,7 +22,7 @@ spec:
 {{ end }}
       securityContext:
         runAsNonRoot: true
-        runAsUser: {{ .Values.nginx.securityContext.runAsUser }}
+        runAsUser: {{ .Values.nginx.securityContext.runAsUser | default 101 }}
         fsGroup: {{ .Values.nginx.securityContext.fsGroup | default .Values.global.securityContext.fsGroup }}
       containers:
       - name: {{ .Values.nginx.container_name }}
@@ -32,9 +32,9 @@ spec:
           - name: http
             containerPort: 8080
         securityContext:
-          runAsUser: {{ .Values.nginx.securityContext.runAsUser }}
-          runAsNonRoot: {{ .Values.nginx.securityContext.runAsNonRoot }}
-          allowPrivilegeEscalation: {{ .Values.nginx.securityContext.allowPrivilegeEscalation }}
+          runAsUser: {{ .Values.nginx.securityContext.runAsUser | default 101 }}
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true
           capabilities:
             drop:

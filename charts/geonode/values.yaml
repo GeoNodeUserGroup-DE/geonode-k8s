@@ -507,8 +507,6 @@ nginx:
   # Use nginx typical userId for running
   securityContext:
     runAsUser: 101
-    runAsNonRoot: true
-    allowPrivilegeEscalation: false
 
   # -- max file upload size for geonode upload. Only set this value if it should be different from geonode.general.upload.size.
   # to use e.g. if geonode.general.upload.document_size > geonode.general.upload.size
