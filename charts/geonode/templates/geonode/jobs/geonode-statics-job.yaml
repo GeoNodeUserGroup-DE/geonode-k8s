@@ -47,9 +47,6 @@ spec:
         - |
           set -e
           cd {{ include "geonode_root_path" .}}/
-          # Add config overrides
-          cat /usr/src/geonode/geonode/geonode-k8s-settings.py >> {{ include "geonode_path" .}}/settings.py
-          cat /usr/src/geonode/geonode/geonode-k8s-settings-additions.py >> {{ include "geonode_path" .}}/settings.py
 
           echo "-----------------------------------------------------"
           echo "Starting GeoNode static tasks (migrations) $(date)"
@@ -101,6 +98,8 @@ spec:
           value: "postgis://$(GEONODE_GEODATABASE):$(GEONODE_GEODATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(GEONODE_GEODATABASE)"
         - name: DATABASE_URL
           value: "postgis://$(GEONODE_DATABASE):$(GEONODE_DATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(GEONODE_DATABASE)"
+        - name: PYTHONPATH
+          value: /opt/geonode-custom
         volumeMounts:
         - name: cache-volume
           mountPath: /tmp
@@ -108,12 +107,13 @@ spec:
           mountPath: "{{ include "geonode_root_path" .}}/tasks.py"
           subPath: tasks.py
           readOnly: true
-        - name: geonode-k8s-settings-py
-          mountPath: "/usr/src/geonode/geonode/geonode-k8s-settings.py"
-          subPath: geonode-k8s-settings.py
-        - name: geonode-k8s-settings-additions-py
-          mountPath: "/usr/src/geonode/geonode/geonode-k8s-settings-additions.py"
-          subPath: geonode-k8s-settings-additions.py
+        - name: settings-wrapper
+          mountPath: /opt/geonode-custom/settings_wrapper.py
+          subPath: settings_wrapper.py
+          readOnly: true
+        - name: settings-additions
+          mountPath: /opt/geonode-custom/settings_additions.py
+          subPath: settings_additions.py
           readOnly: true
 {{- if .Values.geonode.mapstore.nominatim_patch.enabled }}
         - name: mapstore-nominatim-patch-py
@@ -138,20 +138,14 @@ spec:
           items:
           - key: tasks.py
             path: "tasks.py"
-      - name: geonode-k8s-settings-py
+      - name: settings-wrapper
         configMap:
-          name: {{ .Release.Name }}-geonode-k8s-settings-py
-          defaultMode: 0744
-          items:
-          - key: geonode-k8s-settings.py
-            path: "geonode-k8s-settings.py"
-      - name: geonode-k8s-settings-additions-py
+          name: {{ .Release.Name }}-geonode-settings-wrapper
+          defaultMode: 0555
+      - name: settings-additions
         configMap:
-          name: {{ .Release.Name }}-geonode-k8s-settings-additions-py
-          defaultMode: 0744
-          items:
-          - key: geonode-k8s-settings-additions.py
-            path: "geonode-k8s-settings-additions.py"
+          name: {{ .Release.Name }}-geonode-settings-additions
+          defaultMode: 0555
 {{- if .Values.geonode.mapstore.nominatim_patch.enabled }}
       - name: mapstore-nominatim-patch-py
         configMap:

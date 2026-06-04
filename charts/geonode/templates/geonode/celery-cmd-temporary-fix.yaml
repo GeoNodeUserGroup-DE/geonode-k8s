@@ -1,0 +1,8 @@
+# Temporary fix pending https://github.com/GeoNode/geonode/pull/14292
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-celery-cmd-temporary-fix
+data:
+  celery-cmd: |
+{{ .Files.Get "files/celery-cmd-temporary-fix" | indent 4 }}

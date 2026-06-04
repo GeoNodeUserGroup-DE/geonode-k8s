@@ -1,0 +1,10 @@
+# charts/geonode/templates/geonode/geonode-settings-wrapper.yaml
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-geonode-settings-wrapper
+  namespace: {{ .Release.Namespace }}
+data:
+  settings_wrapper.py: |
+{{- .Files.Get "files/settings_wrapper.py" | nindent 4 }}
