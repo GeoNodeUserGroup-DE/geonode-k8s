@@ -1,7 +1,9 @@
+# Overlay for existing GeoNode settings
+
+from pathlib import Path
 from geonode.settings import *
 
-try:
-    with open("/opt/geonode-custom/settings_additions.py", encoding="utf-8") as f:
-        exec(f.read())
-except FileNotFoundError:
-    pass
+settings_additions = Path("/opt/geonode-custom/settings_additions.py")
+
+if settings_additions.exists():
+    exec(settings_additions.read_text(encoding="utf-8"))
