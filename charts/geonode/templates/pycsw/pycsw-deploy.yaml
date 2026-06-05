@@ -35,8 +35,8 @@ spec:
         image: "{{ .Values.pycsw.init.image.name }}:{{ .Values.pycsw.init.image.tag }}"
         imagePullPolicy: {{ .Values.pycsw.init.imagePullPolicy }}
         securityContext:
-          runAsUser: {{ .Values.pycsw.securityContext.runAsUser | default .Values.global.securityContext.runAsUser }}
-          runAsGroup: {{ .Values.pycsw.securityContext.runAsGroup | default .Values.global.securityContext.runAsGroup }}
+          runAsUser: {{ (default dict .Values.pycsw.securityContext).runAsUser | default .Values.global.securityContext.runAsUser }}
+          runAsGroup: {{ (default dict .Values.pycsw.securityContext).runAsGroup | default .Values.global.securityContext.runAsGroup }}
           runAsNonRoot: true
           allowPrivilegeEscalation: false
           capabilities:
@@ -55,8 +55,8 @@ spec:
         image: "{{ .Values.pycsw.image.name }}:{{ .Values.pycsw.image.tag }}"
         imagePullPolicy: {{ .Values.pycsw.imagePullPolicy }}
         securityContext:
-          runAsUser: {{ .Values.pycsw.securityContext.runAsUser | default .Values.global.securityContext.runAsUser }}
-          runAsGroup: {{ .Values.pycsw.securityContext.runAsGroup | default .Values.global.securityContext.runAsGroup }}
+          runAsUser: {{ (default dict .Values.pycsw.securityContext).runAsUser | default .Values.global.securityContext.runAsUser }}
+          runAsGroup: {{ (default dict .Values.pycsw.securityContext).runAsGroup | default .Values.global.securityContext.runAsGroup }}
           runAsNonRoot: true
           allowPrivilegeEscalation: false
           capabilities:

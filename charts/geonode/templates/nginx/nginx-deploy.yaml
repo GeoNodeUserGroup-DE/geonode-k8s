@@ -32,7 +32,7 @@ spec:
           - name: http
             containerPort: 8080
         securityContext:
-          runAsUser: {{ .Values.nginx.securityContext.runAsUser | default 101 }}
+          runAsUser: {{ (default dict .Values.nginx.securityContext).runAsUser | default 101 }}
           runAsNonRoot: true
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true

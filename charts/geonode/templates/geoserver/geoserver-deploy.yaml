@@ -28,8 +28,8 @@ spec:
       initContainers:
       - name: {{ .Values.geoserver_data.container_name }}
         securityContext:
-          runAsUser: {{ .Values.geoserver.securityContext.runAsUser | default .Values.global.securityContext.runAsUser }}
-          runAsGroup: {{ .Values.geoserver.securityContext.runAsGroup | default .Values.global.securityContext.runAsGroup }}
+          runAsUser: {{ (default dict .Values.geoserver.securityContext).runAsUser | default .Values.global.securityContext.runAsUser }}
+          runAsGroup: {{ (default dict .Values.geoserver.securityContext).runAsGroup | default .Values.global.securityContext.runAsGroup }}
           runAsNonRoot: true
           allowPrivilegeEscalation: false
 
@@ -76,8 +76,8 @@ spec:
       containers:
       - name: {{ .Values.geoserver.container_name }}
         securityContext:
-          runAsUser: {{ .Values.geoserver.securityContext.runAsUser | default .Values.global.securityContext.runAsUser }}
-          runAsGroup: {{ .Values.geoserver.securityContext.runAsGroup | default .Values.global.securityContext.runAsGroup }}
+          runAsUser: {{ (default dict .Values.geoserver.securityContext).runAsUser | default .Values.global.securityContext.runAsUser }}
+          runAsGroup: {{ (default dict .Values.geoserver.securityContext).runAsGroup | default .Values.global.securityContext.runAsGroup }}
           runAsNonRoot: true
           allowPrivilegeEscalation: false
           capabilities:
