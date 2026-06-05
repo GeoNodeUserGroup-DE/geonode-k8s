@@ -24,15 +24,15 @@ spec:
       restartPolicy: OnFailure
       securityContext:
         runAsNonRoot: true
-        fsGroup: {{ .Values.geonode.securityContext.fsGroup | default .Values.global.securityContext.fsGroup }}
+        fsGroup: {{ (default dict .Values.geonode.securityContext).fsGroup | default .Values.global.securityContext.fsGroup }}
 
       containers:
       - name: {{ .Values.geonode.container_name }}-statics-job
         image: "{{ .Values.geonode.image.name }}:{{ .Values.geonode.image.tag }}"
         imagePullPolicy: {{ .Values.geonode.imagePullPolicy }}
         securityContext:
-          runAsUser: {{ .Values.geonode.securityContext.runAsUser | default .Values.global.securityContext.runAsUser }}
-          runAsGroup: {{ .Values.geonode.securityContext.runAsGroup | default .Values.global.securityContext.runAsGroup }}
+          runAsUser: {{ (default dict .Values.geonode.securityContext).runAsUser | default .Values.global.securityContext.runAsUser }}
+          runAsGroup: {{ (default dict .Values.geonode.securityContext).runAsGroup | default .Values.global.securityContext.runAsGroup }}
           runAsNonRoot: true
           allowPrivilegeEscalation: false
           capabilities:

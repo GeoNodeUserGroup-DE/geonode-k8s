@@ -77,8 +77,8 @@ spec:
       # This is the django app server
       - name: {{ .Values.geonode.container_name }}
         securityContext:
-          runAsUser: {{ .Values.geonode.securityContext.runAsUser | default .Values.global.securityContext.runAsUser }}
-          runAsGroup: {{ .Values.geonode.securityContext.runAsGroup | default .Values.global.securityContext.runAsGroup }}
+          runAsUser: {{ (default dict .Values.geonode.securityContext).runAsUser | default .Values.global.securityContext.runAsUser }}
+          runAsGroup: {{ (default dict .Values.geonode.securityContext).runAsGroup | default .Values.global.securityContext.runAsGroup }}
           runAsNonRoot: true
           allowPrivilegeEscalation: false
           capabilities:
@@ -181,8 +181,8 @@ spec:
       # Celery is the task worker
       - name: {{ .Values.geonode.celery.container_name }}
         securityContext:
-          runAsUser: {{ .Values.geonode.securityContext.runAsUser | default .Values.global.securityContext.runAsUser }}
-          runAsGroup: {{ .Values.geonode.securityContext.runAsGroup | default .Values.global.securityContext.runAsGroup }}
+          runAsUser: {{ (default dict .Values.geonode.securityContext).runAsUser | default .Values.global.securityContext.runAsUser }}
+          runAsGroup: {{ (default dict .Values.geonode.securityContext).runAsGroup | default .Values.global.securityContext.runAsGroup }}
           runAsNonRoot: true
           allowPrivilegeEscalation: false
           capabilities:
