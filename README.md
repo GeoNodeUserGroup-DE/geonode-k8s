@@ -79,6 +79,8 @@ cd geoserver-nonroot
 ./build.sh
 ```
 
+In addition, ensure that your storage will be writeable by the geonode technical user; UID and GID can be configured in the values file (see below).
+
 ## Install chart
 
 ```bash
@@ -90,6 +92,11 @@ helm upgrade --cleanup-on-fail --install --namespace geonode --create-namespace 
 ```bash
 helm delete --namespace geonode geonode geonode
 ```
+
+## Migrating from earlier versions of this Helm Chart
+
+The hardened version of this helm chart introduced a split from one common PVC for geonode to four distinct PVC.
+When upgrading from earlier versions of the helm chart, you may need to copy user manually to the new PVC.
 
 ## Contribution
 
