@@ -4,7 +4,7 @@
 
 - [GeoWhat?](#Geonode)
 - [Geonode-k8s](#geonode-k8s)
-- [Install Guilde](#install)
+- [Install Guide](#install)
 
 **Homepage:** <https://github.com/GeoNodeUserGroup-DE/geonode-k8s>
 
@@ -67,6 +67,16 @@ Define your own values.yaml to configure your geonode installation. Use the [doc
 
 ```bash
 vi my-values.yaml
+```
+
+## Hardened K8S environments
+
+By default, this Helm Chart is intended to run in hardened K8S environments, notably with non-root permissions.
+
+The current `geonode/geoserver` Docker Image does not support running as non-root out-of-the-box, therefore, to run successfully in this mode, you should create a custom image with the provided script as follows:
+```bash
+cd geoserver-nonroot
+./build.sh
 ```
 
 ## Install chart

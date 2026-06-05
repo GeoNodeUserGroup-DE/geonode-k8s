@@ -401,7 +401,8 @@ geoserver:
   container_name: geoserver
   image:
     # -- geoserver image docker image
-    name: geonode/geoserver
+    # NOTE: as a temporary solution, need to use custom image to allow non-root, see documentation
+    name: geonode/geoserver-nonroot
     # -- geoserver docker image tag
     tag: "2.27.4-latest"
   # -- Security context for geoserver pods (overrides global.securityContext)
