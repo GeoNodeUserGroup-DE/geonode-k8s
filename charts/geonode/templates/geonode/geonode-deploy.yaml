@@ -222,8 +222,6 @@ spec:
           value: "/dev/stdout"
         - name: CELERY__BEAT_LOG
           value: "/dev/stdout"
-        - name: CELERY__BEAT_DB
-          value: "/tmp/celerybeat-db"
         - name: CELERY__LOG_LEVEL
           value: "INFO"
         - name: INVOKE_LOG_STDOUT
