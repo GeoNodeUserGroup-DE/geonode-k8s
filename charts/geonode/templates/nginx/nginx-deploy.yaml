@@ -20,10 +20,10 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.nginx.imagePullSecret }}
 {{ end }}
+{{- $ngxctx := default dict .Values.nginx.securityContext }}
       securityContext:
         runAsNonRoot: true
-        runAsUser: {{ (default dict .Values.nginx.securityContext).runAsUser | default 101 }}
-        fsGroup: {{ (default dict .Values.nginx.securityContext).fsGroup | default .Values.global.securityContext.fsGroup }}
+        fsGroup: {{- if hasKey $ngxctx "fsGroup" }} {{ $ngxctx.fsGroup }} {{- else }} {{ .Values.global.securityContext.fsGroup }} {{- end }}
       containers:
       - name: {{ .Values.nginx.container_name }}
         image: "{{ .Values.nginx.image.name }}:{{ .Values.nginx.image.tag }}"
@@ -32,7 +32,8 @@ spec:
           - name: http
             containerPort: 8080
         securityContext:
-          runAsUser: {{ (default dict .Values.nginx.securityContext).runAsUser | default 101 }}
+          runAsUser: {{- if hasKey $ngxctx "runAsUser" }} {{ $ngxctx.runAsUser }} {{- else }} 101 {{- end }}
+          runAsGroup: {{- if hasKey $ngxctx "runAsGroup" }} {{ $ngxctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
           runAsNonRoot: true
           allowPrivilegeEscalation: false
           readOnlyRootFilesystem: true

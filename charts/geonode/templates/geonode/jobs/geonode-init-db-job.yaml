@@ -22,9 +22,10 @@ spec:
       - name: {{ .Values.geonode.imagePullSecret }}
 {{ end }}
       restartPolicy: OnFailure
+{{- $gnctx := default dict .Values.geonode.securityContext }}
       securityContext:
         runAsNonRoot: true
-        fsGroup: {{ (default dict .Values.geonode.securityContext).fsGroup | default .Values.global.securityContext.fsGroup }}
+        fsGroup: {{- if hasKey $gnctx "fsGroup" }} {{ $gnctx.fsGroup }} {{- else }} {{ .Values.global.securityContext.fsGroup }} {{- end }}
 
       initContainers:
       # Wait for Postgres and rabbit
@@ -32,8 +33,8 @@ spec:
         image: "{{ .Values.geonode.init.image.name }}:{{ .Values.geonode.init.image.tag }}"
         imagePullPolicy: {{ .Values.geonode.init.imagePullPolicy }}
         securityContext:
-          runAsUser: {{ (default dict .Values.geonode.securityContext).runAsUser | default .Values.global.securityContext.runAsUser }}
-          runAsGroup: {{ (default dict .Values.geonode.securityContext).runAsGroup | default .Values.global.securityContext.runAsGroup }}
+          runAsUser: {{- if hasKey $gnctx "runAsUser" }} {{ $gnctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
+          runAsGroup: {{- if hasKey $gnctx "runAsGroup" }} {{ $gnctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
           runAsNonRoot: true
           allowPrivilegeEscalation: false
           capabilities:
@@ -59,8 +60,8 @@ spec:
         image: "{{ .Values.geonode.image.name }}:{{ .Values.geonode.image.tag }}"
         imagePullPolicy: {{ .Values.geonode.imagePullPolicy }}
         securityContext:
-          runAsUser: {{ (default dict .Values.geonode.securityContext).runAsUser | default .Values.global.securityContext.runAsUser }}
-          runAsGroup: {{ (default dict .Values.geonode.securityContext).runAsGroup | default .Values.global.securityContext.runAsGroup }}
+          runAsUser: {{- if hasKey $gnctx "runAsUser" }} {{ $gnctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
+          runAsGroup: {{- if hasKey $gnctx "runAsGroup" }} {{ $gnctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
           runAsNonRoot: true
           allowPrivilegeEscalation: false
           capabilities:

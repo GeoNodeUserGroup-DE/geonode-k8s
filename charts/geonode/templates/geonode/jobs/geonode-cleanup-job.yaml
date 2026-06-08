@@ -57,16 +57,17 @@ spec:
     spec:
       serviceAccountName: "{{ include "geonode_pod_name" . }}-cleanup"
       restartPolicy: Never
+{{- $gnctx := default dict .Values.geonode.securityContext }}
       securityContext:
         runAsNonRoot: true
-        fsGroup: {{ (default dict .Values.geonode.securityContext).fsGroup | default .Values.global.securityContext.fsGroup }}
+        fsGroup: {{- if hasKey $gnctx "fsGroup" }} {{ $gnctx.fsGroup }} {{- else }} {{ .Values.global.securityContext.fsGroup }} {{- end }}
       initContainers:
       - name: cleanup-init-db-job
         image: "{{ .Values.geonode.hooks.kubectlImage }}:{{ .Values.geonode.hooks.kubectlTag }}"
         imagePullPolicy: IfNotPresent
         securityContext:
-          runAsUser: {{ (default dict .Values.geonode.securityContext).runAsUser | default .Values.global.securityContext.runAsUser }}
-          runAsGroup: {{ (default dict .Values.geonode.securityContext).runAsGroup | default .Values.global.securityContext.runAsGroup }}
+          runAsUser: {{- if hasKey $gnctx "runAsUser" }} {{ $gnctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
+          runAsGroup: {{- if hasKey $gnctx "runAsGroup" }} {{ $gnctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
           runAsNonRoot: true
           allowPrivilegeEscalation: false
           capabilities:
@@ -87,8 +88,8 @@ spec:
         image: "{{ .Values.geonode.hooks.kubectlImage }}:{{ .Values.geonode.hooks.kubectlTag }}"
         imagePullPolicy: IfNotPresent
         securityContext:
-          runAsUser: {{ (default dict .Values.geonode.securityContext).runAsUser | default .Values.global.securityContext.runAsUser }}
-          runAsGroup: {{ (default dict .Values.geonode.securityContext).runAsGroup | default .Values.global.securityContext.runAsGroup }}
+          runAsUser: {{- if hasKey $gnctx "runAsUser" }} {{ $gnctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
+          runAsGroup: {{- if hasKey $gnctx "runAsGroup" }} {{ $gnctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
           runAsNonRoot: true
           allowPrivilegeEscalation: false
           capabilities:
@@ -110,8 +111,8 @@ spec:
         image: "{{ .Values.geonode.hooks.kubectlImage }}:{{ .Values.geonode.hooks.kubectlTag }}"
         imagePullPolicy: IfNotPresent
         securityContext:
-          runAsUser: {{ (default dict .Values.geonode.securityContext).runAsUser | default .Values.global.securityContext.runAsUser }}
-          runAsGroup: {{ (default dict .Values.geonode.securityContext).runAsGroup | default .Values.global.securityContext.runAsGroup }}
+          runAsUser: {{- if hasKey $gnctx "runAsUser" }} {{ $gnctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
+          runAsGroup: {{- if hasKey $gnctx "runAsGroup" }} {{ $gnctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
           runAsNonRoot: true
           allowPrivilegeEscalation: false
           capabilities:
