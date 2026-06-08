@@ -401,12 +401,17 @@ geoserver:
   container_name: geoserver
   image:
     # -- geoserver image docker image
-    # NOTE: as a temporary solution, need to use custom image to allow non-root, see documentation
-    name: geonode/geoserver-nonroot
+    name: geonode/geoserver
+    # NOTE: to run this image as non-root, you currently need to wrap it into a custom image, see README file on how to build it.
+    # name: geonode/geoserver-nonroot
     # -- geoserver docker image tag
     tag: "2.27.4-latest"
   # -- Security context for geoserver pods (overrides global.securityContext)
-  securityContext: {}
+  securityContext:
+    runAsNonRoot: false
+    fsGroup: 0
+    runAsUser: 0
+    runAsGroup: 0
   # -- geoserver image pull policy
   imagePullPolicy: "IfNotPresent"
   # -- pull secret to use for geoserver image

@@ -19,18 +19,19 @@ spec:
         checksum/geoserver-secret: {{ include (print $.Template.BasePath "/geoserver/geoserver-secret.yaml") . | sha256sum }}
 
     spec:
+      {{- $gsctx := default dict .Values.geoserver.securityContext }}
       securityContext:
-        runAsNonRoot: true
-        fsGroup: {{ (default dict .Values.geoserver.securityContext).fsGroup | default .Values.global.securityContext.fsGroup }}
+        runAsNonRoot: {{- if hasKey $gsctx "runAsNonRoot" }} {{ $gsctx.runAsNonRoot }} {{- else }} true {{- end }}
+        fsGroup: {{- if hasKey $gsctx "fsGroup" }} {{ $gsctx.fsGroup }} {{- else }} {{ .Values.global.securityContext.fsGroup }} {{- end }}
         fsGroupChangePolicy: OnRootMismatch
 
       terminationGracePeriodSeconds: 3
       initContainers:
       - name: {{ .Values.geoserver_data.container_name }}
         securityContext:
-          runAsUser: {{ (default dict .Values.geoserver.securityContext).runAsUser | default .Values.global.securityContext.runAsUser }}
-          runAsGroup: {{ (default dict .Values.geoserver.securityContext).runAsGroup | default .Values.global.securityContext.runAsGroup }}
-          runAsNonRoot: true
+          runAsNonRoot: {{- if hasKey $gsctx "runAsNonRoot" }} {{ $gsctx.runAsNonRoot }} {{- else }} true {{- end }}
+          runAsUser: {{- if hasKey $gsctx "runAsUser" }} {{ $gsctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
+          runAsGroup: {{- if hasKey $gsctx "runAsGroup" }} {{ $gsctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
           allowPrivilegeEscalation: false
 
           capabilities:
@@ -76,9 +77,9 @@ spec:
       containers:
       - name: {{ .Values.geoserver.container_name }}
         securityContext:
-          runAsUser: {{ (default dict .Values.geoserver.securityContext).runAsUser | default .Values.global.securityContext.runAsUser }}
-          runAsGroup: {{ (default dict .Values.geoserver.securityContext).runAsGroup | default .Values.global.securityContext.runAsGroup }}
-          runAsNonRoot: true
+          runAsNonRoot: {{- if hasKey $gsctx "runAsNonRoot" }} {{ $gsctx.runAsNonRoot }} {{- else }} true {{- end }}
+          runAsUser: {{- if hasKey $gsctx "runAsUser" }} {{ $gsctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
+          runAsGroup: {{- if hasKey $gsctx "runAsGroup" }} {{ $gsctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
           allowPrivilegeEscalation: false
           capabilities:
             drop:

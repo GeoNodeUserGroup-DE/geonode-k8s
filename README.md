@@ -71,15 +71,26 @@ vi my-values.yaml
 
 ## Hardened K8S environments
 
-By default, this Helm Chart is intended to run in hardened K8S environments, notably with non-root permissions.
+By default, this Helm Chart is intended to run in hardened K8S environments, notably with non-root permissions. To use it, ensure that your storage will be writeable by the geonode technical user; UID and GID can be configured in the values file.
 
-The current `geonode/geoserver` Docker Image does not support running as non-root out-of-the-box, therefore, to run successfully in this mode, you should create a custom image with the provided script as follows:
+An exception to this rule is the `geonode/geoserver` Pod, because the current `geonode/geoserver` Docker Image does not support running as non-root out-of-the-box, therefore, default chart settings for this image are set to run as root. If you wish to run this Pod as non-root, proceed as follows:
+
+Create a custom image with the provided script as follows:
 ```bash
 cd geoserver-nonroot
 ./build.sh
 ```
-
-In addition, ensure that your storage will be writeable by the geonode technical user; UID and GID can be configured in the values file (see below).
+And then override the settings in your values file, for example:
+```bash
+geoserver:
+  image:
+    name: geonode/geoserver-nonroot
+  securityContext:
+    runAsNonRoot: true
+    fsGroup: 1000
+    runAsUser: 1000
+    runAsGroup: 1000
+```
 
 ## Install chart
 
