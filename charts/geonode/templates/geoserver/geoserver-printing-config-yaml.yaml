@@ -6,6 +6,7 @@ metadata:
 data:
   config.yaml: |
     # The content is a copy from the one available in https://github.com/GeoNode/geoserver-geonode-ext
+    # Based on commit 98fae648eb470cb3d654d26e8fc125f8c9097985 (GeoServer 2.27.4)
     # It is provided through the geoserver_data docker image but we need to override it
     #===========================================================================
     # allowed DPIs
@@ -50,23 +51,30 @@ data:
       - 140000000.0
       - 280000000.0
 
+    formats:
+      - '*'
+
     outputFilename: 'GeoNode-Map-${date}.pdf'
-    #== ms2 ===== 
+    #== ms2 =====
     disableScaleLocking: true
     #======
     brokenUrlPlaceholder: 'default'
+    # brokenUrlPlaceholder: 'throw'
 
+    #proxyBaseUrl: http://geoserver:8080/geoserver/pdf
     connectionTimeout: 2000
     socketTimeout: 2000
 
     #===========================================================================
     # the list of allowed ips
-    # The original list is available here : https://github.com/GeoNode/geoserver-geonode-ext/blob/main/data/printing/config.yaml
+    # The original list is available here: https://github.com/GeoNode/geoserver-geonode-ext/blob/main/data/printing/config.yaml
     #===========================================================================
     hosts:
       - !ipMatch
         ip: 127.0.0.1
       - !localMatch
+        dummy: true
+      - !acceptAll
         dummy: true
       - !dnsMatch
         host: localhost
@@ -157,7 +165,7 @@ data:
 
     layouts:
       #goenode standard layout
-      #===========================================================================
+      #=========A4 potrait with legend============================================
       A4 :
       #===========================================================================
         metaData:
@@ -179,7 +187,7 @@ data:
               items:
                 - !image
                   maxWidth: 752
-                  url: '/${configDir}/print_header.png'
+                  url: 'file://${configDir}/print_header.png'
                 - !text
                   font: Helvetica
                   fontSize: 22
@@ -187,12 +195,11 @@ data:
                   spacingAfter: 100
                   align: left
                   text: '${mapTitle}'
-                  maxLength: 100
             - !map
               width: 500
               height: 320
-              absoluteX:30
-              absoluteY:435
+              absoluteX: 30
+              absoluteY: 435
             #legend panel
             - !columns
               config:
@@ -208,7 +215,7 @@ data:
               absoluteX: 542
               absoluteY: 435
               width: 235
-              height: 500
+              #height: 500
               items:
                 - !legends
                   horizontalAlignment: left
@@ -233,6 +240,36 @@ data:
                   url: 'file://${configDir}/Arrow_North_CFCF.svg'
                   rotation: '${rotation}'
             - !columns
+              absoluteX: 305
+              absoluteY: 115
+              width: 235
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${credits}'
+            - !columns
+              absoluteX: 30
+              absoluteY: 115
+              width: 50
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${projection}'
+            - !columns
+              absoluteX: 80
+              absoluteY: 115
+              width: 50
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${mapScale}'
+            - !columns
               config:
                 borderWidth: 0
                 cells:
@@ -256,7 +293,6 @@ data:
                   nbColumns: 1
                   items:
                     - !text
-                      width: 420
                       text: '(c) example.com'
                       fontEncoding: Cp1252
                       fontSize: 7
@@ -264,25 +300,37 @@ data:
                       vertAlign: top
                       spacingAfter: 2
                     - !text
-                      width: 420
-                      text: '${now MM.dd.yyyy}'
+                      text: '${author}'
                       fontEncoding: Cp1252
                       fontSize: 5
                       align: left
                       vertAlign: bottom
-                - !text
-                  align: justified
-                  vertAlign: top
-                  fontSize: 8
-                  text: '${comment}'
-                  maxLength: 1200
+                    - !text
+                      text: '${now MM/dd/yyyy, hh:mm:ss}'
+                      fontEncoding: Cp1252
+                      fontSize: 5
+                      align: left
+                      vertAlign: bottom
+                - !columns
+                  nbColumns: 1
+                  items:
+                    - !text
+                      align: justified
+                      vertAlign: top
+                      fontSize: 8
+                      text: '${comment}'
+                    - !text
+                      text: '${copyright}'
+                      fontEncoding: Cp1252
+                      fontSize: 9
+                      align: left
+                      vertAlign: bottom
                 - !scalebar
                   align: right
                   vertAlign: middle
                   maxSize: 108
                   type: 'bar sub'
                   intervals: 5
-
       #mapstore2 layout
       #=======A4 landscape with legend============================================
       A4_landscape :
@@ -299,14 +347,14 @@ data:
               items:
                 - !image
                   maxWidth: 782
-                  url: '/${configDir}/print_header.png'
+                  url: 'file://${configDir}/print_header.png'
             - !map
               width: 592
               height: 400
-              absoluteX:30
-              absoluteY:475
-            #legend panel            
-            - !columns               
+              absoluteX: 30
+              absoluteY: 475
+            #legend panel
+            - !columns
               config:
                 borderWidth: 1
                 cells:
@@ -340,8 +388,38 @@ data:
                 - !image
                   maxWidth: 40
                   maxHeight: 40
-                  url: 'file:/${configDir}/Arrow_North_CFCF.svg'
-                  rotation: '${rotation}'          
+                  url: 'file://${configDir}/Arrow_North_CFCF.svg'
+                  rotation: '${rotation}'
+            - !columns
+              absoluteX: 420
+              absoluteY: 73
+              width: 222
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${credits}'
+            - !columns
+              absoluteX: 30
+              absoluteY: 73
+              width: 50
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${projection}'
+            - !columns
+              absoluteX: 80
+              absoluteY: 73
+              width: 50
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${mapScale}'
             - !columns
               absoluteX: 30
               absoluteY: 55
@@ -352,24 +430,31 @@ data:
                   nbColumns: 1
                   items:
                     - !text
-                      width: 300
-                      text: '${comment}'  
+                      text: '${comment}'
                       fontEncoding: Cp1252
-                      fontSize: 9                     
-                      align: left
-                      vertAlign: middle               
-                    - !text
-                      width: 300
-                      text: '${now MM.dd.yyyy}'  
-                      fontEncoding: Cp1252
-                      fontSize: 9                     
+                      fontSize: 9
                       align: left
                       vertAlign: middle
-                - !text
-                  align: center
-                  vertAlign: middle
-                  fontSize: 14
-                  text: '${mapTitle}'
+                    - !text
+                      text: '${now MM/dd/yyyy, hh:mm:ss}'
+                      fontEncoding: Cp1252
+                      fontSize: 9
+                      align: left
+                      vertAlign: middle
+                - !columns
+                  nbColumns: 1
+                  items:
+                    - !text
+                      align: center
+                      vertAlign: middle
+                      fontSize: 14
+                      text: '${mapTitle}'
+                    - !text
+                      text: '${copyright}'
+                      fontEncoding: Cp1252
+                      fontSize: 9
+                      align: center
+                      vertAlign: middle
                 - !scalebar
                   align: right
                   vertAlign: middle
@@ -381,7 +466,7 @@ data:
       #=========================================================================
         mainPage:
           rotation: true
-          pageSize: 595 842 
+          pageSize: 595 842
           landscape: false
           items:
             - !columns
@@ -391,7 +476,7 @@ data:
               items:
                 - !image
                   maxWidth: 550
-                  url: '/${configDir}/print_header.png'
+                  url: 'file://${configDir}/print_header.png'
             - !map
               height: 600
               width: 535
@@ -405,8 +490,38 @@ data:
                 - !image
                   maxWidth: 40
                   maxHeight: 40
-                  url: 'file:/${configDir}/Arrow_North_CFCF.svg'
-                  rotation: '${rotation}'     
+                  url: 'file://${configDir}/Arrow_North_CFCF.svg'
+                  rotation: '${rotation}'
+            - !columns
+              absoluteX: 340
+              absoluteY: 70
+              width: 230
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${credits}'
+            - !columns
+              absoluteX: 30
+              absoluteY: 70
+              width: 50
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${projection}'
+            - !columns
+              absoluteX: 80
+              absoluteY: 70
+              width: 50
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${mapScale}'
             - !columns
               absoluteX: 30
               absoluteY: 740
@@ -425,28 +540,38 @@ data:
               widths: [395]
               items:
                 - !text
-                  width: 300
-                  text: '${comment}'  
+                  text: '${comment}'
                   fontEncoding: Cp1252
-                  fontSize: 9                     
+                  fontSize: 9
                   align: left
-                  vertAlign: middle   
+                  vertAlign: middle
             - !columns
               absoluteX: 30
               absoluteY: 55
               width: 535
-              widths: [240, 240]
+              widths: [240, 240, 240]
               items:
                 - !columns
                   nbColumns: 1
-                  items:            
+                  items:
                     - !text
-                      width: 300
-                      text: '${now MM.dd.yyyy}'  
+                      text: '${author}'
                       fontEncoding: Cp1252
-                      fontSize: 9                     
+                      fontSize: 9
+                      align: left
+                      vertAlign: bottom
+                    - !text
+                      text: '${now MM/dd/yyyy, hh:mm:ss}'
+                      fontEncoding: Cp1252
+                      fontSize: 9
                       align: left
                       vertAlign: middle
+                - !text
+                  text: '${copyright}'
+                  fontEncoding: Cp1252
+                  fontSize: 9
+                  align: left
+                  vertAlign: bottom
                 - !scalebar
                   align: right
                   vertAlign: middle
@@ -468,12 +593,12 @@ data:
               items:
                 - !image
                   maxWidth: 782
-                  url: '/${configDir}/print_header.png'
+                  url: 'file://${configDir}/print_header.png'
             - !map
               width: 780
               height: 400
-              absoluteX:30
-              absoluteY:475
+              absoluteX: 30
+              absoluteY: 475
             - !columns
               absoluteX: 750
               absoluteY: 140
@@ -482,8 +607,38 @@ data:
                 - !image
                   maxWidth: 40
                   maxHeight: 40
-                  url: 'file:/${configDir}/Arrow_North_CFCF.svg'
-                  rotation: '${rotation}'          
+                  url: 'file://${configDir}/Arrow_North_CFCF.svg'
+                  rotation: '${rotation}'
+            - !columns
+              absoluteX: 580
+              absoluteY: 74
+              width: 230
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${credits}'
+            - !columns
+              absoluteX: 30
+              absoluteY: 74
+              width: 50
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${projection}'
+            - !columns
+              absoluteX: 80
+              absoluteY: 74
+              width: 50
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${mapScale}'
             - !columns
               absoluteX: 30
               absoluteY: 55
@@ -494,24 +649,37 @@ data:
                   nbColumns: 1
                   items:
                     - !text
-                      width: 300
-                      text: '${comment}'  
+                      text: '${comment}'
                       fontEncoding: Cp1252
-                      fontSize: 9                     
-                      align: left
-                      vertAlign: middle               
-                    - !text
-                      width: 300
-                      text: '${now MM.dd.yyyy}'  
-                      fontEncoding: Cp1252
-                      fontSize: 9                     
+                      fontSize: 9
                       align: left
                       vertAlign: middle
-                - !text
-                  align: center
-                  vertAlign: middle
-                  fontSize: 14
-                  text: '${mapTitle}'
+                    - !text
+                      text: '${author}'
+                      fontEncoding: Cp1252
+                      fontSize: 9
+                      align: left
+                      vertAlign: middle
+                    - !text
+                      text: '${now MM/dd/yyyy, hh:mm:ss}'
+                      fontEncoding: Cp1252
+                      fontSize: 9
+                      align: left
+                      vertAlign: middle
+                - !columns
+                  nbColumns: 1
+                  items:
+                    - !text
+                      align: center
+                      vertAlign: middle
+                      fontSize: 14
+                      text: '${mapTitle}'
+                    - !text
+                      text: '${copyright}'
+                      fontEncoding: Cp1252
+                      fontSize: 9
+                      align: center
+                      vertAlign: middle
                 - !scalebar
                   align: right
                   vertAlign: middle
@@ -523,7 +691,7 @@ data:
       #===========================================================================
         mainPage:
           rotation: true
-          pageSize: 595 842 
+          pageSize: 595 842
           landscape: false
           items:
             - !columns
@@ -533,7 +701,7 @@ data:
               items:
                 - !image
                   maxWidth: 550
-                  url: '/${configDir}/print_header.png'
+                  url: 'file://${configDir}/print_header.png'
             - !map
               height: 600
               width: 535
@@ -547,8 +715,38 @@ data:
                 - !image
                   maxWidth: 40
                   maxHeight: 40
-                  url: 'file:/${configDir}/Arrow_North_CFCF.svg'
-                  rotation: '${rotation}'     
+                  url: 'file://${configDir}/Arrow_North_CFCF.svg'
+                  rotation: '${rotation}'
+            - !columns
+              absoluteX: 340
+              absoluteY: 70
+              width: 230
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${credits}'
+            - !columns
+              absoluteX: 30
+              absoluteY: 70
+              width: 50
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${projection}'
+            - !columns
+              absoluteX: 80
+              absoluteY: 70
+              width: 50
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${projection}'
             - !columns
               absoluteX: 30
               absoluteY: 740
@@ -567,28 +765,38 @@ data:
               widths: [395]
               items:
                 - !text
-                  width: 300
-                  text: '${comment}'  
+                  text: '${comment}'
                   fontEncoding: Cp1252
-                  fontSize: 9                     
+                  fontSize: 9
                   align: left
-                  vertAlign: middle   
+                  vertAlign: middle
             - !columns
               absoluteX: 30
               absoluteY: 55
               width: 535
-              widths: [240, 240]
+              widths: [240, 240, 240]
               items:
                 - !columns
                   nbColumns: 1
-                  items:            
+                  items:
                     - !text
-                      width: 300
-                      text: '${now MM.dd.yyyy}'  
+                      text: '${author}'
                       fontEncoding: Cp1252
-                      fontSize: 9                     
+                      fontSize: 9
                       align: left
                       vertAlign: middle
+                    - !text
+                      text: '${now MM/dd/yyyy, hh:mm:ss}'
+                      fontEncoding: Cp1252
+                      fontSize: 9
+                      align: left
+                      vertAlign: middle
+                - !text
+                  text: '${copyright}'
+                  fontEncoding: Cp1252
+                  fontSize: 9
+                  align: left
+                  vertAlign: bottom
                 - !scalebar
                   align: right
                   vertAlign: middle
@@ -596,11 +804,10 @@ data:
                   type: 'bar sub'
                   intervals: 5
         lastPage:
-          rotation: true
-          pageSize: 595 842 
+          pageSize: 595 842
           landscape: false
-          items: 
-            #legend panel            
+          items:
+            #legend panel
             - !columns
               config:
                 borderWidth: 0
@@ -616,7 +823,7 @@ data:
               absoluteY: 800
               width: 800
               items:
-                - !legends      
+                - !legends
                   failOnBrokenUrl: false
                   horizontalAlignment: left
                   iconMaxWidth: 0
@@ -629,9 +836,9 @@ data:
                   classIndentation: 5
                   classFontSize: 8
                   classSpace: 4
-                  backgroundColor: #ffffff                
-                  reorderColumns: true    
-                  dontBreakItems: true  
+                  backgroundColor: #ffffff
+                  reorderColumns: true
+                  dontBreakItems: true
                   overflow: true
       #=======A4 landscape with 2 pages legend====================================
       A4_2_pages_legend_landscape :
@@ -648,12 +855,12 @@ data:
               items:
                 - !image
                   maxWidth: 782
-                  url: '/${configDir}/print_header.png'
+                  url: 'file://${configDir}/print_header.png'
             - !map
               width: 780
               height: 400
-              absoluteX:30
-              absoluteY:475
+              absoluteX: 30
+              absoluteY: 475
             - !columns
               absoluteX: 750
               absoluteY: 140
@@ -662,8 +869,38 @@ data:
                 - !image
                   maxWidth: 40
                   maxHeight: 40
-                  url: 'file:/${configDir}/Arrow_North_CFCF.svg'
-                  rotation: '${rotation}'          
+                  url: 'file://${configDir}/Arrow_North_CFCF.svg'
+                  rotation: '${rotation}'
+            - !columns
+              absoluteX: 580
+              absoluteY: 74
+              width: 230
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${credits}'
+            - !columns
+              absoluteX: 30
+              absoluteY: 74
+              width: 50
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${projection}'
+            - !columns
+              absoluteX: 80
+              absoluteY: 74
+              width: 50
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${mapScale}'
             - !columns
               absoluteX: 30
               absoluteY: 55
@@ -674,24 +911,37 @@ data:
                   nbColumns: 1
                   items:
                     - !text
-                      width: 300
-                      text: '${comment}'  
+                      text: '${comment}'
                       fontEncoding: Cp1252
-                      fontSize: 9                     
-                      align: left
-                      vertAlign: middle               
-                    - !text
-                      width: 300
-                      text: '${now MM.dd.yyyy}'  
-                      fontEncoding: Cp1252
-                      fontSize: 9                     
+                      fontSize: 9
                       align: left
                       vertAlign: middle
-                - !text
-                  align: center
-                  vertAlign: middle
-                  fontSize: 14
-                  text: '${mapTitle}'
+                    - !text
+                      text: '${author}'
+                      fontEncoding: Cp1252
+                      fontSize: 9
+                      align: left
+                      vertAlign: middle
+                    - !text
+                      text: '${now MM/dd/yyyy, hh:mm:ss}'
+                      fontEncoding: Cp1252
+                      fontSize: 9
+                      align: left
+                      vertAlign: middle
+                - !columns
+                  nbColumns: 1
+                  items:
+                    - !text
+                      align: center
+                      vertAlign: middle
+                      fontSize: 14
+                      text: '${mapTitle}'
+                    - !text
+                      text: '${copyright}'
+                      fontEncoding: Cp1252
+                      fontSize: 9
+                      align: center
+                      vertAlign: middle
                 - !scalebar
                   align: right
                   vertAlign: middle
@@ -699,11 +949,10 @@ data:
                   type: 'bar sub'
                   intervals: 5
         lastPage:
-          rotation: true
           pageSize: 842 595
           landscape: false
-          items: 
-            #legend panel            
+          items:
+            #legend panel
             - !columns
               config:
                 borderWidth: 0
@@ -714,12 +963,12 @@ data:
                     padding: 4
                     backgroundColor: white
                     vertAlign: bottom
-              absoluteX:30
+              absoluteX: 30
               absoluteY: 535
               width: 780
               widths: [780]
               items:
-                - !legends      
+                - !legends
                   failOnBrokenUrl: false
                   horizontalAlignment: left
                   iconMaxWidth: 0
@@ -732,9 +981,9 @@ data:
                   classIndentation: 5
                   classFontSize: 8
                   classSpace: 4
-                  backgroundColor: #ffffff   
-                  reorderColumns: true    
-                  dontBreakItems: true    
+                  backgroundColor: #ffffff
+                  reorderColumns: true
+                  dontBreakItems: true
                   overflow: true
       #=======A3 portrait with legend=============================================
       A3 :
@@ -751,14 +1000,14 @@ data:
               items:
                 - !image
                   maxWidth: 800
-                  url: '/${configDir}/print_header.png'
+                  url: 'file://${configDir}/print_header.png'
             - !map
               width: 550
               height: 850
               absoluteX: 42
               absoluteY: 950
-            #legend panel            
-            - !columns               
+            #legend panel
+            - !columns
               config:
                 borderWidth: 1
                 cells:
@@ -783,7 +1032,7 @@ data:
                   classFontSize: 8
                   classSpace: 4
                   backgroundColor: #ffffff
-                  failOnBrokenUrl: false  
+                  failOnBrokenUrl: false
             - !columns
               absoluteX: 540
               absoluteY: 180
@@ -792,8 +1041,38 @@ data:
                 - !image
                   maxWidth: 40
                   maxHeight: 40
-                  url: 'file:/${configDir}/Arrow_North_CFCF.svg'
+                  url: 'file://${configDir}/Arrow_North_CFCF.svg'
                   rotation: '${rotation}'
+            - !columns
+              absoluteX: 368
+              absoluteY: 100
+              width: 225
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${credits}'
+            - !columns
+              absoluteX: 42
+              absoluteY: 100
+              width: 50
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${projection}'
+            - !columns
+              absoluteX: 100
+              absoluteY: 100
+              width: 50
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${mapScale}'
             - !columns
               absoluteX: 42
               absoluteY: 1050
@@ -812,34 +1091,44 @@ data:
               widths: [424]
               items:
                 - !text
-                  width: 424
-                  text: '${comment}'  
+                  text: '${comment}'
                   fontEncoding: Cp1252
-                  fontSize: 9                     
+                  fontSize: 9
                   align: left
-                  vertAlign: middle         
+                  vertAlign: middle
             - !columns
               absoluteX: 42
               absoluteY: 50
               width: 550
-              widths: [340, 424]
+              widths: [340, 340, 424]
               items:
                 - !columns
                   nbColumns: 1
-                  items:            
+                  items:
                     - !text
-                      width: 424
-                      text: '${now MM.dd.yyyy}'  
+                      text: '${author}'
                       fontEncoding: Cp1252
-                      fontSize: 9                     
+                      fontSize: 9
                       align: left
                       vertAlign: middle
+                    - !text
+                      text: '${now MM/dd/yyyy, hh:mm:ss}'
+                      fontEncoding: Cp1252
+                      fontSize: 9
+                      align: left
+                      vertAlign: middle
+                - !text
+                  text: '${copyright}'
+                  fontEncoding: Cp1252
+                  fontSize: 9
+                  align: left
+                  vertAlign: middle
                 - !scalebar
                   align: right
                   vertAlign: middle
                   maxSize: 200
                   type: 'bar sub'
-                  intervals: 5         
+                  intervals: 5
       #=======A3 landscape with legend============================================
       A3_landscape :
       #===========================================================================
@@ -855,14 +1144,14 @@ data:
               items:
                 - !image
                   maxWidth: 1105
-                  url: '/${configDir}/print_header.png'
+                  url: 'file://${configDir}/print_header.png'
             - !map
               width: 837
               height: 594
-              absoluteX:42
-              absoluteY:700
-            #legend panel            
-            - !columns               
+              absoluteX: 42
+              absoluteY: 700
+            #legend panel
+            - !columns
               config:
                 borderWidth: 1
                 cells:
@@ -887,7 +1176,7 @@ data:
                   classFontSize: 8
                   classSpace: 4
                   backgroundColor: #ffffff
-                  failOnBrokenUrl: false  
+                  failOnBrokenUrl: false
             - !columns
               absoluteX: 800
               absoluteY: 170
@@ -896,8 +1185,38 @@ data:
                 - !image
                   maxWidth: 40
                   maxHeight: 40
-                  url: 'file:/${configDir}/Arrow_North_CFCF.svg'
-                  rotation: '${rotation}'          
+                  url: 'file://${configDir}/Arrow_North_CFCF.svg'
+                  rotation: '${rotation}'
+            - !columns
+              absoluteX: 630
+              absoluteY: 105
+              width: 250
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${credits}'
+            - !columns
+              absoluteX: 42
+              absoluteY: 105
+              width: 50
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${projection}'
+            - !columns
+              absoluteX: 100
+              absoluteY: 105
+              width: 50
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${mapScale}'
             - !columns
               absoluteX: 42
               absoluteY: 78
@@ -908,30 +1227,43 @@ data:
                   nbColumns: 1
                   items:
                     - !text
-                      width: 424
-                      text: '${comment}'  
+                      text: '${comment}'
                       fontEncoding: Cp1252
-                      fontSize: 9                     
-                      align: left
-                      vertAlign: middle               
-                    - !text
-                      width: 424
-                      text: '${now MM.dd.yyyy}'  
-                      fontEncoding: Cp1252
-                      fontSize: 9                     
+                      fontSize: 9
                       align: left
                       vertAlign: middle
-                - !text
-                  align: center
-                  vertAlign: middle
-                  fontSize: 14
-                  text: '${mapTitle}'
+                    - !text
+                      text: '${author}'
+                      fontEncoding: Cp1252
+                      fontSize: 9
+                      align: left
+                      vertAlign: middle
+                    - !text
+                      text: '${now MM/dd/yyyy, hh:mm:ss}'
+                      fontEncoding: Cp1252
+                      fontSize: 9
+                      align: left
+                      vertAlign: middle
+                - !columns
+                  nbColumns: 1
+                  items:
+                    - !text
+                      align: center
+                      vertAlign: middle
+                      fontSize: 14
+                      text: '${mapTitle}'
+                    - !text
+                      text: '${copyright}'
+                      fontEncoding: Cp1252
+                      fontSize: 9
+                      align: center
+                      vertAlign: middle
                 - !scalebar
                   align: right
                   vertAlign: middle
                   maxSize: 200
                   type: 'bar sub'
-                  intervals: 5             
+                  intervals: 5
       #=======A3 portrait no legend============================================
       A3_no_legend :
       #========================================================================
@@ -947,7 +1279,7 @@ data:
               items:
                 - !image
                   maxWidth: 780
-                  url: '/${configDir}/print_header.png'
+                  url: 'file://${configDir}/print_header.png'
             - !map
               width: 760
               height: 850
@@ -961,8 +1293,38 @@ data:
                 - !image
                   maxWidth: 40
                   maxHeight: 40
-                  url: 'file:/${configDir}/Arrow_North_CFCF.svg'
+                  url: 'file://${configDir}/Arrow_North_CFCF.svg'
                   rotation: '${rotation}'
+            - !columns
+              absoluteX: 560
+              absoluteY: 98
+              width: 250
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${credits}'
+            - !columns
+              absoluteX: 42
+              absoluteY: 98
+              width: 50
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${projection}'
+            - !columns
+              absoluteX: 100
+              absoluteY: 98
+              width: 50
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${mapScale}'
             - !columns
               absoluteX: 42
               absoluteY: 1050
@@ -981,34 +1343,44 @@ data:
               widths: [424]
               items:
                 - !text
-                  width: 424
-                  text: '${comment}'  
+                  text: '${comment}'
                   fontEncoding: Cp1252
-                  fontSize: 9                     
+                  fontSize: 9
                   align: left
-                  vertAlign: middle         
+                  vertAlign: middle
             - !columns
               absoluteX: 42
               absoluteY: 50
               width: 760
-              widths: [340, 424]
+              widths: [340, 340, 424]
               items:
                 - !columns
                   nbColumns: 1
-                  items:            
+                  items:
                     - !text
-                      width: 424
-                      text: '${now MM.dd.yyyy}'  
+                      text: '${author}'
                       fontEncoding: Cp1252
-                      fontSize: 9                     
+                      fontSize: 9
                       align: left
                       vertAlign: middle
+                    - !text
+                      text: '${now MM/dd/yyyy, hh:mm:ss}'
+                      fontEncoding: Cp1252
+                      fontSize: 9
+                      align: left
+                      vertAlign: middle
+                - !text
+                  text: '${copyright}'
+                  fontEncoding: Cp1252
+                  fontSize: 9
+                  align: center
+                  vertAlign: middle
                 - !scalebar
                   align: right
                   vertAlign: middle
                   maxSize: 200
                   type: 'bar sub'
-                  intervals: 5    
+                  intervals: 5
       #=======A3 landscape no legend============================================
       A3_no_legend_landscape :
       #=========================================================================
@@ -1024,12 +1396,12 @@ data:
               items:
                 - !image
                   maxWidth: 1105
-                  url: '/${configDir}/print_header.png'
+                  url: 'file://${configDir}/print_header.png'
             - !map
               width: 1102
               height: 594
-              absoluteX:42
-              absoluteY:700
+              absoluteX: 42
+              absoluteY: 700
             - !columns
               absoluteX: 1060
               absoluteY: 198
@@ -1038,8 +1410,38 @@ data:
                 - !image
                   maxWidth: 40
                   maxHeight: 40
-                  url: 'file:/${configDir}/Arrow_North_CFCF.svg'
-                  rotation: '${rotation}'          
+                  url: 'file://${configDir}/Arrow_North_CFCF.svg'
+                  rotation: '${rotation}'
+            - !columns
+              absoluteX: 900
+              absoluteY: 105
+              width: 240
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${credits}'
+            - !columns
+              absoluteX: 42
+              absoluteY: 105
+              width: 50
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${projection}'
+            - !columns
+              absoluteX: 100
+              absoluteY: 105
+              width: 50
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${mapScale}'
             - !columns
               absoluteX: 42
               absoluteY: 78
@@ -1050,24 +1452,37 @@ data:
                   nbColumns: 1
                   items:
                     - !text
-                      width: 424
-                      text: '${comment}'  
+                      text: '${comment}'
                       fontEncoding: Cp1252
-                      fontSize: 9                     
-                      align: left
-                      vertAlign: middle               
-                    - !text
-                      width: 424
-                      text: '${now MM.dd.yyyy}'  
-                      fontEncoding: Cp1252
-                      fontSize: 9                     
+                      fontSize: 9
                       align: left
                       vertAlign: middle
-                - !text
-                  align: center
-                  vertAlign: middle
-                  fontSize: 14
-                  text: '${mapTitle}'
+                    - !text
+                      text: '${author}'
+                      fontEncoding: Cp1252
+                      fontSize: 9
+                      align: left
+                      vertAlign: middle
+                    - !text
+                      text: '${now MM/dd/yyyy, hh:mm:ss}'
+                      fontEncoding: Cp1252
+                      fontSize: 9
+                      align: left
+                      vertAlign: middle
+                - !columns
+                  nbColumns: 1
+                  items:
+                    - !text
+                      align: center
+                      vertAlign: middle
+                      fontSize: 14
+                      text: '${mapTitle}'
+                    - !text
+                      text: '${copyright}'
+                      fontEncoding: Cp1252
+                      fontSize: 9
+                      align: center
+                      vertAlign: middle
                 - !scalebar
                   align: right
                   vertAlign: middle
@@ -1089,7 +1504,7 @@ data:
               items:
                 - !image
                   maxWidth: 780
-                  url: '/${configDir}/print_header.png'
+                  url: 'file://${configDir}/print_header.png'
             - !map
               width: 760
               height: 850
@@ -1103,8 +1518,38 @@ data:
                 - !image
                   maxWidth: 40
                   maxHeight: 40
-                  url: 'file:/${configDir}/Arrow_North_CFCF.svg'
+                  url: 'file://${configDir}/Arrow_North_CFCF.svg'
                   rotation: '${rotation}'
+            - !columns
+              absoluteX: 560
+              absoluteY: 98
+              width: 250
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${credits}'
+            - !columns
+              absoluteX: 42
+              absoluteY: 98
+              width: 50
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${projection}'
+            - !columns
+              absoluteX: 100
+              absoluteY: 98
+              width: 50
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${mapScale}'
             - !columns
               absoluteX: 42
               absoluteY: 1050
@@ -1123,40 +1568,49 @@ data:
               widths: [424]
               items:
                 - !text
-                  width: 424
-                  text: '${comment}'  
+                  text: '${comment}'
                   fontEncoding: Cp1252
-                  fontSize: 9                     
+                  fontSize: 9
                   align: left
-                  vertAlign: middle         
+                  vertAlign: middle
             - !columns
               absoluteX: 42
               absoluteY: 50
               width: 760
-              widths: [340, 424]
+              widths: [340, 340, 424]
               items:
                 - !columns
                   nbColumns: 1
-                  items:            
+                  items:
                     - !text
-                      width: 424
-                      text: '${now MM.dd.yyyy}'  
+                      text: '${author}'
                       fontEncoding: Cp1252
-                      fontSize: 9                     
+                      fontSize: 9
                       align: left
                       vertAlign: middle
+                    - !text
+                      text: '${now MM/dd/yyyy, hh:mm:ss}'
+                      fontEncoding: Cp1252
+                      fontSize: 9
+                      align: left
+                      vertAlign: middle
+                - !text
+                  text: '${copyright}'
+                  fontEncoding: Cp1252
+                  fontSize: 9
+                  align: center
+                  vertAlign: middle
                 - !scalebar
                   align: right
                   vertAlign: middle
                   maxSize: 200
                   type: 'bar sub'
-                  intervals: 5   
+                  intervals: 5
         lastPage:
-          rotation: true
-          pageSize: 842 1190 
+          pageSize: 842 1190
           landscape: false
-          items: 
-            #legend panel            
+          items:
+            #legend panel
             - !columns
               config:
                 borderWidth: 0
@@ -1172,7 +1626,7 @@ data:
               absoluteY: 1150
               width: 440
               items:
-                - !legends      
+                - !legends
                   failOnBrokenUrl: false
                   horizontalAlignment: left
                   iconMaxWidth: 0
@@ -1185,9 +1639,9 @@ data:
                   classIndentation: 5
                   classFontSize: 8
                   classSpace: 4
-                  backgroundColor: #ffffff 
-                  reorderColumns: true    
-                  dontBreakItems: true    
+                  backgroundColor: #ffffff
+                  reorderColumns: true
+                  dontBreakItems: true
                   overflow: true
       #===========================================================================
       A3_2_pages_legend_landscape :
@@ -1204,12 +1658,12 @@ data:
               items:
                 - !image
                   maxWidth: 1105
-                  url: '/${configDir}/print_header.png'
+                  url: 'file://${configDir}/print_header.png'
             - !map
               width: 1102
               height: 594
-              absoluteX:42
-              absoluteY:700
+              absoluteX: 42
+              absoluteY: 700
             - !columns
               absoluteX: 1070
               absoluteY: 198
@@ -1218,8 +1672,38 @@ data:
                 - !image
                   maxWidth: 40
                   maxHeight: 40
-                  url: 'file:/${configDir}/Arrow_North_CFCF.svg'
-                  rotation: '${rotation}'          
+                  url: 'file://${configDir}/Arrow_North_CFCF.svg'
+                  rotation: '${rotation}'
+            - !columns
+              absoluteX: 900
+              absoluteY: 105
+              width: 235
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${credits}'
+            - !columns
+              absoluteX: 42
+              absoluteY: 105
+              width: 50
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${projection}'
+            - !columns
+              absoluteX: 100
+              absoluteY: 105
+              width: 50
+              items:
+                - !text
+                  align: left
+                  vertAlign: middle
+                  fontSize: 6
+                  text: '${mapScale}'
             - !columns
               absoluteX: 42
               absoluteY: 78
@@ -1230,24 +1714,37 @@ data:
                   nbColumns: 1
                   items:
                     - !text
-                      width: 424
-                      text: '${comment}'  
+                      text: '${comment}'
                       fontEncoding: Cp1252
-                      fontSize: 9                     
-                      align: left
-                      vertAlign: middle               
-                    - !text
-                      width: 424
-                      text: '${now MM.dd.yyyy}'  
-                      fontEncoding: Cp1252
-                      fontSize: 9                     
+                      fontSize: 9
                       align: left
                       vertAlign: middle
-                - !text
-                  align: center
-                  vertAlign: middle
-                  fontSize: 14
-                  text: '${mapTitle}'
+                    - !text
+                      text: '${author}'
+                      fontEncoding: Cp1252
+                      fontSize: 9
+                      align: left
+                      vertAlign: middle
+                    - !text
+                      text: '${now MM/dd/yyyy, hh:mm:ss}'
+                      fontEncoding: Cp1252
+                      fontSize: 9
+                      align: left
+                      vertAlign: middle
+                - !columns
+                  nbColumns: 1
+                  items:
+                    - !text
+                      align: center
+                      vertAlign: middle
+                      fontSize: 14
+                      text: '${mapTitle}'
+                    - !text
+                      text: '${copyright}'
+                      fontEncoding: Cp1252
+                      fontSize: 9
+                      align: center
+                      vertAlign: middle
                 - !scalebar
                   align: right
                   vertAlign: middle
@@ -1255,11 +1752,10 @@ data:
                   type: 'bar sub'
                   intervals: 5
         lastPage:
-          rotation: true
           pageSize: 1190 842
           landscape: false
-          items: 
-            #legend panel            
+          items:
+            #legend panel
             - !columns
               config:
                 borderWidth: 0
@@ -1270,12 +1766,12 @@ data:
                     padding: 4
                     backgroundColor: white
                     vertAlign: bottom
-              absoluteX:30
+              absoluteX: 30
               absoluteY: 800
               width: 780
               widths: [780]
               items:
-                - !legends      
+                - !legends
                   failOnBrokenUrl: false
                   horizontalAlignment: left
                   iconMaxWidth: 0
@@ -1288,7 +1784,7 @@ data:
                   classIndentation: 5
                   classFontSize: 8
                   classSpace: 4
-                  backgroundColor: #ffffff   
-                  reorderColumns: true    
-                  dontBreakItems: true       
+                  backgroundColor: #ffffff
+                  reorderColumns: true
+                  dontBreakItems: true
                   overflow: true
