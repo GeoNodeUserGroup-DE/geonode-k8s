@@ -154,7 +154,7 @@ data:
       # GeoNode K8s addition (rules to access the geoserver services with an external domain)
       - !dnsMatch
         host: {{ .Values.geonode.general.externalDomain }}
-        port: 8080
+        port: 80
       - !dnsMatch
         host: {{ .Values.geonode.general.externalDomain }}
         port: 443
