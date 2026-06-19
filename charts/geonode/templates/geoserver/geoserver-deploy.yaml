@@ -113,6 +113,7 @@ spec:
           mountPath: /geoserver_data/data
         - name: pvc-statics
           mountPath: /mnt/volumes/statics
+          readOnly: true
         
         readinessProbe:
           {{- toYaml $.Values.geoserver.readinessProbe | nindent 10 }}
