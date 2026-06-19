@@ -39,6 +39,7 @@ spec:
           runAsUser: {{- if hasKey $pyctx "runAsUser" }} {{ $pyctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
           runAsGroup: {{- if hasKey $pyctx "runAsGroup" }} {{ $pyctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
           runAsNonRoot: true
+          readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false
           capabilities:
             drop:
@@ -59,6 +60,7 @@ spec:
           runAsUser: {{- if hasKey $pyctx "runAsUser" }} {{ $pyctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
           runAsGroup: {{- if hasKey $pyctx "runAsGroup" }} {{ $pyctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
           runAsNonRoot: true
+          readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false
           capabilities:
             drop:
@@ -89,7 +91,8 @@ spec:
           mountPath: /etc/pycsw/pycsw-mappings.py
           subPath: pycsw-mappings.py
           readOnly: true
-
+        - name: tmp
+          mountPath: /tmp
         readinessProbe:
           {{- toYaml $.Values.pycsw.readinessProbe | nindent 10 }}
         livenessProbe:
@@ -112,4 +115,6 @@ spec:
           items:
           - key: pycsw-mappings.py
             path: "pycsw-mappings.py"
+      - name: tmp
+        emptyDir: {}
 {{ end }}
