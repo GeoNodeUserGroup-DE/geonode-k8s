@@ -29,4 +29,7 @@ RUN sed -i 's|/root/\(\.bashrc\)|${HOME}/\1|g' \
     sed -i 's|/root/\(\.override_env\)|${HOME}/\1|g' \
         /usr/local/tomcat/tmp/entrypoint.sh
 
+# Strip setuid bits, for enhanced security
+RUN find / -xdev -perm -4000 -exec chmod u-s {} \; 2>/dev/null || true
+
 USER ${GEOSERVER_UID}:${GEOSERVER_GID}
