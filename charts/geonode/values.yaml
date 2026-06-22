@@ -423,11 +423,19 @@ geoserver:
   shapefile_datetime: false
   # -- geoserver port
   port: 8080
+  # -- configuration of startup probe (before liveliness)
+  startupProbe:
+    tcpSocket:
+      port: 8080
+    periodSeconds: 10
+    failureThreshold: 30
+  # -- configuration of special parameters for print functionality
   printing:
     extraHosts: |
     #      - !dnsMatch
     #        host: data.geopf.fr
     #        port: 80
+
   secret:
     # -- name of an existing Secret to use. Set, if you want to separately maintain the Secret.
     existingSecretName: ""
@@ -758,6 +766,7 @@ memcached:
     # Use memcached typical userid for runtime
     runAsUser: 11211
     runAsNonRoot: true
+    readOnlyRootFilesystem: true
     allowPrivilegeEscalation: false
     capabilities:
       drop:

@@ -32,6 +32,7 @@ spec:
           runAsNonRoot: {{- if hasKey $gsctx "runAsNonRoot" }} {{ $gsctx.runAsNonRoot }} {{- else }} true {{- end }}
           runAsUser: {{- if hasKey $gsctx "runAsUser" }} {{ $gsctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
           runAsGroup: {{- if hasKey $gsctx "runAsGroup" }} {{ $gsctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
+          readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false
 
           capabilities:
@@ -68,6 +69,38 @@ spec:
           mountPath: /geoserver_data/data
         - name: geoserver-printing-config-yaml
           mountPath: /overrides
+      # initContainer to copy necessary files and be able to mount readonly afterwards 
+      - name: seed-geoserver
+        securityContext:
+          runAsNonRoot: {{- if hasKey $gsctx "runAsNonRoot" }} {{ $gsctx.runAsNonRoot }} {{- else }} true {{- end }}
+          runAsUser: {{- if hasKey $gsctx "runAsUser" }} {{ $gsctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
+          runAsGroup: {{- if hasKey $gsctx "runAsGroup" }} {{ $gsctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        image: "{{ .Values.geoserver.image.name }}:{{ .Values.geoserver.image.tag }}"
+        imagePullPolicy: {{ .Values.geoserver.imagePullPolicy }}
+        command:
+        - sh
+        - -c
+        - |
+          cp -r /usr/local/tomcat/conf/. /seed-conf/
+          cp -r /home/geoserver/. /seed-home/
+          cp -r /usr/local/tomcat/tmp/. /seed-tmp/
+          chmod 0755 /seed-tmp/entrypoint.sh
+          echo "=== Image-Inhalt der übrigen maskierten Dirs ==="
+          for d in work temp logs; do echo "--- /usr/local/tomcat/$d ---"; ls -A /usr/local/tomcat/$d 2>/dev/null; done
+        volumeMounts:
+        - name: gs-conf
+          mountPath: /seed-conf
+        - name: gs-home
+          mountPath: /seed-home
+        - name: gs-tmp
+          mountPath: /seed-tmp
 
 {{- if not (empty .Values.geoserver.imagePullSecret) }}
       imagePullSecrets:
@@ -80,6 +113,7 @@ spec:
           runAsNonRoot: {{- if hasKey $gsctx "runAsNonRoot" }} {{ $gsctx.runAsNonRoot }} {{- else }} true {{- end }}
           runAsUser: {{- if hasKey $gsctx "runAsUser" }} {{ $gsctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
           runAsGroup: {{- if hasKey $gsctx "runAsGroup" }} {{ $gsctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
+          readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false
           capabilities:
             drop:
@@ -114,7 +148,25 @@ spec:
         - name: pvc-statics
           mountPath: /mnt/volumes/statics
           readOnly: true
+        - name: gs-conf
+          mountPath: /usr/local/tomcat/conf
+        - name: gs-home
+          mountPath: /home/geoserver
+        - name: gs-work
+          mountPath: /usr/local/tomcat/work
+        - name: gs-temp
+          mountPath: /usr/local/tomcat/temp
+        - name: gs-tmp
+          mountPath: /usr/local/tomcat/tmp
+        - name: gs-logs
+          mountPath: /usr/local/tomcat/logs
+        - name: tmp
+          mountPath: /tmp
         
+        {{- with .Values.geoserver.startupProbe }}
+        startupProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
         readinessProbe:
           {{- toYaml $.Values.geoserver.readinessProbe | nindent 10 }}
 
@@ -134,3 +186,17 @@ spec:
       - name: pvc-statics
         persistentVolumeClaim:
           claimName: {{ include "pvc_statics_name" . }}
+      - name: gs-conf
+        emptyDir: {}
+      - name: gs-home
+        emptyDir: {}
+      - name: gs-work
+        emptyDir: {}
+      - name: gs-temp
+        emptyDir: {}
+      - name: gs-tmp
+        emptyDir: {}
+      - name: gs-logs
+        emptyDir: {}
+      - name: tmp
+        emptyDir: {}
