@@ -52,6 +52,7 @@ spec:
           runAsUser: {{- if hasKey $gnctx "runAsUser" }} {{ $gnctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
           runAsGroup: {{- if hasKey $gnctx "runAsGroup" }} {{ $gnctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
           runAsNonRoot: true
+          readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false
           capabilities:
             drop:
@@ -72,6 +73,30 @@ spec:
         - -wait
         - tcp://{{ include "redis_host" . }}
         {{ end }}
+      - name: seed-home
+        image: "{{ .Values.geonode.image.name }}:{{ .Values.geonode.image.tag }}"
+        imagePullPolicy: {{ .Values.geonode.imagePullPolicy }}
+        command: ["sh", "-c"]
+        args:
+          - |
+            cp -r /home/ubuntu/. /seed-geonode/
+            cp -r /home/ubuntu/. /seed-celery/
+        securityContext:
+          runAsUser: {{- if hasKey $gnctx "runAsUser" }} {{ $gnctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
+          runAsGroup: {{- if hasKey $gnctx "runAsGroup" }} {{ $gnctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+          - name: home-geonode
+            mountPath: /seed-geonode
+          - name: home-celery
+            mountPath: /seed-celery
 
       containers:
       # This is the django app server
@@ -80,6 +105,7 @@ spec:
           runAsUser: {{- if hasKey $gnctx "runAsUser" }} {{ $gnctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
           runAsGroup: {{- if hasKey $gnctx "runAsGroup" }} {{ $gnctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
           runAsNonRoot: true
+          readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false
           capabilities:
             drop:
@@ -145,6 +171,8 @@ spec:
           mountPath: /data
         - name: cache-volume
           mountPath: /tmp
+        - name: home-geonode
+          mountPath: /home/ubuntu
         - name: tasks-py
           mountPath: "{{ include "geonode_root_path" .}}/tasks.py"
           subPath: tasks.py
@@ -184,6 +212,7 @@ spec:
           runAsUser: {{- if hasKey $gnctx "runAsUser" }} {{ $gnctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
           runAsGroup: {{- if hasKey $gnctx "runAsGroup" }} {{ $gnctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
           runAsNonRoot: true
+          readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false
           capabilities:
             drop:
@@ -264,6 +293,8 @@ spec:
           mountPath: /data
         - name: cache-volume
           mountPath: /tmp
+        - name: home-celery
+          mountPath: /home/ubuntu
         - name: entrypoint-sh
           mountPath: "{{ include "geonode_root_path" .}}/entrypoint.sh"
           subPath: entrypoint.sh
@@ -352,6 +383,10 @@ spec:
         {{- end }}
         # Using an emptyDir to cache compiled statics... it will survive container crashes, but not pod restarts
         - name: cache-volume
+          emptyDir: {}
+        - name: home-geonode
+          emptyDir: {}
+        - name: home-celery
           emptyDir: {}
         # Temporary fix pending fix in upstream Geonode https://github.com/GeoNode/geonode/pull/14292
         - name: celery-cmd
