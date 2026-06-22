@@ -35,6 +35,7 @@ spec:
           runAsUser: {{- if hasKey $gnctx "runAsUser" }} {{ $gnctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
           runAsGroup: {{- if hasKey $gnctx "runAsGroup" }} {{ $gnctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
           runAsNonRoot: true
+          readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false
           capabilities:
             drop:
