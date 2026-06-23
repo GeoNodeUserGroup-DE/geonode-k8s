@@ -26,6 +26,7 @@ spec:
       securityContext:
         runAsNonRoot: true
         fsGroup: {{- if hasKey $gnctx "fsGroup" }} {{ $gnctx.fsGroup }} {{- else }} {{ .Values.global.securityContext.fsGroup }} {{- end }}
+        fsGroupChangePolicy: OnRootMismatch
 
       containers:
       - name: {{ .Values.geonode.container_name }}-statics-job
