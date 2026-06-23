@@ -392,5 +392,5 @@ spec:
         - name: celery-cmd
           configMap:
             name: {{ .Release.Name }}-celery-cmd-temporary-fix
-            defaultMode: 0755
+            defaultMode: 0555
 
