@@ -26,6 +26,19 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.0.1, Geoserver: 2.27.4-la
 | oci://registry-1.docker.io/cloudpirates | rabbitmq | 0.2.12 |
 | oci://registry-1.docker.io/cloudpirates | redis | 0.19.0 |
 
+## Gateway API
+
+The chart can render a parallel `HTTPRoute` in addition to the existing
+Ingress. Enable it with `geonode.gatewayApi.enabled` and provide
+`geonode.gatewayApi.parentRefs` pointing at your shared Gateway listener.
+
+If `geonode.gatewayApi.hostnames` is left empty, the route defaults to
+`geonode.general.externalDomain` and mirrors the current ingress path split:
+
+- `/` -> GeoNode nginx service
+- `/geoserver` -> GeoServer service
+- `pycsw.endpoint` -> pycsw service when enabled
+
 ## Values
 
 | Key | Type | Default | Description |
