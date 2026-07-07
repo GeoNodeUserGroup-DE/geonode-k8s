@@ -15,6 +15,9 @@ USER root
 RUN groupadd -g ${GEOSERVER_GID} geoserver && \
     useradd -u ${GEOSERVER_UID} -g ${GEOSERVER_GID} -m geoserver
 
+# Ensure HOME is set
+ENV HOME=/home/geoserver
+
 # Fix writable directories
 RUN mkdir -p /usr/local/tomcat/conf \
     && chown -R ${GEOSERVER_UID}:${GEOSERVER_GID} /usr/local/tomcat \
@@ -23,11 +26,13 @@ RUN mkdir -p /usr/local/tomcat/conf \
     && chmod -R g=u /opt
 
 # Replace hardcoded /root/ references with ${HOME} in entrypoint
-# so the script works for any user, not just root or geoserver
+# so the script works for any user, not just root or geoserver.
+# Fail if "/root" can not be removed.
 RUN sed -i 's|/root/\(\.bashrc\)|${HOME}/\1|g' \
         /usr/local/tomcat/tmp/entrypoint.sh && \
     sed -i 's|/root/\(\.override_env\)|${HOME}/\1|g' \
-        /usr/local/tomcat/tmp/entrypoint.sh
+        /usr/local/tomcat/tmp/entrypoint.sh && \
+    ! grep -q '/root/\.\(bashrc\|override_env\)' /usr/local/tomcat/tmp/entrypoint.sh
 
 # Strip setuid bits, for enhanced security
 RUN find / -xdev -perm -4000 -exec chmod u-s {} \; 2>/dev/null || true
