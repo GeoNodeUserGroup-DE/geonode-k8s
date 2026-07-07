@@ -73,9 +73,11 @@ vi my-values.yaml
 
 By default, this Helm Chart is intended to run in hardened K8S environments, notably with non-root permissions. To use it, ensure that your storage will be writeable by the geonode technical user; UID and GID can be configured in the values file.
 
-An exception to this rule is the `geonode/geoserver` Pod, because the current `geonode/geoserver` Docker Image does not support running as non-root out-of-the-box, therefore, default chart settings for this image are set to run as root. If you wish to run this Pod as non-root, proceed as follows:
+There are two exceptions to this rule:
+- the `geonode-postgres` Pod does not have full securityContext out-of-the-box, because the subchart `postgres-operator` does not support that yet. A workaround is available if you want the full securityContext, for that, set `postgres.kyvernoSecurityContext`to `enabled` in your values YAML.
+- the `geonode/geoserver` Pod, because the current `geonode/geoserver` Docker Image does not support running as non-root out-of-the-box, therefore, default chart settings for this image are set to run as root. If you wish to run this Pod as non-root, proceed as follows:
 
-Create a custom image with the provided script as follows:
+Create a custom image with the provided script:
 ```bash
 cd geoserver-nonroot
 ./build.sh

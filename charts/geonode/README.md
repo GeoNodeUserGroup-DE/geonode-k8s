@@ -224,6 +224,7 @@ If `geonode.gatewayApi.hostnames` is left empty, the route defaults to
 | postgres.external.ssl | string | `"prefer"` |  |
 | postgres.geodata_databasename_and_username | string | `"geodata"` | geoserver database name and username |
 | postgres.geonode_databasename_and_username | string | `"geonode"` | geonode database name and username |
+| postgres.kyvernoSecurityContext.enabled | bool | `false`| Provide full securityContext to postgres Pod via Kyverno, as postgres-operator does not yet fully support securityContext |
 | postgres.operator.allowedSourceRanges | list | `[]` | when one or more load balancers are enabled for the cluster, this parameter defines the comma-separated range of IP networks (in CIDR-notation). The corresponding load balancer is accessible only to the networks defined by this parameter. Optional, when empty the load balancer service becomes inaccessible from outside of the Kubernetes cluster. |
 | postgres.operator.annotations | object | `{}` | additional annotation for postgresql object |
 | postgres.operator.clone | object | `{}` |  |
