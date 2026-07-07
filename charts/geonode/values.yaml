@@ -923,6 +923,10 @@ postgres:
       postgres_password: postgres
       geonode_password: geonode
       geodata_password: geogeonode
+  # -- set to true to enable full compliance to "restricted" policy
+  # -- (needed as workaround for postgres-operator limited handling of securityContext)
+  kyvernoSecurityContext: 
+    enabled: false
 
 # VALUES DEFINITION: https://github.com/zalando/postgres-operator/blob/master/charts/postgres-operator/values.yaml
 postgres-operator:
