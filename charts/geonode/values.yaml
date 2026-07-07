@@ -946,6 +946,12 @@ postgres-operator:
         - ALL
     seccompProfile:
       type: RuntimeDefault
+  configKubernetes:
+    spilo_runasuser: 101
+    spilo_runasgroup: 103
+    spilo_fsgroup: 103
+    spilo_privileged: false
+    spilo_allow_privilege_escalation: false
 # -- (map of fixture files) Fixture files which shall be made available under /usr/src/geonode/geonode/fixtures (refer to https://docs.djangoproject.com/en/4.2/howto/initial-data/)
 geonodeFixtures:
   # @gignore
