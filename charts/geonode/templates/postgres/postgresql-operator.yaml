@@ -4,6 +4,7 @@ apiVersion: "acid.zalan.do/v1"
 kind: postgresql
 metadata:
   name: "{{ include "postgres_pod_name" . }}"
+  namespace: {{ .Release.Namespace }}
   {{- if .Values.postgres.operator.annotations }}
   annotations:
     {{- toYaml .Values.postgres.operator.annotations | nindent 4 }}

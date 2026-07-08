@@ -2,6 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-geonode-k8s-settings-py
+  namespace: {{ .Release.Namespace }}
 data:
   geonode-k8s-settings.py: |
     # add these import lines to the top of your geonode settings file
