@@ -1,0 +1,52 @@
+{{- $gatewayApi := .Values.geonode.gatewayApi | default dict }}
+{{- $enabled := $gatewayApi.enabled | default false }}
+{{- $parentRefs := $gatewayApi.parentRefs | default (list) }}
+{{- $hostnames := $gatewayApi.hostnames | default (list) }}
+{{- $externalDomain := .Values.geonode.general.externalDomain | default "" }}
+{{- if and $enabled (eq (len $hostnames) 0) (ne $externalDomain "") }}
+  {{- $hostnames = list $externalDomain }}
+{{- end }}
+{{- if and $enabled (gt (len $parentRefs) 0) (gt (len $hostnames) 0) }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: "{{ include "nginx_pod_name" . }}"
+  namespace: {{ .Release.Namespace }}
+  {{- with $gatewayApi.labels }}
+  labels:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $gatewayApi.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  parentRefs:
+    {{- toYaml $parentRefs | nindent 4 }}
+  hostnames:
+    {{- toYaml $hostnames | nindent 4 }}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /geoserver
+      backendRefs:
+        - name: "{{ include "geoserver_pod_name" . }}"
+          port: {{ .Values.geoserver.port }}
+    {{- if .Values.pycsw.enabled }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: {{ .Values.pycsw.endpoint | quote }}
+      backendRefs:
+        - name: "{{ include "pycsw_pod_name" . }}"
+          port: {{ .Values.pycsw.port }}
+    {{- end }}
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: "{{ include "nginx_pod_name" . }}"
+          port: 80
+{{- end }}

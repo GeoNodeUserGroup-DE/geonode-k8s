@@ -103,6 +103,18 @@ geonode:
     # -- tls certificate for geonode ingress https://kubernetes.io/docs/tasks/tls/managing-tls-in-a-cluster/ (for the use of cert-manager, configure the acme section properly). is used when geonode.general.externalScheme is set to 'https'
     tlsSecret: geonode-tls-secret
 
+  gatewayApi:
+    # -- enable a parallel Gateway API HTTPRoute for GeoNode while keeping ingress available
+    enabled: False
+    # -- labels for the Gateway API HTTPRoute
+    labels: {}
+    # -- annotations for the Gateway API HTTPRoute
+    annotations: {}
+    # -- Gateway API parentRefs, for example a shared HTTPS listener on a cluster Gateway
+    parentRefs: []
+    # -- explicit hostnames for the HTTPRoute; defaults to geonode.general.externalDomain when empty
+    hostnames: []
+
   acme:
     # -- enables cert-manager to do ACME challenges (aka certificates via letsencrypt)
     enabled: False
