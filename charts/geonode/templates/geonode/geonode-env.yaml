@@ -8,10 +8,12 @@
 {{- fail (printf "geonode.register.email_verification must be one of: none, optional, mandatory (got: %v). See allauth ACCOUNT_EMAIL_VERIFICATION." .Values.geonode.register.email_verification) -}}
 {{- end }}
 
-{{- /* Version gate for env vars renamed in GeoNode 5.1.0 / django-allauth 65+.
-       Non-semver values (e.g. "latest", digest pins) fall back to newest behaviour. */}}
-{{- $gnVer := .Values.geonode.version | toString | trimPrefix "v" -}}
-{{- $gn51 := or (not (regexMatch "^[0-9]+\\.[0-9]+\\.[0-9]+" $gnVer)) (semverCompare ">=5.1.0" $gnVer) -}}
+{{- /* geonode.version must be a valid semver like "5.1.0". It gates env vars renamed
+       in GeoNode 5.1.0 / django-allauth 65+; a non-semver tag (e.g. "latest", digest
+       pin) can't be compared, so require the user to declare the version explicitly. */}}
+{{- if not (regexMatch "^[0-9]+\\.[0-9]+\\.[0-9]+" (.Values.geonode.version | toString)) -}}
+{{- fail (printf "geonode.version must be a valid semver like '5.1.0' (got: %v). Set it to match the GeoNode release matching geonode.image.tag." .Values.geonode.version) -}}
+{{- end }}
 
 apiVersion: v1
 kind: ConfigMap
@@ -87,7 +89,7 @@ data:
   CORS_ORIGIN_ALLOW_ALL: 'True'
   X_FRAME_OPTIONS: ALLOW-FROM ALL
   SESSION_EXPIRED_CONTROL_ENABLED: {{ .Values.geonode.general.session_expired_control_enabled | quote }}
-  {{- if $gn51 }}
+  {{- if semverCompare ">=5.1.0" (.Values.geonode.version | toString) }}
   DEFAULT_ANONYMOUS_PERMISSIONS: {{ .Values.geonode.general.upload.anonymous_permissions | quote }}
   {{- else }}
   DEFAULT_ANONYMOUS_VIEW_PERMISSION: {{ .Values.geonode.general.upload.anonymous_view_permission | quote }}
@@ -98,7 +100,7 @@ data:
 
   # Users Registration
   ACCOUNT_OPEN_SIGNUP: {{ include "boolean2str" .Values.geonode.register.open_signup | quote }}
-  {{- if $gn51 }}
+  {{- if semverCompare ">=5.1.0" (.Values.geonode.version | toString) }}
   ACCOUNT_SIGNUP_FIELDS: {{ .Values.geonode.register.signup_fields | quote }}
   {{- else }}
   ACCOUNT_EMAIL_REQUIRED: {{ include "boolean2str" .Values.geonode.register.email_required | quote }}
@@ -107,7 +109,7 @@ data:
   ACCOUNT_CONFIRM_EMAIL_ON_GET: {{ include "boolean2str" .Values.geonode.register.confirm_email_on_get | quote }}
   ACCOUNT_EMAIL_VERIFICATION: {{ .Values.geonode.register.email_verification | quote }}
   ACCOUNT_EMAIL_CONFIRMATION_REQUIRED: {{ include "boolean2str" .Values.geonode.register.conformation_required | quote }}
-  {{- if $gn51 }}
+  {{- if semverCompare ">=5.1.0" (.Values.geonode.version | toString) }}
   ACCOUNT_LOGIN_METHODS: {{ .Values.geonode.register.login_methods | quote }}
   {{- else }}
   ACCOUNT_AUTHENTICATION_METHOD: {{ .Values.geonode.register.authentication_method | quote }}
