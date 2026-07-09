@@ -6,7 +6,10 @@ global:
 
 # geonode configuration
 geonode:
-  version: 5.0.1
+  # -- GeoNode version used for chart-side version gating (env var names, defaults).
+  # Must be kept in sync with `geonode.image.tag`. Non-semver values (e.g. "latest",
+  # sha digest pins) fall back to newest-version behavior.
+  version: 5.1.0
   container_name: geonode
   # -- number of geonode replicas (! not working properly yet)
   replicaCount: 1
@@ -17,7 +20,7 @@ geonode:
 
   image:
     name: geonode/geonode
-    tag: "5.0.1"
+    tag: "5.1.0"
 
   # -- image pull policy
   imagePullPolicy: IfNotPresent
@@ -244,10 +247,20 @@ geonode:
       size: "2097152000"
       # -- DEFAULT_ANONYMOUS_DOWNLOAD_PERMISSION (https://docs.geonode.org/en/master/basic/settings/index.html#default-anonymous-download-permission)
       # Whether the uploaded resources should downloadable by default.
+      # Applies when `geonode.version` < 5.1.0. Deprecated in 5.1.0 in favour of `anonymous_permissions`.
       anonymous_download_permission: "True"
       # -- DEFAULT_ANONYMOUS_VIEW_PERMISSION (https://docs.geonode.org/en/master/basic/settings/index.html#default-anonymous-view-permission)
       # Whether the uploaded resources should be public by default.
+      # Applies when `geonode.version` < 5.1.0. Deprecated in 5.1.0 in favour of `anonymous_permissions`.
       anonymous_view_permission: "True"
+      # -- DEFAULT_ANONYMOUS_PERMISSIONS (GeoNode >= 5.1.0 replacement for the two
+      # `anonymous_*_permission` values). Python set-literal string emitted verbatim
+      # into the container env. Applies when `geonode.version` >= 5.1.0.
+      # Common values:
+      #   "{'view_resourcebase', 'download_resourcebase'}"  (view + download; default)
+      #   "{'view_resourcebase'}"                            (view only)
+      #   "set()"                                            (no anonymous access)
+      anonymous_permissions: "{'view_resourcebase', 'download_resourcebase'}"
       # -- DEFAULT_MAX_PARALLEL_UPLOADS_PER_USER (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-parallel-uploads-per-user)
       # Default: 5
       # When uploading datasets, this value limits the number os parallel uploads.
@@ -292,8 +305,17 @@ geonode:
     # If True, creation of new accounts is allowed. When the signup view is called, the template account/signup.html will be displayed, usually showing a form to collect the new user data.
     # If False, creation of new accounts is disabled. When the signup view is called, the template account/signup_closed.html will be displayed.
     open_signup: True
-    # -- set email as required for registration
+    # -- set email as required for registration.
+    # Applies when `geonode.version` < 5.1.0. Deprecated in django-allauth 65+ (used by
+    # GeoNode >= 5.1.0) in favour of `signup_fields`.
     email_required: True
+    # -- ACCOUNT_SIGNUP_FIELDS (django-allauth 65+ replacement for `email_required`).
+    # Python list-literal string emitted verbatim into the container env.
+    # Applies when `geonode.version` >= 5.1.0.
+    # Common values:
+    #   "['email*', 'username*', 'password1*', 'password2*']"   (email required; default)
+    #   "['email', 'username*', 'password1*', 'password2*']"    (email optional)
+    signup_fields: "['email*', 'username*', 'password1*', 'password2*']"
     # -- approve given email with registration
     approval_required: False
     # -- send confirm email on get
@@ -305,8 +327,18 @@ geonode:
     email_verification: "mandatory"
     # -- If True, new user accounts will be created as inactive. The user must use the activation link to activate his account.
     conformation_required: True
-    # -- Specifies the login method to use – whether the user logs in by entering their username, e-mail address, or either one of both. Setting this to “email” requires email_required=True
+    # -- Specifies the login method to use - whether the user logs in by entering their username, e-mail address, or either one of both. Setting this to “email” requires email_required=True.
+    # Applies when `geonode.version` < 5.1.0. Deprecated in django-allauth 65+ (used by
+    # GeoNode >= 5.1.0) in favour of `login_methods`.
     authentication_method: "username_email"
+    # -- ACCOUNT_LOGIN_METHODS (django-allauth 65+ replacement for `authentication_method`).
+    # Python set-literal string emitted verbatim into the container env.
+    # Applies when `geonode.version` >= 5.1.0.
+    # Common values:
+    #   "{'email', 'username'}"   (either; default)
+    #   "{'email'}"               (email only)
+    #   "{'username'}"            (username only)
+    login_methods: "{'email', 'username'}"
     # -- group name to add new registered users to, requires auto_assign_registered_members_to_registered: True.
     registered_members_group_name:
     # -- if set to True new registered user will be add to defined group in registered_members_group_name
@@ -380,7 +412,7 @@ geoserver:
     # -- geoserver image docker image
     name: geonode/geoserver
     # -- geoserver docker image tag
-    tag: "2.27.4-latest"
+    tag: "2.28.4-latest"
 
   # -- geoserver image pull policy
   imagePullPolicy: "IfNotPresent"
@@ -461,7 +493,7 @@ geoserver_data:
     # -- geoserver image docker image
     name: geonode/geoserver_data
     # -- geoserver docker image tag
-    tag: "2.27.4-latest"
+    tag: "2.28.4-latest"
   # -- geoserver image pull policy
   imagePullPolicy: "IfNotPresent"
 
@@ -475,7 +507,7 @@ nginx:
     # -- nginx docker image
     name: nginx
     # -- nginx docker image tag
-    tag: "1.28"
+    tag: "1.31.2"
   # -- nginx image pull policy
   imagePullPolicy: "IfNotPresent"
   # -- pull secret to use for nginx image
