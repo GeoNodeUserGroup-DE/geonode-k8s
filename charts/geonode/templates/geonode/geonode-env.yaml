@@ -1,6 +1,20 @@
 
 # env vars for Django Geonode
 
+{{- /* Fail fast on invalid ACCOUNT_EMAIL_VERIFICATION values. allauth rejects anything
+       outside {none, optional, mandatory} with a cryptic ValueError at container startup. */}}
+{{- $validVerify := list "none" "optional" "mandatory" -}}
+{{- if not (has (.Values.geonode.register.email_verification | toString | lower) $validVerify) -}}
+{{- fail (printf "geonode.register.email_verification must be one of: none, optional, mandatory (got: %v). See allauth ACCOUNT_EMAIL_VERIFICATION." .Values.geonode.register.email_verification) -}}
+{{- end }}
+
+{{- /* geonode.version must be a valid semver like "5.1.0". It gates env vars renamed
+       in GeoNode 5.1.0 / django-allauth 65+; a non-semver tag (e.g. "latest", digest
+       pin) can't be compared, so require the user to declare the version explicitly. */}}
+{{- if not (regexMatch "^[0-9]+\\.[0-9]+\\.[0-9]+" (.Values.geonode.version | toString)) -}}
+{{- fail (printf "geonode.version must be a valid semver like '5.1.0' (got: %v). Set it to match the GeoNode release matching geonode.image.tag." .Values.geonode.version) -}}
+{{- end }}
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -35,6 +49,12 @@ data:
   # Rabbitmq
   BROKER_URL: "{{ include "broker_url" . }}"
   CELERY_RESULT_BACKEND: "{{ include "result_backend_url" . }}"
+
+  # Celery worker tuning (see geonode.celery in values.yaml). Caps the number of prefork
+  # children so the celery container stays within its memory limit instead of being
+  # OOMKilled mid-upload (which leaves ExecutionRequests stuck "running").
+  CELERY__AUTOSCALE_VALUES: {{ .Values.geonode.celery.autoscale_values | quote }}
+  CELERY__HARVESTER_AUTOSCALE_VALUES: {{ .Values.geonode.celery.harvester_autoscale_values | quote }}
 
   # DJANGO SITE CONF
   SITEURL: "{{ include "public_url" . }}/"
@@ -72,22 +92,43 @@ data:
 
   # Session/Access Control
   LOCKDOWN_GEONODE: {{ .Values.geonode.accesscontrol.lockdown | quote }}
+  {{- /* SESSION_COOKIE_SECURE / CSRF_COOKIE_SECURE. GeoNode >= 5.1.0 defaults these to
+         True; over plain HTTP browsers reject the Secure cookies and login breaks. When
+         cookie_secure is unset, follow externalScheme (https => True, http => False). */}}
+  {{- $cookieSecure := .Values.geonode.general.cookie_secure }}
+  {{- if kindIs "invalid" $cookieSecure }}
+  {{- $cookieSecure = eq .Values.geonode.general.externalScheme "https" }}
+  {{- end }}
+  SESSION_COOKIE_SECURE: {{ $cookieSecure | ternary "True" "False" | quote }}
+  CSRF_COOKIE_SECURE: {{ $cookieSecure | ternary "True" "False" | quote }}
   CORS_ORIGIN_ALLOW_ALL: 'True'
   X_FRAME_OPTIONS: ALLOW-FROM ALL
   SESSION_EXPIRED_CONTROL_ENABLED: {{ .Values.geonode.general.session_expired_control_enabled | quote }}
+  {{- if semverCompare ">=5.1.0" (.Values.geonode.version | toString) }}
+  DEFAULT_ANONYMOUS_PERMISSIONS: {{ .Values.geonode.general.upload.anonymous_permissions | quote }}
+  {{- else }}
   DEFAULT_ANONYMOUS_VIEW_PERMISSION: {{ .Values.geonode.general.upload.anonymous_view_permission | quote }}
   DEFAULT_ANONYMOUS_DOWNLOAD_PERMISSION: {{ .Values.geonode.general.upload.anonymous_download_permission | quote }}
+  {{- end }}
   DEFAULT_MAX_PARALLEL_UPLOADS_PER_USER:  {{ .Values.geonode.general.upload.max_parallel_uploads_per_user | quote }}
   DEFAULT_MAX_UPLOAD_SIZE: {{ .Values.geonode.general.upload.size | quote }}
 
   # Users Registration
   ACCOUNT_OPEN_SIGNUP: {{ include "boolean2str" .Values.geonode.register.open_signup | quote }}
+  {{- if semverCompare ">=5.1.0" (.Values.geonode.version | toString) }}
+  ACCOUNT_SIGNUP_FIELDS: {{ .Values.geonode.register.signup_fields | quote }}
+  {{- else }}
   ACCOUNT_EMAIL_REQUIRED: {{ include "boolean2str" .Values.geonode.register.email_required | quote }}
+  {{- end }}
   ACCOUNT_APPROVAL_REQUIRED: {{ include "boolean2str" .Values.geonode.register.approval_required | quote }}
   ACCOUNT_CONFIRM_EMAIL_ON_GET: {{ include "boolean2str" .Values.geonode.register.confirm_email_on_get | quote }}
   ACCOUNT_EMAIL_VERIFICATION: {{ .Values.geonode.register.email_verification | quote }}
   ACCOUNT_EMAIL_CONFIRMATION_REQUIRED: {{ include "boolean2str" .Values.geonode.register.conformation_required | quote }}
+  {{- if semverCompare ">=5.1.0" (.Values.geonode.version | toString) }}
+  ACCOUNT_LOGIN_METHODS: {{ .Values.geonode.register.login_methods | quote }}
+  {{- else }}
   ACCOUNT_AUTHENTICATION_METHOD: {{ .Values.geonode.register.authentication_method | quote }}
+  {{- end }}
   {{ if .Values.geonode.register.registered_members_group_name }}
   REGISTERED_MEMBERS_GROUP_NAME: {{ .Values.geonode.register.registered_members_group_name | quote }}
   {{ end }}

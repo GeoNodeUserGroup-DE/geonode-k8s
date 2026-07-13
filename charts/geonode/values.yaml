@@ -6,7 +6,10 @@ global:
 
 # geonode configuration
 geonode:
-  version: 5.0.1
+  # -- GeoNode version used for chart-side version gating (env var names, defaults).
+  # Must be kept in sync with `geonode.image.tag`. Non-semver values (e.g. "latest",
+  # sha digest pins) fall back to newest-version behavior.
+  version: 5.1.0
   container_name: geonode
   # -- number of geonode replicas (! not working properly yet)
   replicaCount: 1
@@ -17,7 +20,7 @@ geonode:
 
   image:
     name: geonode/geonode
-    tag: "5.0.1"
+    tag: "5.1.0"
 
   # -- image pull policy
   imagePullPolicy: IfNotPresent
@@ -41,7 +44,7 @@ geonode:
       # -- admin panel password, will only be changed after running the init-db job. At first time deployment or after rerunning the job manually. (See docs/manage-py-jobs.md)
       password: geonode
       # -- admin user password
-      email: support@example.com
+      email: admin@localhost
     mail:
       # -- define mail user to send mails from
       user: "changeme"
@@ -179,6 +182,14 @@ geonode:
     # -- external ingress hostname
     externalDomain: geonode
 
+    # -- SESSION_COOKIE_SECURE / CSRF_COOKIE_SECURE. GeoNode >= 5.1.0 defaults both to
+    # True (5.0.x defaulted to False), so the sessionid/csrftoken cookies are sent with
+    # the "Secure" flag. Browsers reject Secure cookies over plain HTTP, which breaks
+    # login (you get redirected back to the landing page, still logged out).
+    # Leave empty (null) to follow externalScheme automatically: https => True, http => False.
+    # Set explicitly to true/false to override. Keep True whenever you serve over HTTPS.
+    cookie_secure:
+
     # -- set force reinit true so that changing passwords etc. in Values.yaml will take effect after restarting the pod
     # this on the other hand will increase pod initializing time, only change if you know what you are doing
     force_reinit: true
@@ -244,10 +255,20 @@ geonode:
       size: "2097152000"
       # -- DEFAULT_ANONYMOUS_DOWNLOAD_PERMISSION (https://docs.geonode.org/en/master/basic/settings/index.html#default-anonymous-download-permission)
       # Whether the uploaded resources should downloadable by default.
+      # Applies when `geonode.version` < 5.1.0. Deprecated in 5.1.0 in favour of `anonymous_permissions`.
       anonymous_download_permission: "True"
       # -- DEFAULT_ANONYMOUS_VIEW_PERMISSION (https://docs.geonode.org/en/master/basic/settings/index.html#default-anonymous-view-permission)
       # Whether the uploaded resources should be public by default.
+      # Applies when `geonode.version` < 5.1.0. Deprecated in 5.1.0 in favour of `anonymous_permissions`.
       anonymous_view_permission: "True"
+      # -- DEFAULT_ANONYMOUS_PERMISSIONS (GeoNode >= 5.1.0 replacement for the two
+      # `anonymous_*_permission` values). Compact permission string, read verbatim
+      # by GeoNode (no ast.literal_eval). Applies when `geonode.version` >= 5.1.0.
+      # Valid values (see geonode.security.permissions.VALID_ANONYMOUS_COMPACT_PERMISSIONS):
+      #   "download"   download + view; matches the pre-5.1 default of both True
+      #   "view"       view only
+      #   "none"       no anonymous access
+      anonymous_permissions: "download"
       # -- DEFAULT_MAX_PARALLEL_UPLOADS_PER_USER (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-parallel-uploads-per-user)
       # Default: 5
       # When uploading datasets, this value limits the number os parallel uploads.
@@ -292,8 +313,17 @@ geonode:
     # If True, creation of new accounts is allowed. When the signup view is called, the template account/signup.html will be displayed, usually showing a form to collect the new user data.
     # If False, creation of new accounts is disabled. When the signup view is called, the template account/signup_closed.html will be displayed.
     open_signup: True
-    # -- set email as required for registration
+    # -- set email as required for registration.
+    # Applies when `geonode.version` < 5.1.0. Deprecated in django-allauth 65+ (used by
+    # GeoNode >= 5.1.0) in favour of `signup_fields`.
     email_required: True
+    # -- ACCOUNT_SIGNUP_FIELDS (django-allauth 65+ replacement for `email_required`).
+    # Python list-literal string emitted verbatim into the container env.
+    # Applies when `geonode.version` >= 5.1.0.
+    # Common values:
+    #   "['email*', 'username*', 'password1*', 'password2*']"   (email required; default)
+    #   "['email', 'username*', 'password1*', 'password2*']"    (email optional)
+    signup_fields: '["email*", "username*", "password1*", "password2*"]'
     # -- approve given email with registration
     approval_required: False
     # -- send confirm email on get
@@ -305,8 +335,18 @@ geonode:
     email_verification: "mandatory"
     # -- If True, new user accounts will be created as inactive. The user must use the activation link to activate his account.
     conformation_required: True
-    # -- Specifies the login method to use – whether the user logs in by entering their username, e-mail address, or either one of both. Setting this to “email” requires email_required=True
+    # -- Specifies the login method to use - whether the user logs in by entering their username, e-mail address, or either one of both. Setting this to “email” requires email_required=True.
+    # Applies when `geonode.version` < 5.1.0. Deprecated in django-allauth 65+ (used by
+    # GeoNode >= 5.1.0) in favour of `login_methods`.
     authentication_method: "username_email"
+    # -- ACCOUNT_LOGIN_METHODS (django-allauth 65+ replacement for `authentication_method`).
+    # Python set-literal string emitted verbatim into the container env.
+    # Applies when `geonode.version` >= 5.1.0.
+    # Common values:
+    #   "{'email', 'username'}"   (either; default)
+    #   "{'email'}"               (email only)
+    #   "{'username'}"            (username only)
+    login_methods: '{"email", "username"}'
     # -- group name to add new registered users to, requires auto_assign_registered_members_to_registered: True.
     registered_members_group_name:
     # -- if set to True new registered user will be add to defined group in registered_members_group_name
@@ -353,6 +393,19 @@ geonode:
     container_name: celery
     # -- celery image pull policy
     imagePullPolicy: IfNotPresent
+
+    # -- CELERY__AUTOSCALE_VALUES ("max,min") for the main celery worker pool.
+    # The geonode image's celery-cmd starts autoscaling *prefork* pools where every
+    # child is a full Django process (~270Mi RSS). The image default of "10,5" (plus the
+    # harvester pool below) needs far more than `resources.limits.memory` and gets
+    # OOMKilled on the first upload, leaving ExecutionRequests stuck "running". Keep this
+    # low unless you also raise `resources.limits.memory`.
+    autoscale_values: "4,1"
+    # -- CELERY__HARVESTER_AUTOSCALE_VALUES ("max,min") for the harvesting worker pool.
+    # Image default is "15,10" (i.e. 10 idle children ~= 2.7Gi at rest); lowered here to
+    # fit the celery container memory budget.
+    harvester_autoscale_values: "2,1"
+
     resources:
       requests:
         # -- requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
@@ -380,7 +433,7 @@ geoserver:
     # -- geoserver image docker image
     name: geonode/geoserver
     # -- geoserver docker image tag
-    tag: "2.27.4-latest"
+    tag: "2.28.4-latest"
 
   # -- geoserver image pull policy
   imagePullPolicy: "IfNotPresent"
@@ -461,7 +514,7 @@ geoserver_data:
     # -- geoserver image docker image
     name: geonode/geoserver_data
     # -- geoserver docker image tag
-    tag: "2.27.4-latest"
+    tag: "2.28.4-latest"
   # -- geoserver image pull policy
   imagePullPolicy: "IfNotPresent"
 
@@ -475,7 +528,7 @@ nginx:
     # -- nginx docker image
     name: nginx
     # -- nginx docker image tag
-    tag: "1.28"
+    tag: "1.31.2"
   # -- nginx image pull policy
   imagePullPolicy: "IfNotPresent"
   # -- pull secret to use for nginx image
