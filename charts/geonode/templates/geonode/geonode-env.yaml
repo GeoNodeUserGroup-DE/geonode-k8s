@@ -40,7 +40,7 @@ data:
   SITEURL: "{{ include "public_url" . }}/"
   SITE_HOST_SCHEMA: {{ .Values.geonode.general.externalScheme | quote }}
   ALLOWED_HOSTS: "['django', '*', '{{ .Values.geonode.general.externalDomain }}']"
-  PROXY_ALLOWED_HOSTS: 'localhost,django,geonode,geoserver,spatialreference.org,nominatim.openstreetmap.org,dev.openlayers.org'
+  PROXY_ALLOWED_HOSTS: 'localhost,django,geonode,geoserver,{{ include "geonode_pod_name" . }},{{ include "geoserver_pod_name" . }},{{ include "nginx_pod_name" . }},spatialreference.org,nominatim.openstreetmap.org,dev.openlayers.org'
 
   # General settings
   FREETEXT_KEYWORDS_READONLY: {{ include "boolean2str" .Values.geonode.general.freetext_keywords_readonly | quote }}
@@ -98,7 +98,7 @@ data:
   # Configure PYCSW
   {{ if .Values.pycsw.enabled }}
   CATALOGUE_ENGINE: geonode.catalogue.backends.pycsw_http
-  CATALOGUE_URL: "{{ include "public_url" . }}{{ .Values.pycsw.endpoint }}"
+  CATALOGUE_URL: "http://{{ include "pycsw_pod_name" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.pycsw.port }}{{ .Values.pycsw.endpoint }}"
   {{ else }}
   CATALOGUE_ENGINE: geonode.catalogue.backends.pycsw_local
   {{ end}}
