@@ -1,16 +1,10 @@
-# default values for minikube deployment of geonode 5.0.1
+# default values for minikube deployment of geonode 5.1.0
 
 global:
   storageClass: standard
 
 geonode:
   replicaCount: 1 # not working yet
-  version: 5.0.1
-  image:
-    # -- used geonode image
-    name: geonode/geonode
-    # -- tag of used geonode image
-    tag: "5.0.1"
   imagePullPolicy: IfNotPresent
 
   general:
@@ -18,11 +12,6 @@ geonode:
     debug_static: True
     externalScheme: http
     externalDomain: geonode.local
-    extraEnvVars:
-      # provide internal URL for catalogue service so geonode finds it
-      # IMPORTANT: This URL assumes a release named "geonode" in the "geonode" namespace.
-      # If using a different name or namespace, this URL must be updated.
-      CATALOGUE_URL: "http://geonode-pycsw.geonode.svc.cluster.local:8000/"
 
   persistant:
     storageSize: 2Gi
@@ -39,7 +28,7 @@ geonode:
 
   register:
     open_signup: True
-    email_verification: "False"
+    email_verification: "none"
     authentication_method: username_email
 
 pycsw:
@@ -79,4 +68,3 @@ memcached:
   metrics:
     image:
       pullPolicy: IfNotPresent
-

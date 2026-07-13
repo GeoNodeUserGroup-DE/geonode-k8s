@@ -1,8 +1,8 @@
 # geonode-k8s
 
-![Version: 1.3.2](https://img.shields.io/badge/Version-1.3.2-informational?style=flat-square)
+![Version: 1.3.3](https://img.shields.io/badge/Version-1.3.3-informational?style=flat-square)
 
-Helm Chart for Geonode. Supported versions: Geonode: 5.0.1, Geoserver: 2.27.4-latest, pyCSW: 3.0.0-beta2
+Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-latest, pyCSW: 3.0.0-beta2
 
 **Homepage:** <https://geonode.org/>
 
@@ -26,19 +26,6 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.0.1, Geoserver: 2.27.4-la
 | oci://registry-1.docker.io/cloudpirates | rabbitmq | 0.2.12 |
 | oci://registry-1.docker.io/cloudpirates | redis | 0.19.0 |
 
-## Gateway API
-
-The chart can render a parallel `HTTPRoute` in addition to the existing
-Ingress. Enable it with `geonode.gatewayApi.enabled` and provide
-`geonode.gatewayApi.parentRefs` pointing at your shared Gateway listener.
-
-If `geonode.gatewayApi.hostnames` is left empty, the route defaults to
-`geonode.general.externalDomain` and mirrors the current ingress path split:
-
-- `/` -> GeoNode nginx service
-- `/geoserver` -> GeoServer service
-- `pycsw.endpoint` -> pycsw service when enabled
-
 ## Values
 
 | Key | Type | Default | Description |
@@ -48,14 +35,22 @@ If `geonode.gatewayApi.hostnames` is left empty, the route defaults to
 | geonode.acme.email | string | `"support@example.com"` | the email to be used to gain certificates |
 | geonode.acme.enabled | bool | `false` | enables cert-manager to do ACME challenges (aka certificates via letsencrypt) |
 | geonode.acme.stageUrl | string | `"https://acme-staging-v02.api.letsencrypt.org/directory"` | ACME staging environment (use acme-staging to avoid running into rate limits) stageUrl: https://acme-v02.api.letsencrypt.org/directory |
+| geonode.celery.autoscale_values | string | `"4,1"` | CELERY__AUTOSCALE_VALUES ("max,min") for the main celery worker pool. The geonode image's celery-cmd starts autoscaling *prefork* pools where every child is a full Django process (~270Mi RSS). The image default of "10,5" (plus the harvester pool below) needs far more than `resources.limits.memory` and gets OOMKilled on the first upload, leaving ExecutionRequests stuck "running". Keep this low unless you also raise `resources.limits.memory`. |
 | geonode.celery.container_name | string | `"celery"` | celery container name |
+| geonode.celery.harvester_autoscale_values | string | `"2,1"` | CELERY__HARVESTER_AUTOSCALE_VALUES ("max,min") for the harvesting worker pool. Image default is "15,10" (i.e. 10 idle children ~= 2.7Gi at rest); lowered here to fit the celery container memory budget. |
 | geonode.celery.imagePullPolicy | string | `"IfNotPresent"` | celery image pull policy |
 | geonode.celery.resources.limits.cpu | int | `2` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geonode.celery.resources.limits.memory | string | `"2Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geonode.celery.resources.requests.cpu | int | `1` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geonode.celery.resources.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geonode.container_name | string | `"geonode"` |  |
+| geonode.gatewayApi.annotations | object | `{}` | annotations for the Gateway API HTTPRoute |
+| geonode.gatewayApi.enabled | bool | `false` | enable a parallel Gateway API HTTPRoute for GeoNode while keeping ingress available |
+| geonode.gatewayApi.hostnames | list | `[]` | explicit hostnames for the HTTPRoute; defaults to geonode.general.externalDomain when empty |
+| geonode.gatewayApi.labels | object | `{}` | labels for the Gateway API HTTPRoute |
+| geonode.gatewayApi.parentRefs | list | `[]` | Gateway API parentRefs, for example a shared HTTPS listener on a cluster Gateway |
 | geonode.general.api_limit_per_page | int | `1000` | to describe |
+| geonode.general.cookie_secure | string | `nil` | SESSION_COOKIE_SECURE / CSRF_COOKIE_SECURE. GeoNode >= 5.1.0 defaults both to True (5.0.x defaulted to False), so the sessionid/csrftoken cookies are sent with the "Secure" flag. Browsers reject Secure cookies over plain HTTP, which breaks login (you get redirected back to the landing page, still logged out). Leave empty (null) to follow externalScheme automatically: https => True, http => False. Set explicitly to true/false to override. Keep True whenever you serve over HTTPS. |
 | geonode.general.debug | bool | `false` | django debug mode |
 | geonode.general.debug_static | bool | `false` | enable django static debug |
 | geonode.general.display.comments | bool | `true` | DISPLAY_COMMENTS If set to False comments are hidden. |
@@ -79,8 +74,9 @@ If `geonode.gatewayApi.hostnames` is left empty, the route defaults to
 | geonode.general.session_expired_control_enabled | string | `"True"` | SESSION_EXPIRED_CONTROL_ENABLED (https://docs.geonode.org/en/master/basic/settings/index.html#session-expired-control-enabled) By enabling this variable, a new middleware geonode.security.middleware.SessionControlMiddleware will be added to the MIDDLEWARE_CLASSES. The class will check every request to GeoNode and it will force a log out whenever one of the following conditions occurs:: Whether the uploaded resources should be public by default. |
 | geonode.general.settings_additions | string | `""` | add additional settings to the settings py. This code will be appended to the end of the geonode settings.py |
 | geonode.general.settings_module | string | `"geonode.settings"` | the settings module to load |
-| geonode.general.upload.anonymous_download_permission | string | `"True"` | DEFAULT_ANONYMOUS_DOWNLOAD_PERMISSION (https://docs.geonode.org/en/master/basic/settings/index.html#default-anonymous-download-permission) Whether the uploaded resources should downloadable by default. |
-| geonode.general.upload.anonymous_view_permission | string | `"True"` | DEFAULT_ANONYMOUS_VIEW_PERMISSION (https://docs.geonode.org/en/master/basic/settings/index.html#default-anonymous-view-permission) Whether the uploaded resources should be public by default. |
+| geonode.general.upload.anonymous_download_permission | string | `"True"` | DEFAULT_ANONYMOUS_DOWNLOAD_PERMISSION (https://docs.geonode.org/en/master/basic/settings/index.html#default-anonymous-download-permission) Whether the uploaded resources should downloadable by default. Applies when `geonode.version` < 5.1.0. Deprecated in 5.1.0 in favour of `anonymous_permissions`. |
+| geonode.general.upload.anonymous_permissions | string | `"download"` | DEFAULT_ANONYMOUS_PERMISSIONS (GeoNode >= 5.1.0 replacement for the two `anonymous_*_permission` values). Compact permission string, read verbatim by GeoNode (no ast.literal_eval). Applies when `geonode.version` >= 5.1.0. Valid values (see geonode.security.permissions.VALID_ANONYMOUS_COMPACT_PERMISSIONS):   "download"   download + view; matches the pre-5.1 default of both True   "view"       view only   "none"       no anonymous access |
+| geonode.general.upload.anonymous_view_permission | string | `"True"` | DEFAULT_ANONYMOUS_VIEW_PERMISSION (https://docs.geonode.org/en/master/basic/settings/index.html#default-anonymous-view-permission) Whether the uploaded resources should be public by default. Applies when `geonode.version` < 5.1.0. Deprecated in 5.1.0 in favour of `anonymous_permissions`. |
 | geonode.general.upload.document_size | int | `60` | max upload document size in MB |
 | geonode.general.upload.max_parallel_uploads_per_user | int | `10` | DEFAULT_MAX_PARALLEL_UPLOADS_PER_USER (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-parallel-uploads-per-user) Default: 5 When uploading datasets, this value limits the number os parallel uploads. The parallelism limit is set during installation using the value of this variable. After installation, only an user with administrative rights can change it. These limits can be changed in the admin panel or accessing by api. |
 | geonode.general.upload.size | string | `"2097152000"` | DEFAULT_MAX_UPLOAD_SIZE (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-upload-size) Important: This value must be syncronized with nginx.maxClientBodySize Default: 2097152000 (2000 MB in bytes) (104857600 = 100 MB) When uploading datasets or uploading documents, the total size of the uploaded files is verified. The size limits are set during installation using the value of this variable. After installation, only an user with administrative rights can change it. These limits can be changed in the admin panel or accessing by api. |
@@ -88,7 +84,7 @@ If `geonode.gatewayApi.hostnames` is left empty, the route defaults to
 | geonode.hooks.kubectlImage | string | `"registry.k8s.io/kubectl"` | kubectl image used for the cleanup hook job (official Kubernetes project image) |
 | geonode.hooks.kubectlTag | string | `"v1.32.0"` | kubectl image tag used for the cleanup hook job |
 | geonode.image.name | string | `"geonode/geonode"` |  |
-| geonode.image.tag | string | `"5.0.1"` |  |
+| geonode.image.tag | string | `"5.1.0"` |  |
 | geonode.imagePullPolicy | string | `"IfNotPresent"` | image pull policy |
 | geonode.imagePullSecret | string | `""` | pull secret to use for geonode image |
 | geonode.ingress.annotations | object | `{}` | adds ingress annotations for nginx ingress class |
@@ -106,15 +102,17 @@ If `geonode.gatewayApi.hostnames` is left empty, the route defaults to
 | geonode.mail.port | string | `"587"` | mail port fo geonode mail |
 | geonode.mail.tls | bool | `true` | activate tls for geonode mail (only tls or ssl can be true not both) |
 | geonode.mail.use_ssl | bool | `false` | enable ssl for geonode mail (only tls or ssl can be true not both) |
-| geonode.mapstore.nominatim_patch.enabled | bool | `false` | enable patch to override nominatim geographical search backend host name |
-| geonode.mapstore.nominatim_patch.host | string | `"someotherhost.example.com"` | host name for geographical searches with nominatim |
-| geonode.mapstore.nominatim_patch.protocol | string | `"https"` | protocol for geographical searches with nominatim |
+| geonode.mapstore.nominatim_patch.enabled | bool | `false` |  |
 | geonode.memcached.backend | string | `"django.core.cache.backends.memcached.PyLibMCCache"` | memcached backend to use if geonode ">=4.3.0" use django.core.cache.backends.memcached.PyLibMCCache before use django.core.cache.backends.memcached.MemcachedCache |
 | geonode.memcached.enabled | bool | `true` | enable memcache, this will spawn one or more seperate memcache container(s) |
 | geonode.memcached.enabled_geonode | bool | `false` | set the MEMCACHED_ENABLED env var for GeoNode (django). Dynamic caching (see https://docs.djangoproject.com/en/4.0/topics/cache/) |
 | geonode.memcached.lock_expire | string | `"3600"` | memcached lock expire time |
 | geonode.memcached.lock_timeout | string | `"10"` | memcached lock timeout |
-| geonode.persistant.storageSize | string | `"10Gi"` | size of persistant geonode storage |
+| geonode.persistant.backup_restore | object | `{"storageSize":"2Gi"}` | size of statics storage |
+| geonode.persistant.data | object | `{"storageSize":"4Gi"}` | size of statics storage |
+| geonode.persistant.geoserver_data | object | `{"storageSize":"2Gi"}` | size of statics storage |
+| geonode.persistant.statics | object | `{"storageSize":"2Gi"}` | size of statics storage |
+| geonode.persistant.storageSize | string | `"10Gi"` | fallback value for all persistant geonode storage |
 | geonode.replicaCount | int | `1` | number of geonode replicas (! not working properly yet) |
 | geonode.resources.limits.cpu | int | `2` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geonode.resources.limits.memory | string | `"2Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
@@ -128,9 +126,10 @@ If `geonode.gatewayApi.hostnames` is left empty, the route defaults to
 | geonode.secret.mail.user | string | `"changeme"` | define mail user to send mails from |
 | geonode.secret.oauth2.clientId | string | `"Jrchz2oPY3akmzndmgUTYrs9gczlgoV20YPSvqaV"` | oauth2 geoserver clientID (OAUTH2_CLIENT_ID) |
 | geonode.secret.oauth2.clientSecret | string | `"rCnp5txobUo83EpQEblM8fVj3QT5zb5qRfxNsuPzCqZaiRyIoxM4jdgMiZKFfePBHYXCLd7B8NlkfDBY9HKeIQPcy5Cp08KQNpRHQbjpLItDHv12GvkSeXp6OxaUETv3"` | oauth2 geoserver secret (OAUTH2_CLIENT_SECRET) |
-| geonode.secret.superUser.email | string | `"support@example.com"` | admin user password |
+| geonode.secret.superUser.email | string | `"admin@localhost"` | admin user password |
 | geonode.secret.superUser.password | string | `"geonode"` | admin panel password, will only be changed after running the init-db job. At first time deployment or after rerunning the job manually. (See docs/manage-py-jobs.md) |
 | geonode.secret.superUser.username | string | `"admin"` | admin username |
+| geonode.securityContext | object | `{}` | Security context for geonode pods (overrides global.securityContext) |
 | geonode.sentry.build_number | int | `0` | sentry build number |
 | geonode.sentry.dsn | string | `""` | sentry dsn url |
 | geonode.sentry.enabled | bool | `false` | enable sentry integration for geonode |
@@ -154,17 +153,17 @@ If `geonode.gatewayApi.hostnames` is left empty, the route defaults to
 | geonode.uwsgi.reload_on_rss | int | `2048` | Restart workers after this much resident memory |
 | geonode.uwsgi.threads | int | `24` | number of threads per process |
 | geonode.uwsgi.worker_reload_mercy | int | `60` | How long to wait before forcefully killing workers |
-| geonode.version | string | `"5.0.1"` |  |
-| geonodeFixtures | map of fixture files | `{"somefixture.json":"[\n  {\n    \"pk\": 0,\n    \"model\": \"myapp.sample\"\n    \"description\": \"nice little content\"\n  }\n]\n"}` | Fixture files which shall be made available under /usr/src/geonode/geonode/fixtures (refer to https://docs.djangoproject.com/en/4.2/howto/initial-data/) |
+| geonode.version | string | `"5.1.0"` | GeoNode version used for chart-side version gating (env var names, defaults). Must be kept in sync with `geonode.image.tag`. Non-semver values (e.g. "latest", sha digest pins) fall back to newest-version behavior. |
+| geonodeFixtures | map of fixture files | `nil` | Fixture files which shall be made available under /usr/src/geonode/geonode/fixtures (refer to https://docs.djangoproject.com/en/4.2/howto/initial-data/) |
 | geoserver.container_name | string | `"geoserver"` | geoserver container name |
 | geoserver.force_reinit | bool | `true` | set force reinit true so that changing passwords etc. in Values.yaml will take effect after restarting the pod this on the other hand will increase pod initializing time, only change if you know what you are doing |
 | geoserver.image.name | string | `"geonode/geoserver"` | geoserver image docker image |
-| geoserver.image.tag | string | `"2.27.4-latest"` | geoserver docker image tag |
+| geoserver.image.tag | string | `"2.28.4-latest"` | geoserver docker image tag |
 | geoserver.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
 | geoserver.imagePullSecret | string | `""` | pull secret to use for geoserver image |
 | geoserver.livenessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities","port":8080},"initialDelaySeconds":60,"periodSeconds":10,"timeoutSeconds":5}` | configure livenessProbe for geoserver, make sure port is aligned with geoserver.port configuration Using HTTP probe to detect GeoServer 2.27.3 circular dependency startup failure and trigger automatic restart |
 | geoserver.port | int | `8080` | geoserver port |
-| geoserver.printing.extraHosts | string | `""` |  |
+| geoserver.printing | object | `{"extraHosts":""}` | configuration of special parameters for print functionality |
 | geoserver.readinessProbe | object | `{"failureThreshold":15,"periodSeconds":5,"tcpSocket":{"port":8080}}` | configure readinessProbe for geoserver, make sure port is aligned with geoserver.port configuration |
 | geoserver.resources.limits.cpu | int | `2` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geoserver.resources.limits.memory | string | `"4Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
@@ -177,15 +176,30 @@ If `geonode.gatewayApi.hostnames` is left empty, the route defaults to
 | geoserver.secret.extraConfigMap | string | `"# file_1: conf content\n"` | additional elements to include in the config map provided to GeoServer |
 | geoserver.secret.extraPodEnv | string | `""` | Define this for extra GeoServer environment variables Format: extraPodEnv: |   - name: KEY_1     value: "VALUE_1"   - name: KEY_2     value: "VALUE_2" |
 | geoserver.secret.extraSecrets | string | `"#  key_1: value_1\n"` | additional elements to include in the secret provided to GeoServer, if not using an existing secret |
+| geoserver.securityContext.fsGroup | int | `0` |  |
+| geoserver.securityContext.runAsGroup | int | `0` |  |
+| geoserver.securityContext.runAsNonRoot | bool | `false` |  |
+| geoserver.securityContext.runAsUser | int | `0` |  |
 | geoserver.shapefile_datetime | bool | `false` | Enable/disable datetime support for shapefiles (Dorg.geotools.shapefile.datetime JVM option) |
+| geoserver.startupProbe | object | `{"failureThreshold":30,"periodSeconds":10,"tcpSocket":{"port":8080}}` | configuration of startup probe (before liveliness) |
 | geoserver_data.container_name | string | `"geoserver-data-dir"` |  |
 | geoserver_data.image.name | string | `"geonode/geoserver_data"` | geoserver image docker image |
-| geoserver_data.image.tag | string | `"2.27.4-latest"` | geoserver docker image tag |
+| geoserver_data.image.tag | string | `"2.28.4-latest"` | geoserver docker image tag |
 | geoserver_data.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
 | global.accessMode | string | `"ReadWriteMany"` | storage access mode used by helm dependency pvc |
+| global.securityContext | object | `{"fsGroup":1000,"runAsGroup":1000,"runAsUser":1000}` | Global security context defaults for all pods Can be overridden per component via component.securityContext.runAsUser etc. |
+| global.securityContext.fsGroup | int | `1000` | Group ID for volume mounts |
+| global.securityContext.runAsGroup | int | `1000` | Group ID to run the containers |
+| global.securityContext.runAsUser | int | `1000` | User ID to run the containers |
 | global.storageClass | string | `nil` | storageClass used by helm dependencies pvc |
 | memcached.config.maxConnections | int | `2048` |  |
 | memcached.config.memoryLimit | int | `128` |  |
+| memcached.containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
+| memcached.containerSecurityContext.capabilities.drop[0] | string | `"ALL"` |  |
+| memcached.containerSecurityContext.readOnlyRootFilesystem | bool | `true` |  |
+| memcached.containerSecurityContext.runAsNonRoot | bool | `true` |  |
+| memcached.containerSecurityContext.runAsUser | int | `11211` |  |
+| memcached.containerSecurityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | memcached.enabled | bool | `true` |  |
 | memcached.replicaCount | int | `1` |  |
 | memcached.resources.limits.memory | string | `"256Mi"` |  |
@@ -197,8 +211,8 @@ If `geonode.gatewayApi.hostnames` is left empty, the route defaults to
 | nginx.external_cors.enabled | bool | `false` | Add Access-Control-Allow-Origin directive to allow integration from an external domain |
 | nginx.geoServerMaxClientBodySize | string | `"10G"` | maximum upload size for geoserver in nginx configuration. Changes here may also require changes in geoserver configuration of the individual services (WFS, ...) |
 | nginx.geonodeMaxClientBodySize | string | `"2000M"` | max file upload size for geonode upload. Only set this value if it should be different from geonode.general.upload.size. to use e.g. if geonode.general.upload.document_size > geonode.general.upload.size |
-| nginx.image.name | string | `"nginx"` | nginx docker image |
-| nginx.image.tag | string | `"1.28"` | nginx docker image tag |
+| nginx.image.name | string | `"nginxinc/nginx-unprivileged"` | nginx docker image |
+| nginx.image.tag | string | `"1.31.2-alpine3.23"` | nginx docker image tag |
 | nginx.imagePullPolicy | string | `"IfNotPresent"` | nginx image pull policy |
 | nginx.imagePullSecret | string | `""` | pull secret to use for nginx image |
 | nginx.livenessProbe.httpGet.path | string | `"/"` |  |
@@ -211,10 +225,21 @@ If `geonode.gatewayApi.hostnames` is left empty, the route defaults to
 | nginx.resources.limits.memory | string | `"1Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | nginx.resources.requests.cpu | string | `"500m"` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | nginx.resources.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
+| nginx.securityContext.runAsUser | int | `101` |  |
+| postgres-operator.configKubernetes.spilo_allow_privilege_escalation | bool | `false` |  |
+| postgres-operator.configKubernetes.spilo_fsgroup | int | `103` |  |
+| postgres-operator.configKubernetes.spilo_privileged | bool | `false` |  |
+| postgres-operator.configKubernetes.spilo_runasgroup | int | `103` |  |
+| postgres-operator.configKubernetes.spilo_runasuser | int | `101` |  |
 | postgres-operator.configLoggingRestApi.api_port | int | `8080` | REST API listener listens to this port |
 | postgres-operator.enabled | bool | `false` | enable postgres-operator (this or postgresql.enabled NOT both ) |
 | postgres-operator.operatorApiUrl | string | `"http://{{ .Release.Name }}-postgres-operator:8080"` | ??? |
 | postgres-operator.podServiceAccount | object | `{"name":""}` | not setting the podServiceAccount name will leed to generation of this name. This allows to run multiple postgres-operators in a single kubernetes cluster. just seperating them by namespace. |
+| postgres-operator.securityContext.allowPrivilegeEscalation | bool | `false` |  |
+| postgres-operator.securityContext.capabilities.drop[0] | string | `"ALL"` |  |
+| postgres-operator.securityContext.runAsNonRoot | bool | `true` |  |
+| postgres-operator.securityContext.runAsUser | int | `1000` |  |
+| postgres-operator.securityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | postgres.external.hostname | string | `"my-external-postgres.com"` |  |
 | postgres.external.port | int | `5432` |  |
 | postgres.external.secret.existingSecretName | string | `""` | name of an existing Secret to use. Set, if you want to separately maintain the Secret. |
@@ -224,7 +249,7 @@ If `geonode.gatewayApi.hostnames` is left empty, the route defaults to
 | postgres.external.ssl | string | `"prefer"` |  |
 | postgres.geodata_databasename_and_username | string | `"geodata"` | geoserver database name and username |
 | postgres.geonode_databasename_and_username | string | `"geonode"` | geonode database name and username |
-| postgres.kyvernoSecurityContext.enabled | bool | `false`| Provide full securityContext to postgres Pod via Kyverno, as postgres-operator does not yet fully support securityContext |
+| postgres.kyvernoSecurityContext.enabled | bool | `false` |  |
 | postgres.operator.allowedSourceRanges | list | `[]` | when one or more load balancers are enabled for the cluster, this parameter defines the comma-separated range of IP networks (in CIDR-notation). The corresponding load balancer is accessible only to the networks defined by this parameter. Optional, when empty the load balancer service becomes inaccessible from outside of the Kubernetes cluster. |
 | postgres.operator.annotations | object | `{}` | additional annotation for postgresql object |
 | postgres.operator.clone | object | `{}` |  |
@@ -270,6 +295,7 @@ If `geonode.gatewayApi.hostnames` is left empty, the route defaults to
 | pycsw.resources.limits.memory | string | `"1Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | pycsw.resources.requests.cpu | string | `"500m"` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | pycsw.resources.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
+| pycsw.securityContext | object | `{}` | Security context for pycsw pods (overrides global.securityContext) |
 | rabbitmq.auth.enabled | bool | `true` |  |
 | rabbitmq.auth.password | string | `"rabbitpassword"` | RabbitMQ password. **WARNING: Change this for production deployments!** The default value is insecure. |
 | rabbitmq.auth.username | string | `"rabbituser"` |  |

@@ -5,13 +5,14 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name:  "{{ include "nginx_pod_name" . }}-ingress"
+  namespace: {{ .Release.Namespace }}
   annotations:
     description: Configures routes for external access
     {{- if .Values.geonode.ingress.annotations -}}
     {{ .Values.geonode.ingress.annotations | toYaml | nindent 4 }}
     {{- end -}}
     {{ if (eq .Values.geonode.acme.enabled true) }}
-    cert-manager.io/issuer: letsencrypt
+    cert-manager.io/issuer: {{ .Release.Name }}-letsencrypt
     acme.cert-manager.io/http01-edit-in-place: "true"
     {{- end }}
 spec:
@@ -39,7 +40,7 @@ spec:
           service:
             name: "{{ include "geoserver_pod_name" . }}"
             port:
-              number: {{ .Values.geoserver.port }}
+              number: {{ .Values.geoserver.port | int }}
       {{- if .Values.pycsw.enabled }}
       - path: {{ .Values.pycsw.endpoint }}
         pathType: Prefix
@@ -47,7 +48,7 @@ spec:
           service:
             name: "{{ include "pycsw_pod_name" . }}"
             port:
-              number: 8000
+              number: {{ .Values.pycsw.port | int }}
       {{- end }}
 
 ---
@@ -58,13 +59,14 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
-  name: letsencrypt
+  name: {{ .Release.Name }}-letsencrypt
+  namespace: {{ .Release.Namespace }}
 spec:
   acme:
     email: {{ .Values.geonode.acme.email }}
     server: {{ .Values.geonode.acme.stageUrl }}
     privateKeySecretRef:
-      name: letsencrypt
+      name: {{ .Release.Name }}-letsencrypt
     solvers:
     - selector:
         dnsNames:
