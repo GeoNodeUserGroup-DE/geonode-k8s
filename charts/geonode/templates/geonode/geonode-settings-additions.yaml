@@ -2,6 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-geonode-k8s-settings-additions-py
+  namespace: {{ .Release.Namespace }}
 data:
   geonode-k8s-settings-additions.py: {{- .Values.geonode.general.settings_additions | toYaml | indent 1 }}
 
