@@ -182,6 +182,14 @@ geonode:
     # -- external ingress hostname
     externalDomain: geonode
 
+    # -- SESSION_COOKIE_SECURE / CSRF_COOKIE_SECURE. GeoNode >= 5.1.0 defaults both to
+    # True (5.0.x defaulted to False), so the sessionid/csrftoken cookies are sent with
+    # the "Secure" flag. Browsers reject Secure cookies over plain HTTP, which breaks
+    # login (you get redirected back to the landing page, still logged out).
+    # Leave empty (null) to follow externalScheme automatically: https => True, http => False.
+    # Set explicitly to true/false to override. Keep True whenever you serve over HTTPS.
+    cookie_secure:
+
     # -- set force reinit true so that changing passwords etc. in Values.yaml will take effect after restarting the pod
     # this on the other hand will increase pod initializing time, only change if you know what you are doing
     force_reinit: true
@@ -385,6 +393,19 @@ geonode:
     container_name: celery
     # -- celery image pull policy
     imagePullPolicy: IfNotPresent
+
+    # -- CELERY__AUTOSCALE_VALUES ("max,min") for the main celery worker pool.
+    # The geonode image's celery-cmd starts autoscaling *prefork* pools where every
+    # child is a full Django process (~270Mi RSS). The image default of "10,5" (plus the
+    # harvester pool below) needs far more than `resources.limits.memory` and gets
+    # OOMKilled on the first upload, leaving ExecutionRequests stuck "running". Keep this
+    # low unless you also raise `resources.limits.memory`.
+    autoscale_values: "4,1"
+    # -- CELERY__HARVESTER_AUTOSCALE_VALUES ("max,min") for the harvesting worker pool.
+    # Image default is "15,10" (i.e. 10 idle children ~= 2.7Gi at rest); lowered here to
+    # fit the celery container memory budget.
+    harvester_autoscale_values: "2,1"
+
     resources:
       requests:
         # -- requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)

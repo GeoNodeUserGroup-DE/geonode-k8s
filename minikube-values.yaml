@@ -1,4 +1,4 @@
-# default values for minikube deployment of geonode 5.0.1
+# default values for minikube deployment of geonode 5.1.0
 
 global:
   storageClass: standard
@@ -73,4 +73,3 @@ memcached:
   metrics:
     image:
       pullPolicy: IfNotPresent
-

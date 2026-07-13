@@ -50,6 +50,12 @@ data:
   BROKER_URL: "{{ include "broker_url" . }}"
   CELERY_RESULT_BACKEND: "{{ include "result_backend_url" . }}"
 
+  # Celery worker tuning (see geonode.celery in values.yaml). Caps the number of prefork
+  # children so the celery container stays within its memory limit instead of being
+  # OOMKilled mid-upload (which leaves ExecutionRequests stuck "running").
+  CELERY__AUTOSCALE_VALUES: {{ .Values.geonode.celery.autoscale_values | quote }}
+  CELERY__HARVESTER_AUTOSCALE_VALUES: {{ .Values.geonode.celery.harvester_autoscale_values | quote }}
+
   # DJANGO SITE CONF
   SITEURL: "{{ include "public_url" . }}/"
   SITE_HOST_SCHEMA: {{ .Values.geonode.general.externalScheme | quote }}
@@ -86,6 +92,15 @@ data:
 
   # Session/Access Control
   LOCKDOWN_GEONODE: {{ .Values.geonode.accesscontrol.lockdown | quote }}
+  {{- /* SESSION_COOKIE_SECURE / CSRF_COOKIE_SECURE. GeoNode >= 5.1.0 defaults these to
+         True; over plain HTTP browsers reject the Secure cookies and login breaks. When
+         cookie_secure is unset, follow externalScheme (https => True, http => False). */}}
+  {{- $cookieSecure := .Values.geonode.general.cookie_secure }}
+  {{- if kindIs "invalid" $cookieSecure }}
+  {{- $cookieSecure = eq .Values.geonode.general.externalScheme "https" }}
+  {{- end }}
+  SESSION_COOKIE_SECURE: {{ $cookieSecure | ternary "True" "False" | quote }}
+  CSRF_COOKIE_SECURE: {{ $cookieSecure | ternary "True" "False" | quote }}
   CORS_ORIGIN_ALLOW_ALL: 'True'
   X_FRAME_OPTIONS: ALLOW-FROM ALL
   SESSION_EXPIRED_CONTROL_ENABLED: {{ .Values.geonode.general.session_expired_control_enabled | quote }}
