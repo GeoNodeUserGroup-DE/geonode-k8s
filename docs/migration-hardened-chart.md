@@ -78,8 +78,7 @@ does not wipe the disk):
 ```bash
 OLD_PV=$(kubectl -n <ns> get pvc pvc-<release>-geonode -o jsonpath='{.spec.volumeName}')
 echo "Old PV: $OLD_PV"
-kubectl patch pv "$OLD_PV" \
-  -p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}'
+kubectl patch pv "$OLD_PV" -p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}'
 ```
 
 > If you skip Step 2, the old PVC is deleted during Step 5 and — with a `Delete` reclaim
@@ -261,30 +260,6 @@ Verify:
 ```bash
 kubectl -n <ns> exec <release>-geonode-0 -c geonode -- \
   python -c "from django.conf import settings; print(settings.THESAURUS_DEFAULT_LANG)"
-```
-
----
-
-## Step 9 — GeoServer non-root (optional)
-
-The stock `geonode/geoserver` image can't run non-root, so the chart defaults it to root.
-To run it non-root, build the wrapper image and override the values:
-
-```bash
-cd geoserver-nonroot
-# bump GEOSERVER_VERSION in build.sh to match geoserver.image.tag first
-./build.sh          # builds geonode/geoserver-nonroot:<tag>; push to your registry
-```
-
-```yaml
-geoserver:
-  image:
-    name: geonode/geoserver-nonroot
-  securityContext:
-    runAsNonRoot: true
-    fsGroup: 1000
-    runAsUser: 1000
-    runAsGroup: 1000
 ```
 
 ---
