@@ -1,0 +1,86 @@
+# default values for minikube deployment of geonode 5.0.1
+
+global:
+  storageClass: standard
+
+geonode:
+  replicaCount: 1 # not working yet
+  version: 5.1.0
+  imagePullPolicy: IfNotPresent
+
+  general:
+    debug: True
+    debug_static: True
+    externalScheme: http
+    externalDomain: geonode.local
+    extraEnvVars:
+      # provide internal URL for catalogue service so geonode finds it
+      # IMPORTANT: This URL assumes a release named "geonode" in the "geonode" namespace.
+      # If using a different name or namespace, this URL must be updated.
+      CATALOGUE_URL: "http://geonode-pycsw.geonode.svc.cluster.local:8000/"
+
+  persistant:
+    storageSize: 2Gi
+
+  ingress:
+    enabled: False
+
+  secret:
+    superUser:
+      password: geonode
+
+  mail:
+    enabled: False
+
+  register:
+    open_signup: True
+    email_verification: "none"
+    authentication_method: username_email
+
+geoserver:
+  securityContext:
+    runAsNonRoot: true
+    fsGroup: 1000
+    runAsUser: 1000
+    runAsGroup: 1000
+  image:
+    name: zalf/geoserver-nonroot
+    tag: 2.28.4-latest
+
+pycsw:
+  enabled: True
+
+postgres-operator:
+  enabled: True
+
+postgres:
+  type: operator
+  operator:
+    storageSize: 2Gi
+    numberOfInstances: 1
+    postgres_version: 15
+    storageClass: standard
+    enableMasterLoadBalancer: False
+
+redis:
+  enabled: True
+  persistence:
+    enabled: False
+  image:
+    name: redis
+    tag: "8.4.0"
+    # override digest included in redis subchart, to allow using other registries
+    digest: ""
+    pullPolicy: IfNotPresent
+
+rabbitmq:
+  enabled: False
+
+memcached:
+  image:
+    repository: memcached
+    tag: "1.6.40"
+    pullPolicy: IfNotPresent
+  metrics:
+    image:
+      pullPolicy: IfNotPresent
