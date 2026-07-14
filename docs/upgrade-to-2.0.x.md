@@ -1,7 +1,7 @@
-# Upgrade Guide — Migrating to the Hardened Chart
+# Upgrade Guide — Migrating to Chart 2.0.x (Hardened / Non-root)
 
-A step-by-step runbook for upgrading an existing GeoNode-k8s release to the **hardened /
-non-root** chart. Follow the steps **in order**. The dangerous part is storage: an
+A step-by-step runbook for upgrading an existing GeoNode-k8s release (1.3.x) to the
+**2.0.x hardened / non-root** chart. Follow the steps **in order**. The dangerous part is storage: an
 unprepared `helm upgrade` **deletes your old data volume**, so do not skip Steps 2 and 6.
 
 > Conventions used below — substitute your own values:
