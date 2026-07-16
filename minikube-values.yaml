@@ -31,6 +31,18 @@ geonode:
     email_verification: "none"
     authentication_method: username_email
 
+# if you want to deploy with self build geoserver image
+# geoserver:
+#   securityContext:
+#     runAsNonRoot: true
+#     fsGroup: 1000
+#     runAsUser: 1000
+#     runAsGroup: 1000
+#   image:
+#   # best to build your own non root contaier image
+#     name: <YourRepository>/geoserver-nonroot
+#     tag: 2.28.4-latest
+
 pycsw:
   enabled: True
 
