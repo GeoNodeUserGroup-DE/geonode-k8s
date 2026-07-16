@@ -2,7 +2,7 @@
 # Necessary until solving in upstream,
 # see also https://github.com/GeoNode/geonode-docker/pull/59
 
-ARG GEOSERVER_VERSION=2.27.4-latest
+ARG GEOSERVER_VERSION=2.28.4-latest
 
 FROM geonode/geoserver:${GEOSERVER_VERSION}
 
