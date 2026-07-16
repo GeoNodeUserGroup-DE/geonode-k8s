@@ -46,6 +46,7 @@ geonode:
 pycsw:
   enabled: True
 
+# This deploys postgres operator into your cluster
 postgres-operator:
   enabled: True
 
@@ -57,6 +58,21 @@ postgres:
     postgres_version: 15
     storageClass: standard
     enableMasterLoadBalancer: False
+
+# alternative way to run geonode-k8s is with external postgres/postgis database 
+# postgres:
+#   type: external
+#   username: postgres
+#   geonode_databasename_and_username: geonode
+#   geodata_databasename_and_username: geodata
+
+#   external:
+#     hostname: "external-postgres.com"
+#     port: 5432
+#     secret:
+#       postgres_password:
+#       geonode_password:
+#       geodata_password:
 
 redis:
   enabled: True
