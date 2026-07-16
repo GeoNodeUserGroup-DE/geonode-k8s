@@ -1,4 +1,4 @@
-![Version: 1.3.2](https://img.shields.io/badge/Version-1.3.2-informational?style=flat-square)
+![Version: 1.3.3](https://img.shields.io/badge/Version-1.3.3-informational?style=flat-square)
 
 # Helm Chart for Geonode
 
@@ -108,8 +108,12 @@ helm delete --namespace geonode geonode geonode
 
 ## Migrating from earlier versions of this Helm Chart
 
-The hardened version of this helm chart introduced a split from one common PVC for geonode to four distinct PVC.
-When upgrading from earlier versions of the helm chart, you may need to copy user manually to the new PVC.
+The `2.0.x` (hardened / non-root) release introduces breaking changes — most notably a
+split from one common PVC into four distinct PVCs, and non-root runtime permissions. A
+plain `helm upgrade` will **delete the old data volume**, so follow the step-by-step
+runbook before upgrading:
+
+**➡️ [Upgrade Guide — Migrating to Chart 2.0.x](docs/upgrade-to-2.0.x.md)**
 
 ## Contribution
 
