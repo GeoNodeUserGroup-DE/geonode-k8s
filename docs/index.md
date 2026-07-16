@@ -1,10 +1,10 @@
-![Version: 1.3.3](https://img.shields.io/badge/Version-1.3.3-informational?style=flat-square)
+![Version: 2.0.0](https://img.shields.io/badge/Version-2.0.0-informational?style=flat-square)
 
 # Helm Chart for Geonode
 
 - [GeoWhat?](#Geonode)
 - [Geonode-k8s](#geonode-k8s)
-- [Install Guilde](#install)
+- [Install Guide](#install)
 
 **Homepage:** <https://github.com/GeoNodeUserGroup-DE/geonode-k8s>
 
@@ -41,7 +41,7 @@ To get an overview of the available configuration check out the values [docs](ch
 
 If you want to go straight for a production installation follow the [installation](#install) guide.
 
-Furhter docs you can find on [readthedocs](https://geonode-k8s.readthedocs.io/en/latest/).
+Further docs you can find on [readthedocs](https://geonode-k8s.readthedocs.io/en/latest/).
 
 ## Install
 
@@ -69,6 +69,31 @@ Define your own values.yaml to configure your geonode installation. Use the [doc
 vi my-values.yaml
 ```
 
+## Hardened K8S environments
+
+By default, this Helm Chart is intended to run in hardened K8S environments, notably with non-root permissions. To use it, ensure that your storage will be writeable by the geonode technical user; UID and GID can be configured in the values file.
+
+There are two exceptions to this rule:
+- the `geonode-postgres` Pod does not have full securityContext out-of-the-box, because the subchart `postgres-operator` does not support that yet. A workaround is available if you want the full securityContext, for that, set `postgres.kyvernoSecurityContext`to `enabled` in your values YAML.
+- the `geonode/geoserver` Pod, because the current `geonode/geoserver` Docker Image does not support running as non-root out-of-the-box, therefore, default chart settings for this image are set to run as root. If you wish to run this Pod as non-root, proceed as follows:
+
+Create a custom image with the provided script:
+```bash
+cd geoserver-nonroot
+./build.sh
+```
+And then override the settings in your values file, for example:
+```bash
+geoserver:
+  image:
+    name: geonode/geoserver-nonroot
+  securityContext:
+    runAsNonRoot: true
+    fsGroup: 1000
+    runAsUser: 1000
+    runAsGroup: 1000
+```
+
 ## Install chart
 
 ```bash
@@ -78,8 +103,17 @@ helm upgrade --cleanup-on-fail --install --namespace geonode --create-namespace 
 ## Delete Installation
 
 ```bash
-helm delete --namespace geonode geonode geonode
+helm delete --namespace geonode geonode
 ```
+
+## Migrating from earlier versions of this Helm Chart
+
+The `2.0.x` (hardened / non-root) release introduces breaking changes — most notably a
+split from one common PVC into four distinct PVCs, and non-root runtime permissions. A
+plain `helm upgrade` will **delete the old data volume**, so follow the step-by-step
+runbook before upgrading:
+
+**➡️ [Upgrade Guide — Migrating to Chart 2.0.x](docs/upgrade-to-2.0.x.md)**
 
 ## Contribution
 
