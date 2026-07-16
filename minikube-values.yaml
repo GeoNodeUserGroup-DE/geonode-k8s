@@ -31,9 +31,22 @@ geonode:
     email_verification: "none"
     authentication_method: username_email
 
+# if you want to deploy with self build geoserver image
+# geoserver:
+#   securityContext:
+#     runAsNonRoot: true
+#     fsGroup: 1000
+#     runAsUser: 1000
+#     runAsGroup: 1000
+#   image:
+#   # best to build your own non root contaier image
+#     name: <YourRepository>/geoserver-nonroot
+#     tag: 2.28.4-latest
+
 pycsw:
   enabled: True
 
+# This deploys postgres operator into your cluster
 postgres-operator:
   enabled: True
 
@@ -45,6 +58,21 @@ postgres:
     postgres_version: 15
     storageClass: standard
     enableMasterLoadBalancer: False
+
+# alternative way to run geonode-k8s is with external postgres/postgis database 
+# postgres:
+#   type: external
+#   username: postgres
+#   geonode_databasename_and_username: geonode
+#   geodata_databasename_and_username: geodata
+
+#   external:
+#     hostname: "external-postgres.com"
+#     port: 5432
+#     secret:
+#       postgres_password:
+#       geonode_password:
+#       geodata_password:
 
 redis:
   enabled: True

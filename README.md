@@ -1,4 +1,4 @@
-![Version: 1.3.3](https://img.shields.io/badge/Version-1.3.3-informational?style=flat-square)
+![Version: 2.0.0](https://img.shields.io/badge/Version-2.0.0-informational?style=flat-square)
 
 # Helm Chart for Geonode
 
@@ -41,7 +41,7 @@ To get an overview of the available configuration check out the values [docs](ch
 
 If you want to go straight for a production installation follow the [installation](#install) guide.
 
-Furhter docs you can find on [readthedocs](https://geonode-k8s.readthedocs.io/en/latest/).
+Further docs you can find on [readthedocs](https://geonode-k8s.readthedocs.io/en/latest/).
 
 ## Install
 
@@ -103,7 +103,7 @@ helm upgrade --cleanup-on-fail --install --namespace geonode --create-namespace 
 ## Delete Installation
 
 ```bash
-helm delete --namespace geonode geonode geonode
+helm delete --namespace geonode geonode
 ```
 
 ## Migrating from earlier versions of this Helm Chart
