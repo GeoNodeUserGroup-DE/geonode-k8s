@@ -1,8 +1,38 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-geonode-k8s-settings-additions-py
+  name: {{ .Release.Name }}-geonode-settings-additions
   namespace: {{ .Release.Namespace }}
 data:
-  geonode-k8s-settings-additions.py: {{- .Values.geonode.general.settings_additions | toYaml | indent 1 }}
+  settings_additions.py: |
+    import os
+{{- if .Values.geonode.sentry.enabled }}
+    import ast
+    import sentry_sdk
+    BUILD_NUMBER = os.environ.get("BUILD_NUMBER", "0")
+    AUTHENTICATION_BACKENDS += ('allauth.account.auth_backends.AuthenticationBackend',)
 
+    SENTRY_ENABLED = ast.literal_eval(os.getenv("SENTRY_ENABLED", "False"))
+    if SENTRY_ENABLED:
+        import sentry_sdk
+
+        print("sentry enabled ...")
+        SENTRY_DSN = os.getenv("SENTRY_DSN")
+        print(SENTRY_DSN)
+        sentry_sdk.init(
+            dsn=SENTRY_DSN,
+            release="geonodex@{}.{}".format(VERSION, BUILD_NUMBER),
+            environment=os.getenv("SENTRY_ENVIRONMENT", "development"),
+            # Set traces_sample_rate to 1.0 to capture 100%
+            # of transactions for performance monitoring.
+            # We recommend adjusting this value in production.
+            traces_sample_rate=1.0,
+            # If you wish to associate users to errors (assuming you are using
+            # django.contrib.auth) you may enable sending PII data.
+            send_default_pii=True,
+        )
+{{- end }}
+
+    THESAURUS_DEFAULT_LANG = os.environ.get("THESAURUS_DEFAULT_LANG", "en")
+
+{{ .Values.geonode.general.settings_additions | indent 4 }}

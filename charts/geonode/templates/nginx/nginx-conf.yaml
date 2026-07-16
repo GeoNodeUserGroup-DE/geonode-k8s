@@ -6,8 +6,8 @@ metadata:
 data:
   geonode.conf: |
     server {
-      listen 80 default_server;
-      listen [::]:80 default_server;
+      listen 8080 default_server;
+      listen [::]:8080 default_server;
 
       # resolver is required because we use variables as upstream
       # resolver kube-dns.kube-system.svc 8.8.8.8 8.8.4.4 valid=300s;
@@ -48,7 +48,7 @@ data:
         application/json;
 
       location = /favicon.ico {
-        alias /mnt/volumes/statics/static/img/favicon.ico;
+        alias /mnt/volumes/statics/static/geonode/img/favicon.ico;
       }
 
 

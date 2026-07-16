@@ -1,0 +1,39 @@
+{{- /*
+Inspired by https://github.com/zalando/postgres-operator/issues/2223#issuecomment-2202042612
+Necessary until postgres-operator fully supports securityContext configuration
+
+Kyverno-Mutating-Policy: injects the missing securityContext attributes into the Spilo-Pods
+
+Prerequisite: Kyverno is installed in the cluster
+*/ -}}
+{{- if .Values.postgres.kyvernoSecurityContext.enabled }}
+apiVersion: kyverno.io/v1
+kind: Policy
+metadata:
+  name: postgresql-securitycontext
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  rules:
+    - name: mutate-postgresql-sts
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+              selector:
+                matchLabels:
+                  application: spilo
+      mutate:
+        patchStrategicMerge:
+          spec:
+            containers:
+              - (name): "*"
+                securityContext:
+                  allowPrivilegeEscalation: false
+                  capabilities: { drop: [ALL] }
+                  seccompProfile: { type: RuntimeDefault }
+            securityContext:
+              runAsNonRoot: true
+{{- end }}

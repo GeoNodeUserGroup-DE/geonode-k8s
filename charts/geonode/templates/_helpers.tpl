@@ -117,8 +117,20 @@ postgres-password
 {{- end -}}
 
 # Volume names
-{{- define "persistant_volume_name" -}}
-persistence
+{{- define "pvc_statics_name" -}}
+pvc-{{ .Release.Name }}-geonode-statics
+{{- end -}}
+
+{{- define "pvc_geoserver_data_name" -}}
+pvc-{{ .Release.Name }}-geonode-geoserver-data
+{{- end -}}
+
+{{- define "pvc_backup_restore_name" -}}
+pvc-{{ .Release.Name }}-geonode-backup-restore
+{{- end -}}
+
+{{- define "pvc_data_name" -}}
+pvc-{{ .Release.Name }}-geonode-data
 {{- end -}}
 
 # ports and endpoints

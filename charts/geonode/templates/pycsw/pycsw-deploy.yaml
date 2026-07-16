@@ -20,7 +20,10 @@ spec:
         checksum/pycsw-mappings-py: {{ include (print $.Template.BasePath "/pycsw/pycsw-mappings-py.yaml") . | sha256sum }}
     spec:
       terminationGracePeriodSeconds: 3
-
+{{- $pyctx := default dict .Values.pycsw.securityContext }}
+      securityContext:
+        runAsNonRoot: true
+        fsGroup: {{- if hasKey $pyctx "fsGroup" }} {{ $pyctx.fsGroup }} {{- else }} {{ .Values.global.securityContext.fsGroup }} {{- end }}
 {{- if not (empty .Values.pycsw.imagePullSecret) }}
       imagePullSecrets:
       - name: {{ .Values.pycsw.imagePullSecret }}
@@ -32,6 +35,17 @@ spec:
       - name: {{ .Values.pycsw.init.container_name }}
         image: "{{ .Values.pycsw.init.image.name }}:{{ .Values.pycsw.init.image.tag }}"
         imagePullPolicy: {{ .Values.pycsw.init.imagePullPolicy }}
+        securityContext:
+          runAsUser: {{- if hasKey $pyctx "runAsUser" }} {{ $pyctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
+          runAsGroup: {{- if hasKey $pyctx "runAsGroup" }} {{ $pyctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
         command: ["/bin/sh","-c"]
         args: ['while [ $(curl -ksw "%{http_code}" "{{ include "nginx_pod_name" . }}" -o /dev/null) -ne 200 ]; do sleep 5; echo "health check failed . Waiting for GeoNode ({{ include "nginx_pod_name" . }}) ..."; done']
         env:
@@ -42,6 +56,17 @@ spec:
       - name: {{ .Values.pycsw.container_name }}
         image: "{{ .Values.pycsw.image.name }}:{{ .Values.pycsw.image.tag }}"
         imagePullPolicy: {{ .Values.pycsw.imagePullPolicy }}
+        securityContext:
+          runAsUser: {{- if hasKey $pyctx "runAsUser" }} {{ $pyctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
+          runAsGroup: {{- if hasKey $pyctx "runAsGroup" }} {{ $pyctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
         envFrom:
           - configMapRef:
               name: {{ include "pycsw_pod_name" . }}-env
@@ -66,7 +91,8 @@ spec:
           mountPath: /etc/pycsw/pycsw-mappings.py
           subPath: pycsw-mappings.py
           readOnly: true
-
+        - name: tmp
+          mountPath: /tmp
         readinessProbe:
           {{- toYaml $.Values.pycsw.readinessProbe | nindent 10 }}
         livenessProbe:
@@ -78,15 +104,17 @@ spec:
       - name: pycsw-cfg
         configMap:
           name: {{ .Release.Name }}-pycsw-cfg
-          defaultMode: 0744
+          defaultMode: 0555
           items:
           - key: pycsw.cfg
             path: "pycsw.cfg"
       - name: pycsw-mappings-py
         configMap:
           name: {{ .Release.Name }}-pycsw-mappings-py
-          defaultMode: 0744
+          defaultMode: 0555
           items:
           - key: pycsw-mappings.py
             path: "pycsw-mappings.py"
+      - name: tmp
+        emptyDir: {}
 {{ end }}

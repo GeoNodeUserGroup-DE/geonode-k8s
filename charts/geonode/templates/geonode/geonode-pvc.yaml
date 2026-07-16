@@ -1,12 +1,59 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pvc-{{ .Release.Name }}-geonode
+  name: pvc-{{ .Release.Name }}-geonode-statics
   namespace: {{ .Release.Namespace }}
 spec:
   accessModes:
   - {{ .Values.global.accessMode }}
+  {{- if .Values.global.storageClass }}
   storageClassName: {{ .Values.global.storageClass }}
+  {{- end }}
   resources:
     requests:
-      storage: {{ .Values.geonode.persistant.storageSize }}
+      storage: {{ (default dict .Values.geonode.persistant.statics).storageSize | default .Values.geonode.persistant.storageSize }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-{{ .Release.Name }}-geonode-geoserver-data
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes:
+  - {{ .Values.global.accessMode }}
+  {{- if .Values.global.storageClass }}
+  storageClassName: {{ .Values.global.storageClass }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ (default dict .Values.geonode.persistant.geoserver_data).storageSize | default .Values.geonode.persistant.storageSize }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-{{ .Release.Name }}-geonode-backup-restore
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes:
+  - {{ .Values.global.accessMode }}
+  {{- if .Values.global.storageClass }}
+  storageClassName: {{ .Values.global.storageClass }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ (default dict .Values.geonode.persistant.backup_restore).storageSize | default .Values.geonode.persistant.storageSize }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-{{ .Release.Name }}-geonode-data
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes:
+  - {{ .Values.global.accessMode }}
+  {{- if .Values.global.storageClass }}
+  storageClassName: {{ .Values.global.storageClass }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ (default dict .Values.geonode.persistant.data).storageSize | default .Values.geonode.persistant.storageSize }}

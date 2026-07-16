@@ -108,7 +108,11 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geonode.memcached.enabled_geonode | bool | `false` | set the MEMCACHED_ENABLED env var for GeoNode (django). Dynamic caching (see https://docs.djangoproject.com/en/4.0/topics/cache/) |
 | geonode.memcached.lock_expire | string | `"3600"` | memcached lock expire time |
 | geonode.memcached.lock_timeout | string | `"10"` | memcached lock timeout |
-| geonode.persistant.storageSize | string | `"10Gi"` | size of persistant geonode storage |
+| geonode.persistant.backup_restore | object | `{"storageSize":"2Gi"}` | size of statics storage |
+| geonode.persistant.data | object | `{"storageSize":"4Gi"}` | size of statics storage |
+| geonode.persistant.geoserver_data | object | `{"storageSize":"2Gi"}` | size of statics storage |
+| geonode.persistant.statics | object | `{"storageSize":"2Gi"}` | size of statics storage |
+| geonode.persistant.storageSize | string | `"10Gi"` | fallback value for all persistant geonode storage |
 | geonode.replicaCount | int | `1` | number of geonode replicas (! not working properly yet) |
 | geonode.resources.limits.cpu | int | `2` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geonode.resources.limits.memory | string | `"2Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
@@ -125,6 +129,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geonode.secret.superUser.email | string | `"admin@localhost"` | admin user password |
 | geonode.secret.superUser.password | string | `"geonode"` | admin panel password, will only be changed after running the init-db job. At first time deployment or after rerunning the job manually. (See docs/manage-py-jobs.md) |
 | geonode.secret.superUser.username | string | `"admin"` | admin username |
+| geonode.securityContext | object | `{}` | Security context for geonode pods (overrides global.securityContext) |
 | geonode.sentry.build_number | int | `0` | sentry build number |
 | geonode.sentry.dsn | string | `""` | sentry dsn url |
 | geonode.sentry.enabled | bool | `false` | enable sentry integration for geonode |
@@ -149,7 +154,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geonode.uwsgi.threads | int | `24` | number of threads per process |
 | geonode.uwsgi.worker_reload_mercy | int | `60` | How long to wait before forcefully killing workers |
 | geonode.version | string | `"5.1.0"` | GeoNode version used for chart-side version gating (env var names, defaults). Must be kept in sync with `geonode.image.tag`. Non-semver values (e.g. "latest", sha digest pins) fall back to newest-version behavior. |
-| geonodeFixtures | map of fixture files | `{"somefixture.json":"[\n  {\n    \"pk\": 0,\n    \"model\": \"myapp.sample\"\n    \"description\": \"nice little content\"\n  }\n]\n"}` | Fixture files which shall be made available under /usr/src/geonode/geonode/fixtures (refer to https://docs.djangoproject.com/en/4.2/howto/initial-data/) |
+| geonodeFixtures | map of fixture files | `nil` | Fixture files which shall be made available under /usr/src/geonode/geonode/fixtures (refer to https://docs.djangoproject.com/en/4.2/howto/initial-data/) |
 | geoserver.container_name | string | `"geoserver"` | geoserver container name |
 | geoserver.force_reinit | bool | `true` | set force reinit true so that changing passwords etc. in Values.yaml will take effect after restarting the pod this on the other hand will increase pod initializing time, only change if you know what you are doing |
 | geoserver.image.name | string | `"geonode/geoserver"` | geoserver image docker image |
@@ -158,7 +163,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geoserver.imagePullSecret | string | `""` | pull secret to use for geoserver image |
 | geoserver.livenessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities","port":8080},"initialDelaySeconds":60,"periodSeconds":10,"timeoutSeconds":5}` | configure livenessProbe for geoserver, make sure port is aligned with geoserver.port configuration Using HTTP probe to detect GeoServer 2.27.3 circular dependency startup failure and trigger automatic restart |
 | geoserver.port | int | `8080` | geoserver port |
-| geoserver.printing.extraHosts | string | `""` |  |
+| geoserver.printing | object | `{"extraHosts":""}` | configuration of special parameters for print functionality |
 | geoserver.readinessProbe | object | `{"failureThreshold":15,"periodSeconds":5,"tcpSocket":{"port":8080}}` | configure readinessProbe for geoserver, make sure port is aligned with geoserver.port configuration |
 | geoserver.resources.limits.cpu | int | `2` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geoserver.resources.limits.memory | string | `"4Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
@@ -171,15 +176,30 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geoserver.secret.extraConfigMap | string | `"# file_1: conf content\n"` | additional elements to include in the config map provided to GeoServer |
 | geoserver.secret.extraPodEnv | string | `""` | Define this for extra GeoServer environment variables Format: extraPodEnv: |   - name: KEY_1     value: "VALUE_1"   - name: KEY_2     value: "VALUE_2" |
 | geoserver.secret.extraSecrets | string | `"#  key_1: value_1\n"` | additional elements to include in the secret provided to GeoServer, if not using an existing secret |
+| geoserver.securityContext.fsGroup | int | `0` |  |
+| geoserver.securityContext.runAsGroup | int | `0` |  |
+| geoserver.securityContext.runAsNonRoot | bool | `false` |  |
+| geoserver.securityContext.runAsUser | int | `0` |  |
 | geoserver.shapefile_datetime | bool | `false` | Enable/disable datetime support for shapefiles (Dorg.geotools.shapefile.datetime JVM option) |
+| geoserver.startupProbe | object | `{"failureThreshold":30,"periodSeconds":10,"tcpSocket":{"port":8080}}` | configuration of startup probe (before liveliness) |
 | geoserver_data.container_name | string | `"geoserver-data-dir"` |  |
 | geoserver_data.image.name | string | `"geonode/geoserver_data"` | geoserver image docker image |
 | geoserver_data.image.tag | string | `"2.28.4-latest"` | geoserver docker image tag |
 | geoserver_data.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
 | global.accessMode | string | `"ReadWriteMany"` | storage access mode used by helm dependency pvc |
+| global.securityContext | object | `{"fsGroup":1000,"runAsGroup":1000,"runAsUser":1000}` | Global security context defaults for all pods Can be overridden per component via component.securityContext.runAsUser etc. |
+| global.securityContext.fsGroup | int | `1000` | Group ID for volume mounts |
+| global.securityContext.runAsGroup | int | `1000` | Group ID to run the containers |
+| global.securityContext.runAsUser | int | `1000` | User ID to run the containers |
 | global.storageClass | string | `nil` | storageClass used by helm dependencies pvc |
 | memcached.config.maxConnections | int | `2048` |  |
 | memcached.config.memoryLimit | int | `128` |  |
+| memcached.containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
+| memcached.containerSecurityContext.capabilities.drop[0] | string | `"ALL"` |  |
+| memcached.containerSecurityContext.readOnlyRootFilesystem | bool | `true` |  |
+| memcached.containerSecurityContext.runAsNonRoot | bool | `true` |  |
+| memcached.containerSecurityContext.runAsUser | int | `11211` |  |
+| memcached.containerSecurityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | memcached.enabled | bool | `true` |  |
 | memcached.replicaCount | int | `1` |  |
 | memcached.resources.limits.memory | string | `"256Mi"` |  |
@@ -191,8 +211,8 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | nginx.external_cors.enabled | bool | `false` | Add Access-Control-Allow-Origin directive to allow integration from an external domain |
 | nginx.geoServerMaxClientBodySize | string | `"10G"` | maximum upload size for geoserver in nginx configuration. Changes here may also require changes in geoserver configuration of the individual services (WFS, ...) |
 | nginx.geonodeMaxClientBodySize | string | `"2000M"` | max file upload size for geonode upload. Only set this value if it should be different from geonode.general.upload.size. to use e.g. if geonode.general.upload.document_size > geonode.general.upload.size |
-| nginx.image.name | string | `"nginx"` | nginx docker image |
-| nginx.image.tag | string | `"1.31.2"` | nginx docker image tag |
+| nginx.image.name | string | `"nginxinc/nginx-unprivileged"` | nginx docker image |
+| nginx.image.tag | string | `"1.31.2-alpine3.23"` | nginx docker image tag |
 | nginx.imagePullPolicy | string | `"IfNotPresent"` | nginx image pull policy |
 | nginx.imagePullSecret | string | `""` | pull secret to use for nginx image |
 | nginx.livenessProbe.httpGet.path | string | `"/"` |  |
@@ -205,10 +225,21 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | nginx.resources.limits.memory | string | `"1Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | nginx.resources.requests.cpu | string | `"500m"` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | nginx.resources.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
+| nginx.securityContext.runAsUser | int | `101` |  |
+| postgres-operator.configKubernetes.spilo_allow_privilege_escalation | bool | `false` |  |
+| postgres-operator.configKubernetes.spilo_fsgroup | int | `103` |  |
+| postgres-operator.configKubernetes.spilo_privileged | bool | `false` |  |
+| postgres-operator.configKubernetes.spilo_runasgroup | int | `103` |  |
+| postgres-operator.configKubernetes.spilo_runasuser | int | `101` |  |
 | postgres-operator.configLoggingRestApi.api_port | int | `8080` | REST API listener listens to this port |
 | postgres-operator.enabled | bool | `false` | enable postgres-operator (this or postgresql.enabled NOT both ) |
 | postgres-operator.operatorApiUrl | string | `"http://{{ .Release.Name }}-postgres-operator:8080"` | ??? |
 | postgres-operator.podServiceAccount | object | `{"name":""}` | not setting the podServiceAccount name will leed to generation of this name. This allows to run multiple postgres-operators in a single kubernetes cluster. just seperating them by namespace. |
+| postgres-operator.securityContext.allowPrivilegeEscalation | bool | `false` |  |
+| postgres-operator.securityContext.capabilities.drop[0] | string | `"ALL"` |  |
+| postgres-operator.securityContext.runAsNonRoot | bool | `true` |  |
+| postgres-operator.securityContext.runAsUser | int | `1000` |  |
+| postgres-operator.securityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | postgres.external.hostname | string | `"my-external-postgres.com"` |  |
 | postgres.external.port | int | `5432` |  |
 | postgres.external.secret.existingSecretName | string | `""` | name of an existing Secret to use. Set, if you want to separately maintain the Secret. |
@@ -218,6 +249,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | postgres.external.ssl | string | `"prefer"` |  |
 | postgres.geodata_databasename_and_username | string | `"geodata"` | geoserver database name and username |
 | postgres.geonode_databasename_and_username | string | `"geonode"` | geonode database name and username |
+| postgres.kyvernoSecurityContext.enabled | bool | `false` |  |
 | postgres.operator.allowedSourceRanges | list | `[]` | when one or more load balancers are enabled for the cluster, this parameter defines the comma-separated range of IP networks (in CIDR-notation). The corresponding load balancer is accessible only to the networks defined by this parameter. Optional, when empty the load balancer service becomes inaccessible from outside of the Kubernetes cluster. |
 | postgres.operator.annotations | object | `{}` | additional annotation for postgresql object |
 | postgres.operator.clone | object | `{}` |  |
@@ -263,6 +295,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | pycsw.resources.limits.memory | string | `"1Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | pycsw.resources.requests.cpu | string | `"500m"` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | pycsw.resources.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
+| pycsw.securityContext | object | `{}` | Security context for pycsw pods (overrides global.securityContext) |
 | rabbitmq.auth.enabled | bool | `true` |  |
 | rabbitmq.auth.password | string | `"rabbitpassword"` | RabbitMQ password. **WARNING: Change this for production deployments!** The default value is insecure. |
 | rabbitmq.auth.username | string | `"rabbituser"` |  |

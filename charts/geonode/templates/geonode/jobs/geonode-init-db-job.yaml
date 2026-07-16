@@ -22,11 +22,28 @@ spec:
       - name: {{ .Values.geonode.imagePullSecret }}
 {{ end }}
       restartPolicy: OnFailure
+{{- $gnctx := default dict .Values.geonode.securityContext }}
+      securityContext:
+        runAsNonRoot: true
+        fsGroup: {{- if hasKey $gnctx "fsGroup" }} {{ $gnctx.fsGroup }} {{- else }} {{ .Values.global.securityContext.fsGroup }} {{- end }}
+        fsGroupChangePolicy: OnRootMismatch
+
       initContainers:
       # Wait for Postgres and rabbit
       - name: {{ .Values.geonode.init.container_name }}-init-db-job
         image: "{{ .Values.geonode.init.image.name }}:{{ .Values.geonode.init.image.tag }}"
         imagePullPolicy: {{ .Values.geonode.init.imagePullPolicy }}
+        securityContext:
+          runAsUser: {{- if hasKey $gnctx "runAsUser" }} {{ $gnctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
+          runAsGroup: {{- if hasKey $gnctx "runAsGroup" }} {{ $gnctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
         args:
         - -timeout=60s
         - -wait
@@ -44,15 +61,23 @@ spec:
       - name: {{ .Values.geonode.container_name }}-init-db-job
         image: "{{ .Values.geonode.image.name }}:{{ .Values.geonode.image.tag }}"
         imagePullPolicy: {{ .Values.geonode.imagePullPolicy }}
+        securityContext:
+          runAsUser: {{- if hasKey $gnctx "runAsUser" }} {{ $gnctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
+          runAsGroup: {{- if hasKey $gnctx "runAsGroup" }} {{ $gnctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
         command:
         - bash
         - -c
         - |
           set -e
           cd {{ include "geonode_root_path" .}}/
-          # Add config overrides
-          cat /usr/src/geonode/geonode/geonode-k8s-settings.py >> {{ include "geonode_path" .}}/settings.py
-          cat /usr/src/geonode/geonode/geonode-k8s-settings-additions.py >> {{ include "geonode_path" .}}/settings.py
 
           echo "-----------------------------------------------------"
           echo "Starting Geonode migration tasks (waitfordbs, migrations) $(date)"
@@ -109,47 +134,59 @@ spec:
           value: "postgis://$(GEONODE_GEODATABASE):$(GEONODE_GEODATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(GEONODE_GEODATABASE)"
         - name: DATABASE_URL
           value: "postgis://$(GEONODE_DATABASE):$(GEONODE_DATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(GEONODE_DATABASE)"
+        - name: PYTHONPATH
+          value: /opt/geonode-custom
         volumeMounts:
-        - name: "{{ include "persistant_volume_name" . }}"
+        - name: pvc-data
           mountPath: /data
-          subPath: data
         - name: cache-volume
           mountPath: /tmp
         - name: tasks-py
           mountPath: "{{ include "geonode_root_path" .}}/tasks.py"
           subPath: tasks.py
           readOnly: true
-        - name: geonode-k8s-settings-py
-          mountPath: "/usr/src/geonode/geonode/geonode-k8s-settings.py"
-          subPath: geonode-k8s-settings.py
-        - name: geonode-k8s-settings-additions-py
-          mountPath: "/usr/src/geonode/geonode/geonode-k8s-settings-additions.py"
-          subPath: geonode-k8s-settings-additions.py
+        - name: settings-wrapper
+          mountPath: /opt/geonode-custom/settings_wrapper.py
+          subPath: settings_wrapper.py
           readOnly: true
+        - name: settings-additions
+          mountPath: /opt/geonode-custom/settings_additions.py
+          subPath: settings_additions.py
+          readOnly: true
+        {{- if .Values.geonodeFixtures }}
+        - name: geonode-fixtures
+          mountPath: "{{ include "geonode_path" .}}/fixtures"
+          readOnly: true
+        {{- end }}
       volumes:
-      - name: "{{ include "persistant_volume_name" . }}"
+      - name: pvc-data
         persistentVolumeClaim:
-          claimName: pvc-{{ .Release.Name }}-geonode
+          claimName: {{ include "pvc_data_name" . }}
       - name: tasks-py
         configMap:
           name: {{ .Release.Name }}-geonode-tasks-py
           items:
           - key: tasks.py
             path: "tasks.py"
-      - name: geonode-k8s-settings-py
+      - name: settings-wrapper
         configMap:
-          name: {{ .Release.Name }}-geonode-k8s-settings-py
-          defaultMode: 0744
-          items:
-          - key: geonode-k8s-settings.py
-            path: "geonode-k8s-settings.py"
-      - name: geonode-k8s-settings-additions-py
+          name: {{ .Release.Name }}-geonode-settings-wrapper
+          defaultMode: 0555
+      - name: settings-additions
         configMap:
-          name: {{ .Release.Name }}-geonode-k8s-settings-additions-py
-          defaultMode: 0744
+          name: {{ .Release.Name }}-geonode-settings-additions
+          defaultMode: 0555
+      {{- if .Values.geonodeFixtures }}
+      - name: geonode-fixtures
+        configMap:
+          name: {{ .Release.Name }}-geonode-fixtures
+          defaultMode: 0555
           items:
-          - key: geonode-k8s-settings-additions.py
-            path: "geonode-k8s-settings-additions.py"
+          {{- range $key, $value := .Values.geonodeFixtures }}
+          - key: {{ $key | quote }}
+            path: {{ $key | quote }}
+          {{- end }}
+      {{- end }}
 
       # Using an emptyDir to cache compiled statics... it will survive container crashes, but not pod restarts
       - name: cache-volume

@@ -57,10 +57,25 @@ spec:
     spec:
       serviceAccountName: "{{ include "geonode_pod_name" . }}-cleanup"
       restartPolicy: Never
+{{- $gnctx := default dict .Values.geonode.securityContext }}
+      securityContext:
+        runAsNonRoot: true
+        fsGroup: {{- if hasKey $gnctx "fsGroup" }} {{ $gnctx.fsGroup }} {{- else }} {{ .Values.global.securityContext.fsGroup }} {{- end }}
       initContainers:
       - name: cleanup-init-db-job
         image: "{{ .Values.geonode.hooks.kubectlImage }}:{{ .Values.geonode.hooks.kubectlTag }}"
         imagePullPolicy: IfNotPresent
+        securityContext:
+          runAsUser: {{- if hasKey $gnctx "runAsUser" }} {{ $gnctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
+          runAsGroup: {{- if hasKey $gnctx "runAsGroup" }} {{ $gnctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
         command:
         - kubectl
         args:
@@ -70,9 +85,24 @@ spec:
         - -n
         - {{ .Release.Namespace }}
         - --ignore-not-found=true
+        - --cache-dir=/tmp/kubecache
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
       - name: cleanup-statics-job
         image: "{{ .Values.geonode.hooks.kubectlImage }}:{{ .Values.geonode.hooks.kubectlTag }}"
         imagePullPolicy: IfNotPresent
+        securityContext:
+          runAsUser: {{- if hasKey $gnctx "runAsUser" }} {{ $gnctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
+          runAsGroup: {{- if hasKey $gnctx "runAsGroup" }} {{ $gnctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
         command:
         - kubectl
         args:
@@ -82,14 +112,34 @@ spec:
         - -n
         - {{ .Release.Namespace }}
         - --ignore-not-found=true
+        - --cache-dir=/tmp/kubecache
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+
       containers:
       - name: cleanup-done
         image: "{{ .Values.geonode.hooks.kubectlImage }}:{{ .Values.geonode.hooks.kubectlTag }}"
         imagePullPolicy: IfNotPresent
+        securityContext:
+          runAsUser: {{- if hasKey $gnctx "runAsUser" }} {{ $gnctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
+          runAsGroup: {{- if hasKey $gnctx "runAsGroup" }} {{ $gnctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
         command:
         - kubectl
         args:
         - version
         - --client=true
+
+      volumes:
+      - name: tmp
+        emptyDir: {}
 {{- end }}{{/* ne $desiredImage $existingImage */}}
 {{- end }}{{/* cleanupOnUpgrade */}}

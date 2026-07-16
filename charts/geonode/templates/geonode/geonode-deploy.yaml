@@ -31,12 +31,15 @@ spec:
         checksum/geonode-env: {{ include (print $.Template.BasePath "/geonode/geonode-env.yaml") . | sha256sum }}
         checksum/geonode-secret: {{ include (print $.Template.BasePath "/geonode/geonode-secret.yaml") . | sha256sum }}
         checksum/geonode-tasks-py: {{ include (print $.Template.BasePath "/geonode/geonode-tasks-py-conf.yaml") . | sha256sum }}
-        checksum/geonode-local-settings: {{ include (print $.Template.BasePath "/geonode/geonode-local-settings.yaml") . | sha256sum }}
         checksum/geonode-settings-additions: {{ include (print $.Template.BasePath "/geonode/geonode-settings-additions.yaml") . | sha256sum }}
         checksum/geonode-uwsig: {{ include (print $.Template.BasePath "/geonode/geonode-uwsgi-ini-conf.yaml") . | sha256sum }}
     spec:
+{{- $gnctx := default dict .Values.geonode.securityContext }}
+      securityContext:
+        runAsNonRoot: true
+        fsGroup: {{- if hasKey $gnctx "fsGroup" }} {{ $gnctx.fsGroup }} {{- else }} {{ .Values.global.securityContext.fsGroup }} {{- end }}
+        fsGroupChangePolicy: OnRootMismatch
       terminationGracePeriodSeconds: 3
-
 {{- if not (empty .Values.geonode.imagePullSecret) }}
       imagePullSecrets:
       - name: {{ .Values.geonode.imagePullSecret }}
@@ -45,6 +48,17 @@ spec:
       initContainers:
       # Wait for Postgres and rabbit
       - name: {{ .Values.geonode.init.container_name }}
+        securityContext:
+          runAsUser: {{- if hasKey $gnctx "runAsUser" }} {{ $gnctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
+          runAsGroup: {{- if hasKey $gnctx "runAsGroup" }} {{ $gnctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
         image: "{{ .Values.geonode.init.image.name }}:{{ .Values.geonode.init.image.tag }}"
         imagePullPolicy: {{ .Values.geonode.init.imagePullPolicy }}
         args:
@@ -59,33 +73,55 @@ spec:
         - -wait
         - tcp://{{ include "redis_host" . }}
         {{ end }}
+      - name: seed-home
+        image: "{{ .Values.geonode.image.name }}:{{ .Values.geonode.image.tag }}"
+        imagePullPolicy: {{ .Values.geonode.imagePullPolicy }}
+        command: ["sh", "-c"]
+        args:
+          - |
+            cp -r /home/ubuntu/. /seed-geonode/
+            cp -r /home/ubuntu/. /seed-celery/
+        securityContext:
+          runAsUser: {{- if hasKey $gnctx "runAsUser" }} {{ $gnctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
+          runAsGroup: {{- if hasKey $gnctx "runAsGroup" }} {{ $gnctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+          - name: home-geonode
+            mountPath: /seed-geonode
+          - name: home-celery
+            mountPath: /seed-celery
 
       containers:
       # This is the django app server
       - name: {{ .Values.geonode.container_name }}
+        securityContext:
+          runAsUser: {{- if hasKey $gnctx "runAsUser" }} {{ $gnctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
+          runAsGroup: {{- if hasKey $gnctx "runAsGroup" }} {{ $gnctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
         image: "{{ .Values.geonode.image.name }}:{{ .Values.geonode.image.tag }}"
         imagePullPolicy: {{ .Values.geonode.imagePullPolicy }}
         command:
         - bash
         - -c
         - |
-          # Install xmljson for GeoNode monitoring module (missing dependency in 4.4.x)
-          if ! python -c "import xmljson" 2>/dev/null; then
-            echo "Installing xmljson..."
-            pip install --no-cache-dir xmljson
-          else
-            echo "xmljson already installed, skipping..."
-          fi
-
           # execute prescript if defined
           {{ if .Values.geonode.tasks_pre_script }}
           invoke prescript
           {{ end }}
-
-          cd {{ include "geonode_root_path" .}}/
-          # Add config overrides
-          cat /usr/src/geonode/geonode/geonode-k8s-settings.py >> {{ include "geonode_path" .}}/settings.py
-          cat /usr/src/geonode/geonode/geonode-k8s-settings-additions.py >> {{ include "geonode_path" .}}/settings.py
 
           # Setup
           {{ include "geonode_root_path" .}}/entrypoint.sh uwsgi --ini {{ include "geonode_root_path" .}}/uwsgi.ini
@@ -121,22 +157,22 @@ spec:
           value: "postgis://$(GEONODE_GEODATABASE):$(GEONODE_GEODATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(GEONODE_GEODATABASE)"
         - name: DATABASE_URL
           value: "postgis://$(GEONODE_DATABASE):$(GEONODE_DATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(GEONODE_DATABASE)"
+        - name: PYTHONPATH
+          value: "/opt/geonode-custom"
 
         volumeMounts:
-        - name: "{{ include "persistant_volume_name" . }}"
+        - name: pvc-statics
           mountPath: /mnt/volumes/statics
-          subPath: statics
-        - name: "{{ include "persistant_volume_name" . }}"
+        - name: pvc-geoserver-data
           mountPath: /geoserver_data/data
-          subPath: geoserver-data-dir
-        - name: "{{ include "persistant_volume_name" . }}"
+        - name: pvc-backup-restore
           mountPath: /backup_restore
-          subPath: backup-restore
-        - name: "{{ include "persistant_volume_name" . }}"
+        - name: pvc-data
           mountPath: /data
-          subPath: data
         - name: cache-volume
           mountPath: /tmp
+        - name: home-geonode
+          mountPath: /home/ubuntu
         - name: tasks-py
           mountPath: "{{ include "geonode_root_path" .}}/tasks.py"
           subPath: tasks.py
@@ -148,12 +184,13 @@ spec:
           mountPath: "{{ include "geonode_root_path" .}}/uwsgi.ini"
           subPath: uwsgi.ini
           readOnly: true
-        - name: geonode-k8s-settings-py
-          mountPath: "/usr/src/geonode/geonode/geonode-k8s-settings.py"
-          subPath: geonode-k8s-settings.py
-        - name: geonode-k8s-settings-additions-py
-          mountPath: "/usr/src/geonode/geonode/geonode-k8s-settings-additions.py"
-          subPath: geonode-k8s-settings-additions.py
+        - name: settings-wrapper
+          mountPath: /opt/geonode-custom/settings_wrapper.py
+          subPath: settings_wrapper.py
+          readOnly: true
+        - name: settings-additions
+          mountPath: /opt/geonode-custom/settings_additions.py
+          subPath: settings_additions.py
           readOnly: true
         {{ if .Values.geonodeFixtures }}
         - name: geonode-fixtures
@@ -171,32 +208,32 @@ spec:
 
       # Celery is the task worker
       - name: {{ .Values.geonode.celery.container_name }}
+        securityContext:
+          runAsUser: {{- if hasKey $gnctx "runAsUser" }} {{ $gnctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
+          runAsGroup: {{- if hasKey $gnctx "runAsGroup" }} {{ $gnctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
         image: "{{ .Values.geonode.image.name }}:{{ .Values.geonode.image.tag }}"
         imagePullPolicy: {{ .Values.geonode.celery.imagePullPolicy }}
         command:
         - bash
         - -c
         - |
-          # Install xmljson for GeoNode monitoring module (missing dependency in 4.4.x)
-          if ! python -c "import xmljson" 2>/dev/null; then
-            echo "Installing xmljson..."
-            pip install --no-cache-dir xmljson
-          else
-            echo "xmljson already installed, skipping..."
-          fi
-
-          cd {{ include "geonode_root_path" .}}/
-
           {{ if .Values.geonode.sentry.enabled }}
           pip install sentry-sdk
           {{ end }}
 
-          # Add config overrides
-          cat /usr/src/geonode/geonode/geonode-k8s-settings.py >> {{ include "geonode_path" .}}/settings.py
-          cat /usr/src/geonode/geonode/geonode-k8s-settings-additions.py >> {{ include "geonode_path" .}}/settings.py
+          set -e
+          echo "Starting celery-cmd..."
+
           # Setup
-          touch /var/log/celery.log
-          {{ include "geonode_root_path" .}}/entrypoint.sh celery-cmd
+          exec {{ include "geonode_root_path" .}}/entrypoint.sh celery-cmd
 
         envFrom:
         - configMapRef:
@@ -209,6 +246,16 @@ spec:
         env:
         - name: IS_CELERY
           value: 'True'
+        # Override Celery Log file location as defined in "celery-cmd". Container should write to stdout, not files.
+        - name: CELERY__LOG_FILE
+          value: "/dev/stdout"
+        - name: CELERY__BEAT_LOG
+          value: "/dev/stdout"
+        - name: CELERY__LOG_LEVEL
+          value: "INFO"
+        - name: INVOKE_LOG_STDOUT
+          value: "True"
+        #
         - name: GEONODE_DATABASE_PASSWORD
           valueFrom:
             secretKeyRef:
@@ -228,25 +275,26 @@ spec:
           value: "postgis://$(GEONODE_GEODATABASE):$(GEONODE_GEODATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(GEONODE_GEODATABASE)"
         - name: DATABASE_URL
           value: "postgis://$(GEONODE_DATABASE):$(GEONODE_DATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(GEONODE_DATABASE)"
+        #
+        - name: PYTHONPATH
+          value: "/opt/geonode-custom"
 
         ports:
         - containerPort: 5555
 
         volumeMounts:
-        - name: "{{ include "persistant_volume_name" . }}"
+        - name: pvc-statics
           mountPath: /mnt/volumes/statics
-          subPath: statics
-        - name: "{{ include "persistant_volume_name" . }}"
+        - name: pvc-geoserver-data
           mountPath: /geoserver_data/data
-          subPath: geoserver-data-dir
-        - name: "{{ include "persistant_volume_name" . }}"
+        - name: pvc-backup-restore
           mountPath: /backup_restore
-          subPath: backup-restore
-        - name: "{{ include "persistant_volume_name" . }}"
+        - name: pvc-data
           mountPath: /data
-          subPath: data
         - name: cache-volume
           mountPath: /tmp
+        - name: home-celery
+          mountPath: /home/ubuntu
         - name: entrypoint-sh
           mountPath: "{{ include "geonode_root_path" .}}/entrypoint.sh"
           subPath: entrypoint.sh
@@ -254,18 +302,24 @@ spec:
           mountPath: "{{ include "geonode_root_path" .}}/tasks.py"
           subPath: tasks.py
           readOnly: true
-        - name: geonode-k8s-settings-py
-          mountPath: "/usr/src/geonode/geonode/geonode-k8s-settings.py"
-          subPath: geonode-k8s-settings.py
-        - name: geonode-k8s-settings-additions-py
-          mountPath: "/usr/src/geonode/geonode/geonode-k8s-settings-additions.py"
-          subPath: geonode-k8s-settings-additions.py
+        - name: settings-wrapper
+          mountPath: /opt/geonode-custom/settings_wrapper.py
+          subPath: settings_wrapper.py
+          readOnly: true
+        - name: settings-additions
+          mountPath: /opt/geonode-custom/settings_additions.py
+          subPath: settings_additions.py
           readOnly: true
         {{ if .Values.geonodeFixtures }}
         - name: geonode-fixtures
           mountPath: "{{ include "geonode_path" .}}/fixtures"
           readOnly: true
         {{ end }}
+        # Temporary fix pending fix in upstream Geonode https://github.com/GeoNode/geonode/pull/14292
+        - name: celery-cmd
+          mountPath: /usr/bin/celery-cmd
+          subPath: celery-cmd
+          readOnly: true
 
         resources:
           requests:
@@ -276,9 +330,18 @@ spec:
             cpu: {{ .Values.geonode.celery.resources.limits.cpu }}
 
       volumes:
-        - name: "{{ include "persistant_volume_name" . }}"
+        - name: pvc-statics
           persistentVolumeClaim:
-            claimName: pvc-{{ .Release.Name }}-geonode
+            claimName: {{ include "pvc_statics_name" . }}
+        - name: pvc-geoserver-data
+          persistentVolumeClaim:
+            claimName: {{ include "pvc_geoserver_data_name" . }}
+        - name: pvc-backup-restore
+          persistentVolumeClaim:
+            claimName: {{ include "pvc_backup_restore_name" . }}
+        - name: pvc-data
+          persistentVolumeClaim:
+            claimName: {{ include "pvc_data_name" . }}
         - name: tasks-py
           configMap:
             name: {{ .Release.Name }}-geonode-tasks-py
@@ -288,36 +351,30 @@ spec:
         - name: entrypoint-sh
           configMap:
             name: {{ .Release.Name }}-geonode-entrypoint-sh
-            defaultMode: 0744
+            defaultMode: 0555
             items:
             - key: entrypoint.sh
               path: "entrypoint.sh"
         - name: uwsgi-ini
           configMap:
             name: {{ .Release.Name }}-geonode-uwsgi-ini
-            defaultMode: 0744
+            defaultMode: 0555
             items:
             - key: uwsgi.ini
               path: "uwsgi.ini"
-        - name: geonode-k8s-settings-py
+        - name: settings-wrapper
           configMap:
-            name: {{ .Release.Name }}-geonode-k8s-settings-py
-            defaultMode: 0744
-            items:
-            - key: geonode-k8s-settings.py
-              path: "geonode-k8s-settings.py"
-        - name: geonode-k8s-settings-additions-py
+            name: {{ .Release.Name }}-geonode-settings-wrapper
+            defaultMode: 0555
+        - name: settings-additions
           configMap:
-            name: {{ .Release.Name }}-geonode-k8s-settings-additions-py
-            defaultMode: 0744
-            items:
-            - key: geonode-k8s-settings-additions.py
-              path: "geonode-k8s-settings-additions.py"
+            name: {{ .Release.Name }}-geonode-settings-additions
+            defaultMode: 0555
         {{- if .Values.geonodeFixtures }}
         - name: geonode-fixtures
           configMap:
             name: {{ .Release.Name }}-geonode-fixtures
-            defaultMode: 0744
+            defaultMode: 0555
             items:
             {{- range $key, $value := .Values.geonodeFixtures }}
             - key: {{ $key | quote }}
@@ -327,4 +384,13 @@ spec:
         # Using an emptyDir to cache compiled statics... it will survive container crashes, but not pod restarts
         - name: cache-volume
           emptyDir: {}
+        - name: home-geonode
+          emptyDir: {}
+        - name: home-celery
+          emptyDir: {}
+        # Temporary fix pending fix in upstream Geonode https://github.com/GeoNode/geonode/pull/14292
+        - name: celery-cmd
+          configMap:
+            name: {{ .Release.Name }}-celery-cmd-temporary-fix
+            defaultMode: 0555
 
