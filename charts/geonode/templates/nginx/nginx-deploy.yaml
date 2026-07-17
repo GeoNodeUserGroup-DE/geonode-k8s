@@ -45,6 +45,7 @@ spec:
         volumeMounts:
         - name: pvc-statics
           mountPath: /mnt/volumes/statics
+          readOnly: true
         - name: nginx-confd
           mountPath: /etc/nginx/conf.d
         # Writable scratch directories for nginx
