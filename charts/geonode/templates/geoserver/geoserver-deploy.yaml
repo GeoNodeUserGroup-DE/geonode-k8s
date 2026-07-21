@@ -19,6 +19,7 @@ spec:
         checksum/geoserver-secret: {{ include (print $.Template.BasePath "/geoserver/geoserver-secret.yaml") . | sha256sum }}
 
     spec:
+      {{- include "geonode.colocation_affinity" . | nindent 6 }}
       {{- $gsctx := default dict .Values.geoserver.securityContext }}
       securityContext:
         runAsNonRoot: {{- if hasKey $gsctx "runAsNonRoot" }} {{ $gsctx.runAsNonRoot }} {{- else }} true {{- end }}

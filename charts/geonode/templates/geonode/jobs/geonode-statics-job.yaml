@@ -21,6 +21,7 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.geonode.imagePullSecret }}
 {{ end }}
+      {{- include "geonode.colocation_affinity" . | nindent 6 }}
       restartPolicy: OnFailure
 {{- $gnctx := default dict .Values.geonode.securityContext }}
       securityContext:

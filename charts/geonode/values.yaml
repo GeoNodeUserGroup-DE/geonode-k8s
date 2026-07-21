@@ -24,7 +24,6 @@ geonode:
   replicaCount: 1
   # -- Security context for geonode pods (overrides global.securityContext)
   securityContext: {}
-
   persistant:
     # -- size of statics storage
     statics:
@@ -440,6 +439,12 @@ geonode:
         memory: "2Gi"
         # -- limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
         cpu: 2
+
+  colocation:
+    # -- Schedule all workloads that share PVCs (geoserver, nginx, statics-
+    # -- and init-db-job) onto the same node as the geonode pod. Required
+    # -- when using ReadWriteOnce block storage on multi-node clusters.
+    enabled: false
 
   mapstore:
     # Patch to override nominatim hard-coded url
