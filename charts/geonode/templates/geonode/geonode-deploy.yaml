@@ -315,11 +315,6 @@ spec:
           mountPath: "{{ include "geonode_path" .}}/fixtures"
           readOnly: true
         {{ end }}
-        # Temporary fix pending fix in upstream Geonode https://github.com/GeoNode/geonode/pull/14292
-        - name: celery-cmd
-          mountPath: /usr/bin/celery-cmd
-          subPath: celery-cmd
-          readOnly: true
 
         resources:
           requests:
@@ -388,9 +383,4 @@ spec:
           emptyDir: {}
         - name: home-celery
           emptyDir: {}
-        # Temporary fix pending fix in upstream Geonode https://github.com/GeoNode/geonode/pull/14292
-        - name: celery-cmd
-          configMap:
-            name: {{ .Release.Name }}-celery-cmd-temporary-fix
-            defaultMode: 0555
 
