@@ -43,6 +43,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geonode.celery.resources.limits.memory | string | `"2Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geonode.celery.resources.requests.cpu | int | `1` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geonode.celery.resources.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
+| geonode.colocation.enabled | bool | `false` | set colocation for geonode pods that use common PVCs (needed if using RWO storage) |
 | geonode.container_name | string | `"geonode"` |  |
 | geonode.gatewayApi.annotations | object | `{}` | annotations for the Gateway API HTTPRoute |
 | geonode.gatewayApi.enabled | bool | `false` | enable a parallel Gateway API HTTPRoute for GeoNode while keeping ingress available |
