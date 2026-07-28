@@ -97,6 +97,77 @@ spec:
             mountPath: /seed-geonode
           - name: home-celery
             mountPath: /seed-celery
+      {{- if .Values.geonode.waitForInitDb.enabled }}
+      # Block the app containers until the init-db job has applied all
+      # database migrations, so the pod only becomes Ready once the
+      # database is initialized and usable.
+      - name: wait-for-init-db
+        image: "{{ .Values.geonode.image.name }}:{{ .Values.geonode.image.tag }}"
+        imagePullPolicy: {{ .Values.geonode.imagePullPolicy }}
+        securityContext:
+          runAsUser: {{- if hasKey $gnctx "runAsUser" }} {{ $gnctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
+          runAsGroup: {{- if hasKey $gnctx "runAsGroup" }} {{ $gnctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        command:
+        - bash
+        - -c
+        - |
+          echo "wait-for-init-db: waiting for database migrations to be applied..."
+          until python manage.py migrate --check >/dev/null 2>&1; do
+            echo "wait-for-init-db: migrations still pending, retrying in 10s..."
+            sleep 10
+          done
+          echo "wait-for-init-db: all migrations applied, continuing startup"
+        envFrom:
+        - configMapRef:
+            name: {{ include "geonode_pod_name" . }}-env
+        - secretRef:
+            name: {{ .Values.geonode.secret.existingSecretName | default (include "geonode_secret_name" .) | quote }}
+        - secretRef:
+            name: {{ .Values.geoserver.secret.existingSecretName | default (include "geoserver_secret_name" .) | quote }}
+        env:
+        - name: GEONODE_DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "database_geonode_password_secret_key_ref" . }}
+              key: {{ include "database_geonode_password_key_ref" . }}
+        - name: GEONODE_GEODATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "database_geodata_password_secret_key_ref" . }}
+              key: {{ include "database_geodata_password_key_ref" . }}
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "database_postgres_password_secret_key_ref" . }}
+              key: {{ include "database_postgres_password_key_ref" . }}
+        - name: GEODATABASE_URL
+          value: "postgis://$(GEONODE_GEODATABASE):$(GEONODE_GEODATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(GEONODE_GEODATABASE)"
+        - name: DATABASE_URL
+          value: "postgis://$(GEONODE_DATABASE):$(GEONODE_DATABASE_PASSWORD)@$(DATABASE_HOST):$(DATABASE_PORT)/$(GEONODE_DATABASE)"
+        - name: PYTHONPATH
+          value: "/opt/geonode-custom"
+        volumeMounts:
+        - name: cache-volume
+          mountPath: /tmp
+        - name: home-geonode
+          mountPath: /home/ubuntu
+        - name: settings-wrapper
+          mountPath: /opt/geonode-custom/settings_wrapper.py
+          subPath: settings_wrapper.py
+          readOnly: true
+        - name: settings-additions
+          mountPath: /opt/geonode-custom/settings_additions.py
+          subPath: settings_additions.py
+          readOnly: true
+      {{- end }}
 
       containers:
       # This is the django app server
