@@ -1009,7 +1009,7 @@ postgres-operator:
     spilo_fsgroup: 103
     spilo_privileged: false
     spilo_allow_privilege_escalation: false
-# -- (map of fixture files) Fixture files which shall be made available under /usr/src/geonode/geonode/fixtures (refer to https://docs.djangoproject.com/en/4.2/howto/initial-data/)
+# -- (map of fixture files) Fixture files which are made available under /usr/src/geonode/geonode/fixtures and loaded into the database via `manage.py loaddata` during the init-db job (refer to https://docs.djangoproject.com/en/4.2/howto/initial-data/)
 geonodeFixtures:
   # @gignore
 #  somefixture.json: |

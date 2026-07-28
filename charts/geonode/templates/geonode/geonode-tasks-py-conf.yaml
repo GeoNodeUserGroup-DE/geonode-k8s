@@ -363,6 +363,13 @@ data:
     --settings={_localsettings()}",
             pty=True,
         )
+        {{- range $key, $value := .Values.geonodeFixtures }}
+        ctx.run(
+            f"python manage.py loaddata {{ include "geonode_path" $ }}/fixtures/{{ $key }} \
+    --settings={_localsettings()}",
+            pty=True,
+        )
+        {{- end }}
 
     @task
     def collectstatic(ctx):
