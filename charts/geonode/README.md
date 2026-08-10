@@ -43,6 +43,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geonode.celery.resources.limits.memory | string | `"2Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geonode.celery.resources.requests.cpu | int | `1` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geonode.celery.resources.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
+| geonode.colocation.enabled | bool | `false` | set colocation for geonode pods that use common PVCs (needed if using RWO storage) |
 | geonode.container_name | string | `"geonode"` |  |
 | geonode.gatewayApi.annotations | object | `{}` | annotations for the Gateway API HTTPRoute |
 | geonode.gatewayApi.enabled | bool | `false` | enable a parallel Gateway API HTTPRoute for GeoNode while keeping ingress available |
@@ -154,6 +155,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geonode.uwsgi.threads | int | `24` | number of threads per process |
 | geonode.uwsgi.worker_reload_mercy | int | `60` | How long to wait before forcefully killing workers |
 | geonode.version | string | `"5.1.0"` | GeoNode version used for chart-side version gating (env var names, defaults). Must be kept in sync with `geonode.image.tag`. Non-semver values (e.g. "latest", sha digest pins) fall back to newest-version behavior. |
+| geonode.waitForInitDb | bool | `true` | On geonode startup, wait until the init-db job has initialized the database, so the pod only becomes Ready once the DB is usable |
 | geonodeFixtures | map of fixture files | `nil` | Fixture files which shall be made available under /usr/src/geonode/geonode/fixtures (refer to https://docs.djangoproject.com/en/4.2/howto/initial-data/) |
 | geoserver.container_name | string | `"geoserver"` | geoserver container name |
 | geoserver.force_reinit | bool | `true` | set force reinit true so that changing passwords etc. in Values.yaml will take effect after restarting the pod this on the other hand will increase pod initializing time, only change if you know what you are doing |

@@ -24,7 +24,6 @@ geonode:
   replicaCount: 1
   # -- Security context for geonode pods (overrides global.securityContext)
   securityContext: {}
-
   persistant:
     # -- size of statics storage
     statics:
@@ -49,6 +48,10 @@ geonode:
   imagePullPolicy: IfNotPresent
   # -- pull secret to use for geonode image
   imagePullSecret: ""
+
+  waitForInitDb:
+    # -- (bool) Block the geonode/celery containers with an init container until all Django migrations are applied (i.e. the init-db job has initialized the database), so the pod only becomes Ready once the DB is usable
+    enabled: true
 
   # -- additions to tasks.py init script, must be additional code written in python
   tasks_pre_script: |
@@ -440,6 +443,12 @@ geonode:
         memory: "2Gi"
         # -- limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
         cpu: 2
+
+  colocation:
+    # -- Schedule all workloads that share PVCs (geoserver, nginx, statics-
+    # -- and init-db-job) onto the same node as the geonode pod. Required
+    # -- when using ReadWriteOnce block storage on multi-node clusters.
+    enabled: false
 
   mapstore:
     # Patch to override nominatim hard-coded url
@@ -1009,7 +1018,7 @@ postgres-operator:
     spilo_fsgroup: 103
     spilo_privileged: false
     spilo_allow_privilege_escalation: false
-# -- (map of fixture files) Fixture files which shall be made available under /usr/src/geonode/geonode/fixtures (refer to https://docs.djangoproject.com/en/4.2/howto/initial-data/)
+# -- (map of fixture files) Fixture files which are made available under /usr/src/geonode/geonode/fixtures and loaded into the database via `manage.py loaddata` during the init-db job (refer to https://docs.djangoproject.com/en/4.2/howto/initial-data/)
 geonodeFixtures:
   # @gignore
 #  somefixture.json: |
