@@ -49,6 +49,10 @@ geonode:
   # -- pull secret to use for geonode image
   imagePullSecret: ""
 
+  waitForInitDb:
+    # -- (bool) Block the geonode/celery containers with an init container until all Django migrations are applied (i.e. the init-db job has initialized the database), so the pod only becomes Ready once the DB is usable
+    enabled: true
+
   # -- additions to tasks.py init script, must be additional code written in python
   tasks_pre_script: |
     print("tasks_pre_script not defined ...")
