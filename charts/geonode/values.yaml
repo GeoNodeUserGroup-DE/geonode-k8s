@@ -555,6 +555,12 @@ geoserver:
     failureThreshold: 3
     timeoutSeconds: 5
 
+  # -- point to a ConfigMap containing one or more PEM-certificates of CA-certificates to be imported into the Java TrustStore. 
+  # -- Needed to support https service calls (such as WMS) to servers whose certificate was not signed by a CA already bundled in the standard Java TrustStore.
+  # -- (including calls from the print container to your GeoNode).
+  # caConfigMap: "ca-cert.pem"
+
+
 geoserver_data:
   container_name: geoserver-data-dir
   image:

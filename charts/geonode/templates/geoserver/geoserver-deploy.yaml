@@ -103,6 +103,66 @@ spec:
         - name: gs-tmp
           mountPath: /seed-tmp
 
+{{- if .Values.geoserver.caConfigMap }}
+      # initContainer to import internal CA into the Java-Truststore (the JVM does not use the OS-store, only its own cacerts).
+      # To support a read-only setup, create a copy in an emptyDir and point to it with JAVA_TOOL_OPTIONS.
+      - name: trust-internal-ca
+        securityContext:
+          runAsNonRoot: {{- if hasKey $gsctx "runAsNonRoot" }} {{ $gsctx.runAsNonRoot }} {{- else }} true {{- end }}
+          runAsUser: {{- if hasKey $gsctx "runAsUser" }} {{ $gsctx.runAsUser }} {{- else }} {{ .Values.global.securityContext.runAsUser }} {{- end }}
+          runAsGroup: {{- if hasKey $gsctx "runAsGroup" }} {{ $gsctx.runAsGroup }} {{- else }} {{ .Values.global.securityContext.runAsGroup }} {{- end }}
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          seccompProfile:
+            type: RuntimeDefault
+        image: "{{ .Values.geoserver.image.name }}:{{ .Values.geoserver.image.tag }}"
+        imagePullPolicy: {{ .Values.geoserver.imagePullPolicy }}
+        command:
+        - sh
+        - -c
+        - |
+          set -eu
+
+          SRC="${JAVA_HOME}/lib/security/cacerts"
+          [ -f "$SRC" ] || SRC="${JAVA_HOME}/jre/lib/security/cacerts"   # Java 8
+          [ -f "$SRC" ] || { echo "!! cacerts not found (JAVA_HOME=${JAVA_HOME:-unset})"; exit 1; }
+          echo ">> Base truststore: $SRC"
+          cp "$SRC" /truststore/cacerts
+          chmod 0600 /truststore/cacerts
+
+          # Collect all ConfigMap certificate entries
+          rm -rf /truststore/split
+          mkdir -p /truststore/split
+          cat /ca/* > /truststore/all.pem
+          awk 'BEGIN{c=0} /BEGIN CERTIFICATE/{c++} c>0 {print > ("/truststore/split/ca-" c ".pem")}' /truststore/all.pem
+
+          n=0
+          for f in /truststore/split/ca-*.pem; do
+            [ -f "$f" ] || continue
+            n=$((n+1))
+            echo ">> Importing certificate $n"
+            keytool -importcert -noprompt -trustcacerts \
+              -alias "internal-ca-${n}" \
+              -file "$f" \
+              -keystore /truststore/cacerts \
+              -storepass changeit
+          done
+          rm -rf /truststore/split /truststore/all.pem
+
+          [ "$n" -gt 0 ] || { echo "!! No certificates found in the ConfigMap"; exit 1; }
+          echo ">> Now contained in truststore:"
+          keytool -list -keystore /truststore/cacerts -storepass changeit | grep -i "internal-ca"
+        volumeMounts:
+        - name: gs-truststore
+          mountPath: /truststore
+        - name: internal-ca
+          mountPath: /ca
+          readOnly: true
+{{- end }}
+
 {{- if not (empty .Values.geoserver.imagePullSecret) }}
       imagePullSecrets:
       - name: {{ .Values.geoserver.imagePullSecret }}
@@ -139,6 +199,11 @@ spec:
               secretKeyRef:
                 name: {{ include "database_geodata_password_secret_key_ref" . }}
                 key: {{ include "database_geodata_password_key_ref" . }}
+          {{- if .Values.geoserver.caConfigMap }}
+          # Override truststore; be sure to use JAVA_TOOL_OPTIONS and not JAVA_OPTS, to avoid breaking other options from env-ConfigMap.
+          - name: JAVA_TOOL_OPTIONS
+            value: "-Djavax.net.ssl.trustStore=/truststore/cacerts -Djavax.net.ssl.trustStorePassword=changeit"
+          {{- end }}
           {{- with .Values.geoserver.extraPodEnv }}
           {{- tpl . $ | nindent 10 }}
           {{- end }}
@@ -160,6 +225,11 @@ spec:
           mountPath: /usr/local/tomcat/logs
         - name: tmp
           mountPath: /tmp
+        {{- if .Values.geoserver.caConfigMap }}
+        - name: gs-truststore
+          mountPath: /truststore
+          readOnly: true
+        {{- end }}
         
         {{- with .Values.geoserver.startupProbe }}
         startupProbe:
@@ -178,6 +248,13 @@ spec:
       - name: geoserver-printing-config-yaml
         configMap:
           name: {{ .Release.Name }}-geoserver-printing-config-yaml
+      {{- if .Values.geoserver.caConfigMap }}
+      - name: internal-ca
+        configMap:
+          name: {{ .Values.geoserver.caConfigMap }}
+      - name: gs-truststore
+        emptyDir: {}
+      {{- end }}
       - name: pvc-geoserver-data
         persistentVolumeClaim:
           claimName: {{ include "pvc_geoserver_data_name" . }}
