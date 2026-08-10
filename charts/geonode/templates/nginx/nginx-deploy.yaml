@@ -15,6 +15,7 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/nginx/nginx-conf.yaml") . | sha256sum }}
     spec:
+      {{- include "geonode.colocation_affinity" . | nindent 6 }}
       terminationGracePeriodSeconds: 3
 {{- if not (empty .Values.nginx.imagePullSecret) }}
       imagePullSecrets:

@@ -196,3 +196,18 @@ geonode/base/fixtures/initial_data.json
 initial_data.json
 {{- end -}}
 {{- end -}}
+
+# Hard co-location affinity for workloads sharing RWO block-storage PVCs
+# (statics, geoserver-data, data). Anchors all consumers to the node of the
+# geonode pod, since RWO volumes can only be mounted on a single node.
+{{- define "geonode.colocation_affinity" -}}
+{{- if .Values.geonode.colocation.enabled }}
+affinity:
+  podAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchLabels:
+          org.geonode.instance: "{{ include "geonode_pod_name" . }}"
+      topologyKey: kubernetes.io/hostname
+{{- end }}
+{{- end -}}
