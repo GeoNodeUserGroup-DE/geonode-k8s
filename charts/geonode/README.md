@@ -194,6 +194,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | global.securityContext.runAsGroup | int | `1000` | Group ID to run the containers |
 | global.securityContext.runAsUser | int | `1000` | User ID to run the containers |
 | global.storageClass | string | `nil` | storageClass used by helm dependencies pvc |
+| global.tolerations | list | empty list | option to overwrite K8S default tolerations, to survive long-lasting node reboots |
 | memcached.config.maxConnections | int | `2048` |  |
 | memcached.config.memoryLimit | int | `128` |  |
 | memcached.containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
