@@ -3,6 +3,11 @@ kind: PersistentVolumeClaim
 metadata:
   name: pvc-{{ .Release.Name }}-geonode-statics
   namespace: {{ .Release.Namespace }}
+  {{- if (default dict .Values.global.persistence).retainOnUninstall }}
+  annotations:
+    # Keep this PVC on `helm uninstall` so data stays in sync with the (surviving) database.
+    helm.sh/resource-policy: keep
+  {{- end }}
 spec:
   accessModes:
   - {{ .Values.global.accessMode }}
@@ -18,6 +23,11 @@ kind: PersistentVolumeClaim
 metadata:
   name: pvc-{{ .Release.Name }}-geonode-geoserver-data
   namespace: {{ .Release.Namespace }}
+  {{- if (default dict .Values.global.persistence).retainOnUninstall }}
+  annotations:
+    # Keep this PVC on `helm uninstall` so data stays in sync with the (surviving) database.
+    helm.sh/resource-policy: keep
+  {{- end }}
 spec:
   accessModes:
   - {{ .Values.global.accessMode }}
@@ -48,6 +58,11 @@ kind: PersistentVolumeClaim
 metadata:
   name: pvc-{{ .Release.Name }}-geonode-data
   namespace: {{ .Release.Namespace }}
+  {{- if (default dict .Values.global.persistence).retainOnUninstall }}
+  annotations:
+    # Keep this PVC on `helm uninstall` so data stays in sync with the (surviving) database.
+    helm.sh/resource-policy: keep
+  {{- end }}
 spec:
   accessModes:
   - {{ .Values.global.accessMode }}
