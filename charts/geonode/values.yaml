@@ -12,6 +12,10 @@ global:
     runAsGroup: 1000
     # -- Group ID for volume mounts
     fsGroup: 1000
+  # -- Tolerations option, so K8S default can be overwritten. Useful for long-running pods
+  # (geonode, geoserver) which should survive node reboots.
+  # Empty list keeps the cluster default (300 seconds).
+  tolerations: []
 
 # geonode configuration
 geonode:
