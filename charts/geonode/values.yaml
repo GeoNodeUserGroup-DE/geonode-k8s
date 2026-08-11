@@ -3,6 +3,9 @@ global:
   storageClass:
   # -- storage access mode used by helm dependency pvc
   accessMode: ReadWriteMany
+  persistence:
+    # -- Keep the data PVCs (statics, geoserver_data, geonode_data) on `helm uninstall` …
+    retainOnUninstall: true
   # -- Global security context defaults for all pods
   # Can be overridden per component via component.securityContext.runAsUser etc.
   securityContext:
