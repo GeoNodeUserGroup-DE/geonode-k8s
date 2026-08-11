@@ -20,6 +20,7 @@ spec:
 
     spec:
       {{- include "geonode.colocation_affinity" . | nindent 6 }}
+      {{- include "geonode.tolerations" . | nindent 6 }}
       {{- $gsctx := default dict .Values.geoserver.securityContext }}
       securityContext:
         runAsNonRoot: {{- if hasKey $gsctx "runAsNonRoot" }} {{ $gsctx.runAsNonRoot }} {{- else }} true {{- end }}
