@@ -40,6 +40,7 @@ spec:
         fsGroup: {{- if hasKey $gnctx "fsGroup" }} {{ $gnctx.fsGroup }} {{- else }} {{ .Values.global.securityContext.fsGroup }} {{- end }}
         fsGroupChangePolicy: OnRootMismatch
       terminationGracePeriodSeconds: 3
+      {{- include "geonode.tolerations" . | nindent 6 }}
 {{- if not (empty .Values.geonode.imagePullSecret) }}
       imagePullSecrets:
       - name: {{ .Values.geonode.imagePullSecret }}

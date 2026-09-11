@@ -190,11 +190,13 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geoserver_data.image.tag | string | `"2.28.4-latest"` | geoserver docker image tag |
 | geoserver_data.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
 | global.accessMode | string | `"ReadWriteMany"` | storage access mode used by helm dependency pvc |
+| global.persistence.retainOnUninstall | bool | `true` | Keep the data PVCs on `helm uninstall` |
 | global.securityContext | object | `{"fsGroup":1000,"runAsGroup":1000,"runAsUser":1000}` | Global security context defaults for all pods Can be overridden per component via component.securityContext.runAsUser etc. |
 | global.securityContext.fsGroup | int | `1000` | Group ID for volume mounts |
 | global.securityContext.runAsGroup | int | `1000` | Group ID to run the containers |
 | global.securityContext.runAsUser | int | `1000` | User ID to run the containers |
 | global.storageClass | string | `nil` | storageClass used by helm dependencies pvc |
+| global.tolerations | list | empty list | option to overwrite K8S default tolerations, to survive long-lasting node reboots |
 | memcached.config.maxConnections | int | `2048` |  |
 | memcached.config.memoryLimit | int | `128` |  |
 | memcached.containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
