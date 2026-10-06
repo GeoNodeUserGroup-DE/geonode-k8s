@@ -611,9 +611,11 @@ nginx:
       # -- limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
       cpu: "800m"
 
+  # Liveness checks only that nginx is accepting connections. Do not probe `/`
+  # here: that location proxies to Django, and a normal Django rollout must not
+  # cascade into a restart of an otherwise healthy nginx container.
   livenessProbe:
-    httpGet:
-      path: /
+    tcpSocket:
       port: http
     initialDelaySeconds: 50
     timeoutSeconds: 5

@@ -219,9 +219,8 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | nginx.image.tag | string | `"1.31.2-alpine3.23"` | nginx docker image tag |
 | nginx.imagePullPolicy | string | `"IfNotPresent"` | nginx image pull policy |
 | nginx.imagePullSecret | string | `""` | pull secret to use for nginx image |
-| nginx.livenessProbe.httpGet.path | string | `"/"` |  |
-| nginx.livenessProbe.httpGet.port | string | `"http"` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `50` |  |
+| nginx.livenessProbe.tcpSocket.port | string | `"http"` | Checks the nginx listener independently of the proxied Django application. Set this key to `null` when replacing the handler with a custom `httpGet` or `exec` probe. |
 | nginx.livenessProbe.timeoutSeconds | int | `5` |  |
 | nginx.pycswMaxClientBodySize | string | `"100M"` | maximum upload size for pycsw server in nginx configuration. Only used if `.Values.pycsw.enabled: true`. |
 | nginx.replicaCount | int | `1` | nginx container replicas |

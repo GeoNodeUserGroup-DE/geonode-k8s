@@ -1,0 +1,9 @@
+nginx:
+  # A custom handler replaces, rather than combines with, the TCP default.
+  livenessProbe:
+    tcpSocket: null
+    httpGet:
+      path: /healthz
+      port: http
+    initialDelaySeconds: 10
+    timeoutSeconds: 2
