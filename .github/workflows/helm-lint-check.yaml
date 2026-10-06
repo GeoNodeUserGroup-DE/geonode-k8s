@@ -25,3 +25,13 @@ jobs:
       env:
         CHART_LOCATION: ./charts/geonode/
         CHART_VALUES: ./charts/geonode/values.yaml
+    - name: Check GeoServer heap rendering
+      run: |
+        helm template test charts/geonode \
+          --show-only templates/geoserver/geoserver-env.yaml \
+          | grep -- '-Xms1G -Xmx2G'
+        helm template test charts/geonode \
+          --show-only templates/geoserver/geoserver-env.yaml \
+          --set geoserver.heap.initialSize=1536Mi \
+          --set geoserver.heap.maxSize=2560Mi \
+          | grep -- '-Xms1536M -Xmx2560M'
