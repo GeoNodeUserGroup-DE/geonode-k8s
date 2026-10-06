@@ -159,6 +159,8 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geonodeFixtures | map of fixture files | `nil` | Fixture files which shall be made available under /usr/src/geonode/geonode/fixtures (refer to https://docs.djangoproject.com/en/4.2/howto/initial-data/) |
 | geoserver.container_name | string | `"geoserver"` | geoserver container name |
 | geoserver.force_reinit | bool | `true` | set force reinit true so that changing passwords etc. in Values.yaml will take effect after restarting the pod this on the other hand will increase pod initializing time, only change if you know what you are doing |
+| geoserver.heap.initialSize | string | `"1Gi"` | Initial Java heap size. Use a whole-number Kubernetes binary quantity (for example 1Gi or 512Mi). |
+| geoserver.heap.maxSize | string | `"2Gi"` | Maximum Java heap size. Keep this below resources.limits.memory to leave room for non-heap/native memory. |
 | geoserver.image.name | string | `"geonode/geoserver"` | geoserver image docker image |
 | geoserver.image.tag | string | `"2.28.4-latest"` | geoserver docker image tag |
 | geoserver.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
