@@ -20,8 +20,9 @@ jobs:
         version: '3.12.0' # default is latest (stable)
     - name: build dependencies
       run: helm dependency update charts/geonode/
-    - name: helm-check
-      uses: igabaydulin/helm-check-action@0.1.4
-      env:
-        CHART_LOCATION: ./charts/geonode/
-        CHART_VALUES: ./charts/geonode/values.yaml
+    # geonode.secret.django.secretKey is required() and intentionally has no default,
+    # so a render needs a value supplied. It is a throwaway for the check only.
+    - name: helm lint
+      run: helm lint --strict charts/geonode/ --set geonode.secret.django.secretKey=ci-check-only
+    - name: helm template
+      run: helm template ci charts/geonode/ --set geonode.secret.django.secretKey=ci-check-only > /dev/null
