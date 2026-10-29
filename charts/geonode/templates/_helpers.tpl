@@ -211,3 +211,11 @@ affinity:
       topologyKey: kubernetes.io/hostname
 {{- end }}
 {{- end -}}
+
+# Tolerations for workload pods. Renders a tolerations block; emits nothing when the list is empty.
+{{- define "geonode.tolerations" -}}
+{{- with .Values.global.tolerations }}
+tolerations:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- end }}
