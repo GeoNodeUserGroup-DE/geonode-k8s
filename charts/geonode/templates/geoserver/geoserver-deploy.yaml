@@ -57,28 +57,6 @@ spec:
             # Copy overrides from ConfigMap
             cp /overrides/config.yaml /geoserver_data/data/printing/            
 
-            # The data-dir image hardcodes GeoNode's published sample OAuth2
-            # credentials, and leaves the role service's API key empty. Replace them
-            # with environment placeholders: GeoServer resolves ${...} in both of
-            # these configs at runtime (ALLOW_ENV_PARAMETRIZATION is set in
-            # GEOSERVER_JAVA_OPTS), so the values stay in the Secret and never land
-            # on the volume.
-            OAUTH2_FILTER=/geoserver_data/data/security/filter/geonode-oauth2/config.xml
-            ROLE_SERVICE="/geoserver_data/data/security/role/geonode REST role service/config.xml"
-            if [ -f "$OAUTH2_FILTER" ] ; then
-              echo "templating oauth2 credentials in $OAUTH2_FILTER ..."
-              sed -i \
-                -e 's|<cliendId>.*</cliendId>|<cliendId>${OAUTH2_CLIENT_ID}</cliendId>|' \
-                -e 's|<clientSecret>.*</clientSecret>|<clientSecret>${OAUTH2_CLIENT_SECRET}</clientSecret>|' \
-                "$OAUTH2_FILTER"
-            fi
-            if [ -f "$ROLE_SERVICE" ] ; then
-              echo "templating api key in $ROLE_SERVICE ..."
-              sed -i \
-                -e 's|<authApiKey>.*</authApiKey>|<authApiKey>${OAUTH2_API_KEY}</authApiKey>|' \
-                "$ROLE_SERVICE"
-            fi
-
             touch /geoserver_data/data/.geoserver_data_copied
           else
             echo "geoserver_data files already exists, skipping copy ..."
