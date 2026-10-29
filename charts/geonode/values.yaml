@@ -86,14 +86,19 @@ geonode:
       # -- define from mail-addr
       from: "changeme@web.de"
     oauth2:
-      # -- oauth2 geoserver clientID (OAUTH2_CLIENT_ID)
-      clientId: Jrchz2oPY3akmzndmgUTYrs9gczlgoV20YPSvqaV
+      # -- OAUTH2_CLIENT_ID of the GeoServer OAuth2 client. Required: the chart no
+      # longer ships a default, because the previous one was GeoNode's published
+      # sample credential. Generate one per deployment.
+      clientId: ""
+      # -- OAUTH2_CLIENT_SECRET of the GeoServer OAuth2 client. Required, for the
+      # same reason as clientId. With PKCE off -- the django-oauth-toolkit default --
+      # this secret is the only thing that stops an intercepted authorization code
+      # from being redeemed.
+      clientSecret: ""
       # -- OAUTH2_API_KEY guarding the legacy /api/users, /api/roles and /api/adminRole
       # endpoints. GeoNode skips the authorization check on those when this is empty,
       # so set it unless you deliberately want them unguarded.
       apiKey: ""
-      # -- oauth2 geoserver secret (OAUTH2_CLIENT_SECRET)
-      clientSecret: rCnp5txobUo83EpQEblM8fVj3QT5zb5qRfxNsuPzCqZaiRyIoxM4jdgMiZKFfePBHYXCLd7B8NlkfDBY9HKeIQPcy5Cp08KQNpRHQbjpLItDHv12GvkSeXp6OxaUETv3
     bing:
       # Bing API KEY required by MapStore to enable Bing background layers
       apiKey: ""

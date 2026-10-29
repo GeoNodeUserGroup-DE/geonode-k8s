@@ -20,9 +20,17 @@ jobs:
         version: '3.12.0' # default is latest (stable)
     - name: build dependencies
       run: helm dependency update charts/geonode/
-    # geonode.secret.django.secretKey is required() and intentionally has no default,
-    # so a render needs a value supplied. It is a throwaway for the check only.
+    # These values are required() and intentionally have no default, so a render
+    # needs them supplied. They are throwaways for the check only.
     - name: helm lint
-      run: helm lint --strict charts/geonode/ --set geonode.secret.django.secretKey=ci-check-only
+      run: |
+        helm lint --strict charts/geonode/ \
+          --set geonode.secret.django.secretKey=ci-check-only \
+          --set geonode.secret.oauth2.clientId=ci-check-only \
+          --set geonode.secret.oauth2.clientSecret=ci-check-only
     - name: helm template
-      run: helm template ci charts/geonode/ --set geonode.secret.django.secretKey=ci-check-only > /dev/null
+      run: |
+        helm template ci charts/geonode/ \
+          --set geonode.secret.django.secretKey=ci-check-only \
+          --set geonode.secret.oauth2.clientId=ci-check-only \
+          --set geonode.secret.oauth2.clientSecret=ci-check-only > /dev/null
