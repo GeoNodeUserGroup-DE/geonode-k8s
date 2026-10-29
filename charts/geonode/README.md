@@ -128,8 +128,8 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geonode.secret.mail.password | string | `"changeme"` | set password for mailuser in geonode |
 | geonode.secret.mail.user | string | `"changeme"` | define mail user to send mails from |
 | geonode.secret.oauth2.apiKey | string | `""` | OAUTH2_API_KEY guarding the legacy /api/users, /api/roles and /api/adminRole endpoints. GeoNode skips the authorization check on those when this is empty, so set it unless you deliberately want them unguarded. |
-| geonode.secret.oauth2.clientId | string | `"Jrchz2oPY3akmzndmgUTYrs9gczlgoV20YPSvqaV"` | oauth2 geoserver clientID (OAUTH2_CLIENT_ID) |
-| geonode.secret.oauth2.clientSecret | string | `"rCnp5txobUo83EpQEblM8fVj3QT5zb5qRfxNsuPzCqZaiRyIoxM4jdgMiZKFfePBHYXCLd7B8NlkfDBY9HKeIQPcy5Cp08KQNpRHQbjpLItDHv12GvkSeXp6OxaUETv3"` | oauth2 geoserver secret (OAUTH2_CLIENT_SECRET) |
+| geonode.secret.oauth2.clientId | string | `""` | OAUTH2_CLIENT_ID of the GeoServer OAuth2 client. Required: the chart no longer ships a default, because the previous one was GeoNode's published sample credential. Generate one per deployment. |
+| geonode.secret.oauth2.clientSecret | string | `""` | OAUTH2_CLIENT_SECRET of the GeoServer OAuth2 client. Required, for the same reason as clientId. With PKCE off -- the django-oauth-toolkit default -- this secret is the only thing that stops an intercepted authorization code from being redeemed. |
 | geonode.secret.superUser.email | string | `"admin@localhost"` | admin user password |
 | geonode.secret.superUser.password | string | `"geonode"` | admin panel password, will only be changed after running the init-db job. At first time deployment or after rerunning the job manually. (See docs/manage-py-jobs.md) |
 | geonode.secret.superUser.username | string | `"admin"` | admin username |
