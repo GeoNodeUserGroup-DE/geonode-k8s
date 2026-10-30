@@ -491,9 +491,9 @@ geoserver:
   # -- Enable/disable datetime support for shapefiles (Dorg.geotools.shapefile.datetime JVM option)
   shapefile_datetime: false
   heap:
-    # -- Initial Java heap size. Use a whole-number Kubernetes binary quantity (for example 1Gi or 512Mi).
+    # -- Initial Java heap size as a whole number in Gi or Mi. Must not be larger than maxSize.
     initialSize: "1Gi"
-    # -- Maximum Java heap size. Keep this below resources.limits.memory to leave room for non-heap/native memory.
+    # -- Maximum Java heap size as a whole number in Gi or Mi, at least 1Gi. It no longer follows resources.limits.memory, which must be at least 1Gi larger, otherwise the deployment is refused.
     maxSize: "2Gi"
   # -- geoserver port
   port: 8080

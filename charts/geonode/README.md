@@ -43,7 +43,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geonode.celery.resources.limits.memory | string | `"2Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geonode.celery.resources.requests.cpu | int | `1` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geonode.celery.resources.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| geonode.colocation.enabled | bool | `false` | set colocation for geonode pods that use common PVCs (needed if using RWO storage) |
+| geonode.colocation.enabled | bool | `false` | when using ReadWriteOnce block storage on multi-node clusters. |
 | geonode.container_name | string | `"geonode"` |  |
 | geonode.gatewayApi.annotations | object | `{}` | annotations for the Gateway API HTTPRoute |
 | geonode.gatewayApi.enabled | bool | `false` | enable a parallel Gateway API HTTPRoute for GeoNode while keeping ingress available |
@@ -155,12 +155,12 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geonode.uwsgi.threads | int | `24` | number of threads per process |
 | geonode.uwsgi.worker_reload_mercy | int | `60` | How long to wait before forcefully killing workers |
 | geonode.version | string | `"5.1.0"` | GeoNode version used for chart-side version gating (env var names, defaults). Must be kept in sync with `geonode.image.tag`. Non-semver values (e.g. "latest", sha digest pins) fall back to newest-version behavior. |
-| geonode.waitForInitDb | bool | `true` | On geonode startup, wait until the init-db job has initialized the database, so the pod only becomes Ready once the DB is usable |
-| geonodeFixtures | map of fixture files | `nil` | Fixture files which shall be made available under /usr/src/geonode/geonode/fixtures (refer to https://docs.djangoproject.com/en/4.2/howto/initial-data/) |
+| geonode.waitForInitDb.enabled | bool | `true` | Block the geonode/celery containers with an init container until all Django migrations are applied (i.e. the init-db job has initialized the database), so the pod only becomes Ready once the DB is usable |
+| geonodeFixtures | map of fixture files | `nil` | Fixture files which are made available under /usr/src/geonode/geonode/fixtures and loaded into the database via `manage.py loaddata` during the init-db job (refer to https://docs.djangoproject.com/en/4.2/howto/initial-data/) |
 | geoserver.container_name | string | `"geoserver"` | geoserver container name |
 | geoserver.force_reinit | bool | `true` | set force reinit true so that changing passwords etc. in Values.yaml will take effect after restarting the pod this on the other hand will increase pod initializing time, only change if you know what you are doing |
-| geoserver.heap.initialSize | string | `"1Gi"` | Initial Java heap size. Use a whole-number Kubernetes binary quantity (for example 1Gi or 512Mi). |
-| geoserver.heap.maxSize | string | `"2Gi"` | Maximum Java heap size. Keep this below resources.limits.memory to leave room for non-heap/native memory. |
+| geoserver.heap.initialSize | string | `"1Gi"` | Initial Java heap size as a whole number in Gi or Mi. Must not be larger than maxSize. |
+| geoserver.heap.maxSize | string | `"2Gi"` | Maximum Java heap size as a whole number in Gi or Mi, at least 1Gi. It no longer follows resources.limits.memory, which must be at least 1Gi larger, otherwise the deployment is refused. |
 | geoserver.image.name | string | `"geonode/geoserver"` | geoserver image docker image |
 | geoserver.image.tag | string | `"2.28.4-latest"` | geoserver docker image tag |
 | geoserver.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
@@ -191,13 +191,13 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geoserver_data.image.tag | string | `"2.28.4-latest"` | geoserver docker image tag |
 | geoserver_data.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
 | global.accessMode | string | `"ReadWriteMany"` | storage access mode used by helm dependency pvc |
-| global.persistence.retainOnUninstall | bool | `true` | Keep the data PVCs on `helm uninstall` |
+| global.persistence.retainOnUninstall | bool | `true` | Keep the data PVCs (statics, geoserver_data, geonode_data) on `helm uninstall` … |
 | global.securityContext | object | `{"fsGroup":1000,"runAsGroup":1000,"runAsUser":1000}` | Global security context defaults for all pods Can be overridden per component via component.securityContext.runAsUser etc. |
 | global.securityContext.fsGroup | int | `1000` | Group ID for volume mounts |
 | global.securityContext.runAsGroup | int | `1000` | Group ID to run the containers |
 | global.securityContext.runAsUser | int | `1000` | User ID to run the containers |
 | global.storageClass | string | `nil` | storageClass used by helm dependencies pvc |
-| global.tolerations | list | empty list | option to overwrite K8S default tolerations, to survive long-lasting node reboots |
+| global.tolerations | list | `[]` | Tolerations option, so K8S default can be overwritten. Useful for long-running pods (geonode, geoserver) which should survive node reboots. Empty list keeps the cluster default (300 seconds). |
 | memcached.config.maxConnections | int | `2048` |  |
 | memcached.config.memoryLimit | int | `128` |  |
 | memcached.containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
