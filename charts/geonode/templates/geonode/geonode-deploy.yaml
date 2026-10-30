@@ -274,6 +274,8 @@ spec:
           {{- toYaml $.Values.geonode.startupProbe | nindent 10 }}
         livenessProbe:
           {{- toYaml $.Values.geonode.livenessProbe | nindent 10 }}
+        readinessProbe:
+          {{- toYaml $.Values.geonode.readinessProbe | nindent 10 }}
         resources:
           {{- toYaml $.Values.geonode.resources | nindent 10 }}
 

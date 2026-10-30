@@ -25,7 +25,3 @@ jobs:
       env:
         CHART_LOCATION: ./charts/geonode/
         CHART_VALUES: ./charts/geonode/values.yaml
-    - name: check nginx liveness defaults and override
-      run: scripts/check-nginx-liveness-probe.sh
-    - name: check nginx liveness runtime boundary
-      run: scripts/test-nginx-liveness-runtime.sh

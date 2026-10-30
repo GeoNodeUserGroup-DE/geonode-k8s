@@ -43,7 +43,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geonode.celery.resources.limits.memory | string | `"2Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geonode.celery.resources.requests.cpu | int | `1` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geonode.celery.resources.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
-| geonode.colocation.enabled | bool | `false` | set colocation for geonode pods that use common PVCs (needed if using RWO storage) |
+| geonode.colocation.enabled | bool | `false` | when using ReadWriteOnce block storage on multi-node clusters. |
 | geonode.container_name | string | `"geonode"` |  |
 | geonode.gatewayApi.annotations | object | `{}` | annotations for the Gateway API HTTPRoute |
 | geonode.gatewayApi.enabled | bool | `false` | enable a parallel Gateway API HTTPRoute for GeoNode while keeping ingress available |
@@ -114,6 +114,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geonode.persistant.geoserver_data | object | `{"storageSize":"2Gi"}` | size of statics storage |
 | geonode.persistant.statics | object | `{"storageSize":"2Gi"}` | size of statics storage |
 | geonode.persistant.storageSize | string | `"10Gi"` | fallback value for all persistant geonode storage |
+| geonode.readinessProbe | object | `{"failureThreshold":3,"periodSeconds":5,"tcpSocket":{"port":8000}}` | configure readinessProbe for geonode, make sure port is aligned with geonode.port configuration |
 | geonode.replicaCount | int | `1` | number of geonode replicas (! not working properly yet) |
 | geonode.resources.limits.cpu | int | `2` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geonode.resources.limits.memory | string | `"2Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
@@ -155,8 +156,8 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geonode.uwsgi.threads | int | `24` | number of threads per process |
 | geonode.uwsgi.worker_reload_mercy | int | `60` | How long to wait before forcefully killing workers |
 | geonode.version | string | `"5.1.0"` | GeoNode version used for chart-side version gating (env var names, defaults). Must be kept in sync with `geonode.image.tag`. Non-semver values (e.g. "latest", sha digest pins) fall back to newest-version behavior. |
-| geonode.waitForInitDb | bool | `true` | On geonode startup, wait until the init-db job has initialized the database, so the pod only becomes Ready once the DB is usable |
-| geonodeFixtures | map of fixture files | `nil` | Fixture files which shall be made available under /usr/src/geonode/geonode/fixtures (refer to https://docs.djangoproject.com/en/4.2/howto/initial-data/) |
+| geonode.waitForInitDb.enabled | bool | `true` | Block the geonode/celery containers with an init container until all Django migrations are applied (i.e. the init-db job has initialized the database), so the pod only becomes Ready once the DB is usable |
+| geonodeFixtures | map of fixture files | `nil` | Fixture files which are made available under /usr/src/geonode/geonode/fixtures and loaded into the database via `manage.py loaddata` during the init-db job (refer to https://docs.djangoproject.com/en/4.2/howto/initial-data/) |
 | geoserver.container_name | string | `"geoserver"` | geoserver container name |
 | geoserver.force_reinit | bool | `true` | set force reinit true so that changing passwords etc. in Values.yaml will take effect after restarting the pod this on the other hand will increase pod initializing time, only change if you know what you are doing |
 | geoserver.image.name | string | `"geonode/geoserver"` | geoserver image docker image |
@@ -189,13 +190,13 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geoserver_data.image.tag | string | `"2.28.4-latest"` | geoserver docker image tag |
 | geoserver_data.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
 | global.accessMode | string | `"ReadWriteMany"` | storage access mode used by helm dependency pvc |
-| global.persistence.retainOnUninstall | bool | `true` | Keep the data PVCs on `helm uninstall` |
+| global.persistence.retainOnUninstall | bool | `true` | Keep the data PVCs (statics, geoserver_data, geonode_data) on `helm uninstall` … |
 | global.securityContext | object | `{"fsGroup":1000,"runAsGroup":1000,"runAsUser":1000}` | Global security context defaults for all pods Can be overridden per component via component.securityContext.runAsUser etc. |
 | global.securityContext.fsGroup | int | `1000` | Group ID for volume mounts |
 | global.securityContext.runAsGroup | int | `1000` | Group ID to run the containers |
 | global.securityContext.runAsUser | int | `1000` | User ID to run the containers |
 | global.storageClass | string | `nil` | storageClass used by helm dependencies pvc |
-| global.tolerations | list | empty list | option to overwrite K8S default tolerations, to survive long-lasting node reboots |
+| global.tolerations | list | `[]` | Tolerations option, so K8S default can be overwritten. Useful for long-running pods (geonode, geoserver) which should survive node reboots. Empty list keeps the cluster default (300 seconds). |
 | memcached.config.maxConnections | int | `2048` |  |
 | memcached.config.memoryLimit | int | `128` |  |
 | memcached.containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
@@ -219,8 +220,9 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | nginx.image.tag | string | `"1.31.2-alpine3.23"` | nginx docker image tag |
 | nginx.imagePullPolicy | string | `"IfNotPresent"` | nginx image pull policy |
 | nginx.imagePullSecret | string | `""` | pull secret to use for nginx image |
+| nginx.livenessProbe.httpGet.path | string | `"/healthz"` | local nginx endpoint that does not depend on GeoNode. Do not use `/` here: it is proxied to GeoNode, so a GeoNode rollout would restart a healthy nginx container. |
+| nginx.livenessProbe.httpGet.port | string | `"http"` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `50` |  |
-| nginx.livenessProbe.tcpSocket.port | string | `"http"` | Checks the nginx listener independently of the proxied Django application. Set this key to `null` when replacing the handler with a custom `httpGet` or `exec` probe. |
 | nginx.livenessProbe.timeoutSeconds | int | `5` |  |
 | nginx.pycswMaxClientBodySize | string | `"100M"` | maximum upload size for pycsw server in nginx configuration. Only used if `.Values.pycsw.enabled: true`. |
 | nginx.replicaCount | int | `1` | nginx container replicas |
