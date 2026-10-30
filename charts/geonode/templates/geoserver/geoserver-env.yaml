@@ -1,3 +1,21 @@
+{{- /* GeoServer needs at least 1Gi of heap, and the container limit needs 1Gi more for memory outside the heap */ -}}
+{{- $mi := dict -}}
+{{- range $name, $value := dict "heap.initialSize" .Values.geoserver.heap.initialSize "heap.maxSize" .Values.geoserver.heap.maxSize "resources.limits.memory" .Values.geoserver.resources.limits.memory -}}
+{{- if not (regexMatch "^[0-9]+(Gi?|Mi?)$" (toString $value)) -}}
+{{- fail (printf "geoserver.%s must be a whole number in Gi or Mi, got: %v" $name $value) -}}
+{{- end -}}
+{{- $number := regexFind "^[0-9]+" (toString $value) | atoi -}}
+{{- $_ := set $mi $name (ternary (mul $number 1024) $number (contains "G" (toString $value)) | int) -}}
+{{- end -}}
+{{- if lt (index $mi "heap.maxSize") 1024 -}}
+{{- fail (printf "geoserver.heap.maxSize must be at least 1Gi, got: %s" .Values.geoserver.heap.maxSize) -}}
+{{- end -}}
+{{- if gt (index $mi "heap.initialSize") (index $mi "heap.maxSize") -}}
+{{- fail "geoserver.heap.initialSize must not be larger than geoserver.heap.maxSize" -}}
+{{- end -}}
+{{- if lt (index $mi "resources.limits.memory") (add (index $mi "heap.maxSize") 1024 | int) -}}
+{{- fail (printf "geoserver.resources.limits.memory (%s) must be at least 1Gi larger than geoserver.heap.maxSize (%s) to leave room for memory outside the Java heap" .Values.geoserver.resources.limits.memory .Values.geoserver.heap.maxSize) -}}
+{{- end -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -11,8 +29,8 @@ data:
   DJANGO_URL: http://{{ include "geonode_pod_name" .}}/
   ENABLE_JSONP: 'true'
   outFormat: text/javascript
-  # trimSuffix trims of suffix "i" coming from resources memory in Gi or Mi
-  GEOSERVER_JAVA_OPTS: "-Xms{{ .Values.geoserver.resources.requests.memory | trimSuffix "i" }} -Xmx{{ .Values.geoserver.resources.limits.memory | trimSuffix "i" }} -Djava.awt.headless=true -Dgwc.context.suffix=gwc -XX:+UnlockDiagnosticVMOptions -XX:+LogVMOutput -XX:LogFile=/var/log/jvm.log -XX:PerfDataSamplingInterval=500 -XX:SoftRefLRUPolicyMSPerMB=36000 -XX:-UseGCOverheadLimit -XX:+UseG1GC -XX:ParallelGCThreads={{ .Values.geoserver.resources.limits.cpu }} -Dfile.encoding=UTF8 -Djavax.servlet.request.encoding=UTF-8 -Djavax.servlet.response.encoding=UTF-8 -Duser.timezone=GMT -Dorg.geotools.shapefile.datetime={{ .Values.geoserver.shapefile_datetime }} -DGS-SHAPEFILE-CHARSET=UTF-8 -DGEOSERVER_CSRF_DISABLED=true -DPRINT_BASE_URL={{ include "public_url" . }}/geoserver/pdf -DALLOW_ENV_PARAMETRIZATION=true -Xbootclasspath/a:/usr/local/tomcat/webapps/geoserver/WEB-INF/lib/marlin-0.9.3-Unsafe.jar -Dsun.java2d.renderer=org.marlin.pisces.MarlinRenderingEngine"
+  # Java uses G/M while Kubernetes quantities use Gi/Mi, so remove the trailing i.
+  GEOSERVER_JAVA_OPTS: "-Xms{{ .Values.geoserver.heap.initialSize | trimSuffix "i" }} -Xmx{{ .Values.geoserver.heap.maxSize | trimSuffix "i" }} -Djava.awt.headless=true -Dgwc.context.suffix=gwc -XX:+UnlockDiagnosticVMOptions -XX:+LogVMOutput -XX:LogFile=/var/log/jvm.log -XX:PerfDataSamplingInterval=500 -XX:SoftRefLRUPolicyMSPerMB=36000 -XX:-UseGCOverheadLimit -XX:+UseG1GC -XX:ParallelGCThreads={{ .Values.geoserver.resources.limits.cpu }} -Dfile.encoding=UTF8 -Djavax.servlet.request.encoding=UTF-8 -Djavax.servlet.response.encoding=UTF-8 -Duser.timezone=GMT -Dorg.geotools.shapefile.datetime={{ .Values.geoserver.shapefile_datetime }} -DGS-SHAPEFILE-CHARSET=UTF-8 -DGEOSERVER_CSRF_DISABLED=true -DPRINT_BASE_URL={{ include "public_url" . }}/geoserver/pdf -DALLOW_ENV_PARAMETRIZATION=true -Xbootclasspath/a:/usr/local/tomcat/webapps/geoserver/WEB-INF/lib/marlin-0.9.3-Unsafe.jar -Dsun.java2d.renderer=org.marlin.pisces.MarlinRenderingEngine"
   NGINX_BASE_URL: "{{ include "public_url" . }}"
 
   DATABASE_HOST: "{{ include "database_hostname" . }}"

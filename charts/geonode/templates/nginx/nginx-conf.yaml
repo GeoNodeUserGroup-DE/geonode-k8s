@@ -47,6 +47,13 @@ data:
         application/x-javascript
         application/json;
 
+      # answered by nginx itself, so the liveness probe does not depend on GeoNode
+      location = /healthz {
+        access_log off;
+        default_type text/plain;
+        return 200 "ok";
+      }
+
       location = /favicon.ico {
         alias /mnt/volumes/statics/static/geonode/img/favicon.ico;
       }
