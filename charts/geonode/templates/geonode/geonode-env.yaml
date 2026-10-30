@@ -32,7 +32,7 @@ data:
   MAX_DOCUMENT_SIZE:  {{ .Values.geonode.general.upload.document_size | quote }}
   API_LIMIT_PER_PAGE: {{ .Values.geonode.general.api_limit_per_page | quote }}
   # GeoNode APIs
-  API_LOCKDOWN: 'False'
+  API_LOCKDOWN: {{ include "boolean2str" .Values.geonode.general.api_lockdown | quote }}
   TASTYPIE_APIKEY: ""
   FORCE_REINIT: {{ .Values.geonode.general.force_reinit | quote }}
 
@@ -102,7 +102,7 @@ data:
   SESSION_COOKIE_SECURE: {{ $cookieSecure | ternary "True" "False" | quote }}
   CSRF_COOKIE_SECURE: {{ $cookieSecure | ternary "True" "False" | quote }}
   CORS_ORIGIN_ALLOW_ALL: 'True'
-  X_FRAME_OPTIONS: ALLOW-FROM ALL
+  X_FRAME_OPTIONS: {{ .Values.geonode.general.x_frame_options | quote }}
   SESSION_EXPIRED_CONTROL_ENABLED: {{ .Values.geonode.general.session_expired_control_enabled | quote }}
   {{- if semverCompare ">=5.1.0" (.Values.geonode.version | toString) }}
   DEFAULT_ANONYMOUS_PERMISSIONS: {{ .Values.geonode.general.upload.anonymous_permissions | quote }}

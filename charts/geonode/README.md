@@ -51,6 +51,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geonode.gatewayApi.labels | object | `{}` | labels for the Gateway API HTTPRoute |
 | geonode.gatewayApi.parentRefs | list | `[]` | Gateway API parentRefs, for example a shared HTTPS listener on a cluster Gateway |
 | geonode.general.api_limit_per_page | int | `1000` | to describe |
+| geonode.general.api_lockdown | bool | `true` | API_LOCKDOWN deny anonymous access to the legacy (tastypie) API endpoints. GeoNode itself defaults this to True; the chart used to force 'False'. |
 | geonode.general.cookie_secure | string | `nil` | SESSION_COOKIE_SECURE / CSRF_COOKIE_SECURE. GeoNode >= 5.1.0 defaults both to True (5.0.x defaulted to False), so the sessionid/csrftoken cookies are sent with the "Secure" flag. Browsers reject Secure cookies over plain HTTP, which breaks login (you get redirected back to the landing page, still logged out). Leave empty (null) to follow externalScheme automatically: https => True, http => False. Set explicitly to true/false to override. Keep True whenever you serve over HTTPS. |
 | geonode.general.debug | bool | `false` | django debug mode |
 | geonode.general.debug_static | bool | `false` | enable django static debug |
@@ -81,6 +82,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geonode.general.upload.document_size | int | `60` | max upload document size in MB |
 | geonode.general.upload.max_parallel_uploads_per_user | int | `10` | DEFAULT_MAX_PARALLEL_UPLOADS_PER_USER (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-parallel-uploads-per-user) Default: 5 When uploading datasets, this value limits the number os parallel uploads. The parallelism limit is set during installation using the value of this variable. After installation, only an user with administrative rights can change it. These limits can be changed in the admin panel or accessing by api. |
 | geonode.general.upload.size | string | `"2097152000"` | DEFAULT_MAX_UPLOAD_SIZE (https://docs.geonode.org/en/master/basic/settings/index.html#default-max-upload-size) Important: This value must be syncronized with nginx.maxClientBodySize Default: 2097152000 (2000 MB in bytes) (104857600 = 100 MB) When uploading datasets or uploading documents, the total size of the uploaded files is verified. The size limits are set during installation using the value of this variable. After installation, only an user with administrative rights can change it. These limits can be changed in the admin panel or accessing by api. |
+| geonode.general.x_frame_options | string | `"DENY"` | X_FRAME_OPTIONS value sent on every response. The chart used to force "ALLOW-FROM ALL", which current browsers ignore, so no framing policy applied at all. Use CSP frame-ancestors if you need to allow specific origins. |
 | geonode.hooks.cleanupOnUpgrade | bool | `true` | enable automatic cleanup of old init/migration jobs before helm upgrade |
 | geonode.hooks.kubectlImage | string | `"registry.k8s.io/kubectl"` | kubectl image used for the cleanup hook job (official Kubernetes project image) |
 | geonode.hooks.kubectlTag | string | `"v1.32.0"` | kubectl image tag used for the cleanup hook job |
@@ -121,13 +123,14 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geonode.resources.requests.cpu | int | `1` | requested cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geonode.resources.requests.memory | string | `"1Gi"` | requested memory as in resource.requests.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geonode.secret.bing.apiKey | string | `""` |  |
-| geonode.secret.django.secretKey | string | `"myv-y4#7j-d*p-__@j#*3z@!y24fz8%^z2v6atuy4bo9vqr1_a"` |  |
+| geonode.secret.django.secretKey | string | `""` | django SECRET_KEY. Required: the chart no longer ships a usable default, because a deployment that did not override it started normally on a value published with this chart. Generate one per environment. |
 | geonode.secret.existingSecretName | string | `""` | name of an existing Secret to use. Set, if you want to separately maintain the Secret. |
 | geonode.secret.mail.from | string | `"changeme@web.de"` | define from mail-addr |
 | geonode.secret.mail.password | string | `"changeme"` | set password for mailuser in geonode |
 | geonode.secret.mail.user | string | `"changeme"` | define mail user to send mails from |
-| geonode.secret.oauth2.clientId | string | `"Jrchz2oPY3akmzndmgUTYrs9gczlgoV20YPSvqaV"` | oauth2 geoserver clientID (OAUTH2_CLIENT_ID) |
-| geonode.secret.oauth2.clientSecret | string | `"rCnp5txobUo83EpQEblM8fVj3QT5zb5qRfxNsuPzCqZaiRyIoxM4jdgMiZKFfePBHYXCLd7B8NlkfDBY9HKeIQPcy5Cp08KQNpRHQbjpLItDHv12GvkSeXp6OxaUETv3"` | oauth2 geoserver secret (OAUTH2_CLIENT_SECRET) |
+| geonode.secret.oauth2.apiKey | string | `""` | OAUTH2_API_KEY guarding the legacy /api/users, /api/roles and /api/adminRole endpoints. GeoNode skips the authorization check on those when this is empty, so set it unless you deliberately want them unguarded. |
+| geonode.secret.oauth2.clientId | string | `""` | OAUTH2_CLIENT_ID of the GeoServer OAuth2 client. Required: the chart no longer ships a default, because the previous one was GeoNode's published sample credential. Generate one per deployment. |
+| geonode.secret.oauth2.clientSecret | string | `""` | OAUTH2_CLIENT_SECRET of the GeoServer OAuth2 client. Required, for the same reason as clientId. With PKCE off -- the django-oauth-toolkit default -- this secret is the only thing that stops an intercepted authorization code from being redeemed. |
 | geonode.secret.superUser.email | string | `"admin@localhost"` | admin user password |
 | geonode.secret.superUser.password | string | `"geonode"` | admin panel password, will only be changed after running the init-db job. At first time deployment or after rerunning the job manually. (See docs/manage-py-jobs.md) |
 | geonode.secret.superUser.username | string | `"admin"` | admin username |
@@ -327,4 +330,4 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | redis.sentinel.enabled | bool | `false` | Enable Redis Sentinel for high availability. When disabled, pod-0 is master (manual failover) |
 
 ----------------------------------------------
-Autogenerated from chart metadata using [helm-docs v1.14.2](https://github.com/norwoodj/helm-docs/releases/v1.14.2)
+Autogenerated from chart metadata using [helm-docs v1.11.0](https://github.com/norwoodj/helm-docs/releases/v1.11.0)
