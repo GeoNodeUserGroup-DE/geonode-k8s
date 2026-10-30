@@ -50,6 +50,8 @@ Further docs you can find on [readthedocs](https://geonode-k8s.readthedocs.io/en
 - A Kubernetes cluster (or [minikube](docs/minikube-installation.md))
 - [Helm](https://helm.sh/)
 
+Running on `arm64` nodes? The default images are `amd64` only, see [Running on ARM64](arm64.md).
+
 The chart will automatically install required dependencies, i.e. a RabbitMQ broker and a Postgres database with `postgis` extensions installed, and link them up. If you want to run an older geonode version with geonode-k8s check the [release-to-version list](docs/list-of-releases-and-versions.md).
 
 ## Install chart dependencies
