@@ -6,7 +6,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
   # Database Settings
-  DATABASE_HOST: "{{ include "postgres_pod_name" . }}"
+  DATABASE_HOST: "{{ include "database_hostname" . }}"
   DATABASE_PORT: "{{ include "database_port" .}}"
   GEONODE_DATABASE: {{ .Values.postgres.geonode_databasename_and_username | quote }}
   GEONODE_DATABASE_SCHEMA: {{ .Values.postgres.schema }}
