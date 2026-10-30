@@ -161,6 +161,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geonode.version | string | `"5.1.0"` | GeoNode version used for chart-side version gating (env var names, defaults). Must be kept in sync with `geonode.image.tag`. Non-semver values (e.g. "latest", sha digest pins) fall back to newest-version behavior. |
 | geonode.waitForInitDb.enabled | bool | `true` | Block the geonode/celery containers with an init container until all Django migrations are applied (i.e. the init-db job has initialized the database), so the pod only becomes Ready once the DB is usable |
 | geonodeFixtures | map of fixture files | `nil` | Fixture files which are made available under /usr/src/geonode/geonode/fixtures and loaded into the database via `manage.py loaddata` during the init-db job (refer to https://docs.djangoproject.com/en/4.2/howto/initial-data/) |
+| geoserver.caConfigMap | string | empty | Optional; name for a ConfigMap. If provided, the ConfigMap will be interpretated as certificates to be added to the Java Trust Store |
 | geoserver.container_name | string | `"geoserver"` | geoserver container name |
 | geoserver.force_reinit | bool | `true` | set force reinit true so that changing passwords etc. in Values.yaml will take effect after restarting the pod this on the other hand will increase pod initializing time, only change if you know what you are doing |
 | geoserver.heap.initialSize | string | `"1Gi"` | Initial Java heap size as a whole number in Gi or Mi. Must not be larger than maxSize. |
