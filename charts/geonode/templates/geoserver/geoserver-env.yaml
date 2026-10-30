@@ -1,4 +1,21 @@
-{{- include "geoserver_validate_heap" . -}}
+{{- /* GeoServer needs at least 1Gi of heap, and the container limit needs 1Gi more for memory outside the heap */ -}}
+{{- $mi := dict -}}
+{{- range $name, $value := dict "heap.initialSize" .Values.geoserver.heap.initialSize "heap.maxSize" .Values.geoserver.heap.maxSize "resources.limits.memory" .Values.geoserver.resources.limits.memory -}}
+{{- if not (regexMatch "^[0-9]+(Gi?|Mi?)$" (toString $value)) -}}
+{{- fail (printf "geoserver.%s must be a whole number in Gi or Mi, got: %v" $name $value) -}}
+{{- end -}}
+{{- $number := regexFind "^[0-9]+" (toString $value) | atoi -}}
+{{- $_ := set $mi $name (ternary (mul $number 1024) $number (contains "G" (toString $value)) | int) -}}
+{{- end -}}
+{{- if lt (index $mi "heap.maxSize") 1024 -}}
+{{- fail (printf "geoserver.heap.maxSize must be at least 1Gi, got: %s" .Values.geoserver.heap.maxSize) -}}
+{{- end -}}
+{{- if gt (index $mi "heap.initialSize") (index $mi "heap.maxSize") -}}
+{{- fail "geoserver.heap.initialSize must not be larger than geoserver.heap.maxSize" -}}
+{{- end -}}
+{{- if lt (index $mi "resources.limits.memory") (add (index $mi "heap.maxSize") 1024 | int) -}}
+{{- fail (printf "geoserver.resources.limits.memory (%s) must be at least 1Gi larger than geoserver.heap.maxSize (%s) to leave room for memory outside the Java heap" .Values.geoserver.resources.limits.memory .Values.geoserver.heap.maxSize) -}}
+{{- end -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
