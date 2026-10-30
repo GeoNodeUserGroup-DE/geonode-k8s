@@ -135,6 +135,13 @@ geonode:
     periodSeconds: 5
     failureThreshold: 3
 
+  # -- configure readinessProbe for geonode, make sure port is aligned with geonode.port configuration
+  readinessProbe:
+    tcpSocket:
+      port: 8000
+    periodSeconds: 5
+    failureThreshold: 3
+
   ingress:
     # -- enables external access
     enabled: True
@@ -631,7 +638,8 @@ nginx:
 
   livenessProbe:
     httpGet:
-      path: /
+      # -- local nginx endpoint that does not depend on GeoNode. Do not use `/` here: it is proxied to GeoNode, so a GeoNode rollout would restart a healthy nginx container.
+      path: /healthz
       port: http
     initialDelaySeconds: 50
     timeoutSeconds: 5

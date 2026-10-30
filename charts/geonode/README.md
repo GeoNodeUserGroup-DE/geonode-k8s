@@ -116,6 +116,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geonode.persistant.geoserver_data | object | `{"storageSize":"2Gi"}` | size of statics storage |
 | geonode.persistant.statics | object | `{"storageSize":"2Gi"}` | size of statics storage |
 | geonode.persistant.storageSize | string | `"10Gi"` | fallback value for all persistant geonode storage |
+| geonode.readinessProbe | object | `{"failureThreshold":3,"periodSeconds":5,"tcpSocket":{"port":8000}}` | configure readinessProbe for geonode, make sure port is aligned with geonode.port configuration |
 | geonode.replicaCount | int | `1` | number of geonode replicas (! not working properly yet) |
 | geonode.resources.limits.cpu | int | `2` | limit cpu as in resource.requests.cpu (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
 | geonode.resources.limits.memory | string | `"2Gi"` | limits memory as in resource.limits.memory (https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) |
@@ -222,7 +223,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | nginx.image.tag | string | `"1.31.2-alpine3.23"` | nginx docker image tag |
 | nginx.imagePullPolicy | string | `"IfNotPresent"` | nginx image pull policy |
 | nginx.imagePullSecret | string | `""` | pull secret to use for nginx image |
-| nginx.livenessProbe.httpGet.path | string | `"/"` |  |
+| nginx.livenessProbe.httpGet.path | string | `"/healthz"` | local nginx endpoint that does not depend on GeoNode. Do not use `/` here: it is proxied to GeoNode, so a GeoNode rollout would restart a healthy nginx container. |
 | nginx.livenessProbe.httpGet.port | string | `"http"` |  |
 | nginx.livenessProbe.initialDelaySeconds | int | `50` |  |
 | nginx.livenessProbe.timeoutSeconds | int | `5` |  |
