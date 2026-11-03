@@ -1,8 +1,8 @@
 # geonode-k8s
 
-![Version: 2.0.0](https://img.shields.io/badge/Version-2.0.0-informational?style=flat-square)
+![Version: 2.0.1](https://img.shields.io/badge/Version-2.0.0-informational?style=flat-square)
 
-Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-latest, pyCSW: 3.0.0-beta2
+Helm Chart for Geonode. Supported versions: Geonode: 5.1.1, Geoserver: 2.28.6-latest, pyCSW: 3.0.0-beta2
 
 **Homepage:** <https://geonode.org/>
 
@@ -87,7 +87,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geonode.hooks.kubectlImage | string | `"registry.k8s.io/kubectl"` | kubectl image used for the cleanup hook job (official Kubernetes project image) |
 | geonode.hooks.kubectlTag | string | `"v1.32.0"` | kubectl image tag used for the cleanup hook job |
 | geonode.image.name | string | `"geonode/geonode"` |  |
-| geonode.image.tag | string | `"5.1.0"` |  |
+| geonode.image.tag | string | `"5.1.1"` |  |
 | geonode.imagePullPolicy | string | `"IfNotPresent"` | image pull policy |
 | geonode.imagePullSecret | string | `""` | pull secret to use for geonode image |
 | geonode.ingress.annotations | object | `{}` | adds ingress annotations for nginx ingress class |
@@ -158,7 +158,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geonode.uwsgi.reload_on_rss | int | `2048` | Restart workers after this much resident memory |
 | geonode.uwsgi.threads | int | `24` | number of threads per process |
 | geonode.uwsgi.worker_reload_mercy | int | `60` | How long to wait before forcefully killing workers |
-| geonode.version | string | `"5.1.0"` | GeoNode version used for chart-side version gating (env var names, defaults). Must be kept in sync with `geonode.image.tag`. Non-semver values (e.g. "latest", sha digest pins) fall back to newest-version behavior. |
+| geonode.version | string | `"5.1.1"` | GeoNode version used for chart-side version gating (env var names, defaults). Must be kept in sync with `geonode.image.tag`. Non-semver values (e.g. "latest", sha digest pins) fall back to newest-version behavior. |
 | geonode.waitForInitDb.enabled | bool | `true` | Block the geonode/celery containers with an init container until all Django migrations are applied (i.e. the init-db job has initialized the database), so the pod only becomes Ready once the DB is usable |
 | geonodeFixtures | map of fixture files | `nil` | Fixture files which are made available under /usr/src/geonode/geonode/fixtures and loaded into the database via `manage.py loaddata` during the init-db job (refer to https://docs.djangoproject.com/en/4.2/howto/initial-data/) |
 | geoserver.caConfigMap | string | empty | Optional; name for a ConfigMap. If provided, the ConfigMap will be interpretated as certificates to be added to the Java Trust Store |
@@ -167,7 +167,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geoserver.heap.initialSize | string | `"1Gi"` | Initial Java heap size as a whole number in Gi or Mi. Must not be larger than maxSize. |
 | geoserver.heap.maxSize | string | `"2Gi"` | Maximum Java heap size as a whole number in Gi or Mi, at least 1Gi. It no longer follows resources.limits.memory, which must be at least 1Gi larger, otherwise the deployment is refused. |
 | geoserver.image.name | string | `"geonode/geoserver"` | geoserver image docker image |
-| geoserver.image.tag | string | `"2.28.4-latest"` | geoserver docker image tag |
+| geoserver.image.tag | string | `"2.28.6-latest"` | geoserver docker image tag |
 | geoserver.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
 | geoserver.imagePullSecret | string | `""` | pull secret to use for geoserver image |
 | geoserver.livenessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/geoserver/ows?service=wms&version=1.3.0&request=GetCapabilities","port":8080},"initialDelaySeconds":60,"periodSeconds":10,"timeoutSeconds":5}` | configure livenessProbe for geoserver, make sure port is aligned with geoserver.port configuration Using HTTP probe to detect GeoServer 2.27.3 circular dependency startup failure and trigger automatic restart |
@@ -193,7 +193,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.0, Geoserver: 2.28.4-la
 | geoserver.startupProbe | object | `{"failureThreshold":30,"periodSeconds":10,"tcpSocket":{"port":8080}}` | configuration of startup probe (before liveliness) |
 | geoserver_data.container_name | string | `"geoserver-data-dir"` |  |
 | geoserver_data.image.name | string | `"geonode/geoserver_data"` | geoserver image docker image |
-| geoserver_data.image.tag | string | `"2.28.4-latest"` | geoserver docker image tag |
+| geoserver_data.image.tag | string | `"2.28.6-latest"` | geoserver docker image tag |
 | geoserver_data.imagePullPolicy | string | `"IfNotPresent"` | geoserver image pull policy |
 | global.accessMode | string | `"ReadWriteMany"` | storage access mode used by helm dependency pvc |
 | global.persistence.retainOnUninstall | bool | `true` | Keep the data PVCs (statics, geoserver_data, geonode_data) on `helm uninstall` … |
