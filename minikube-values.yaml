@@ -39,9 +39,9 @@ geonode:
 #     runAsUser: 1000
 #     runAsGroup: 1000
 #   image:
-#   # best to build your own non root contaier image
+#   # best to build your own non root container image
 #     name: <YourRepository>/geoserver-nonroot
-#     tag: 2.28.4-latest
+#     tag: 2.28.6-latest
 
 pycsw:
   enabled: True
