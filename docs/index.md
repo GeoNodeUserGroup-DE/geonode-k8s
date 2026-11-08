@@ -37,7 +37,7 @@ This helm chart provides the possibility to run most of the services redundant t
 
 ## Documentation
 
-To get an overview of the available configuration check out the values [docs](charts/geonode/README.md). If you want to run the helm chart first on a minikube cluster check out the [minikube](docs/minikube-installation.md) guide. Also check the minikube-values.yaml for basic configuration.
+To get an overview of the available configuration check out the values [docs](charts/geonode/README.md). If you want to run the helm chart first on a minikube cluster check out the [minikube](minikube-installation.md) guide. Also check the minikube-values.yaml for basic configuration.
 
 If you want to go straight for a production installation follow the [installation](#install) guide.
 
@@ -47,12 +47,12 @@ Further docs you can find on [readthedocs](https://geonode-k8s.readthedocs.io/en
 
 ## Prerequisites
 
-- A Kubernetes cluster (or [minikube](docs/minikube-installation.md))
+- A Kubernetes cluster (or [minikube](minikube-installation.md))
 - [Helm](https://helm.sh/)
 
 Running on `arm64` nodes? The default images are `amd64` only, see [Running on ARM64](arm64.md).
 
-The chart will automatically install required dependencies, i.e. a RabbitMQ broker and a Postgres database with `postgis` extensions installed, and link them up. If you want to run an older geonode version with geonode-k8s check the [release-to-version list](docs/list-of-releases-and-versions.md).
+The chart will automatically install required dependencies, i.e. a RabbitMQ broker and a Postgres database with `postgis` extensions installed, and link them up. If you want to run an older geonode version with geonode-k8s check the [release-to-version list](list-of-releases-and-versions.md).
 
 ## Install chart dependencies
 
@@ -115,7 +115,7 @@ split from one common PVC into four distinct PVCs, and non-root runtime permissi
 plain `helm upgrade` will **delete the old data volume**, so follow the step-by-step
 runbook before upgrading:
 
-**➡️ [Upgrade Guide — Migrating to Chart 2.0.x](docs/upgrade-to-2.0.x.md)**
+**➡️ [Upgrade Guide — Migrating to Chart 2.0.x](upgrade-to-2.0.x.md)**
 
 ## Contribution
 
