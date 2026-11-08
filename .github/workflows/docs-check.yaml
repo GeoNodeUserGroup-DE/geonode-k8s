@@ -38,3 +38,13 @@ jobs:
           echo "::error file=docs/index.md::docs/index.md is out of sync with README.md. Run: sed 's#](docs/#](#g' README.md > docs/index.md"
           exit 1
         fi
+    # Same python version and requirements as docs/.readthedocs.yaml, so a broken
+    # readthedocs build is caught before merge.
+    - name: install python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+    - name: build mkdocs site
+      run: |
+        pip install -r docs/requirements.txt
+        mkdocs build -f mkdocs.yml
