@@ -1,6 +1,6 @@
 repos:
 - repo: https://github.com/norwoodj/helm-docs
-  rev: v1.2.0
+  rev: v1.14.2
   hooks:
   - id: helm-docs
     args:
@@ -13,3 +13,11 @@ repos:
     # Repeating the flag adds this to the list, now [./_templates.gotmpl, README.md.gotmpl]
     # A base filename makes it relative to each chart directory found
     #- --template-files=README.md.gotmpl
+- repo: local
+  hooks:
+  - id: sync-docs-index
+    name: sync docs/index.md from README.md
+    language: system
+    entry: sh -c "sed 's#](docs/#](#g' README.md > docs/index.md"
+    files: ^README\.md$
+    pass_filenames: false
