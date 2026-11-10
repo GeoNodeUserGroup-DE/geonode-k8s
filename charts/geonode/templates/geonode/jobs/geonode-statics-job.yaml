@@ -66,15 +66,6 @@ spec:
           echo "-----------------------------------------------------"
           echo "GeoNode static tasks done $(date)"
           echo "-----------------------------------------------------"
-{{- if .Values.geonode.mapstore.nominatim_patch.enabled }}
-          echo "-----------------------------------------------------"
-          echo "Applying Mapstore Nominatim patch $(date)"
-          echo "-----------------------------------------------------"
-          python3 /usr/src/geonode/mapstore_nominatim_patch.py
-          echo "-----------------------------------------------------"
-          echo "Mapstore Nominatim patch done $(date)"
-          echo "-----------------------------------------------------"
-{{- end }}
         envFrom:
         - configMapRef:
             name: {{ include "geonode_pod_name" . }}-env
@@ -119,12 +110,6 @@ spec:
           mountPath: /opt/geonode-custom/settings_additions.py
           subPath: settings_additions.py
           readOnly: true
-{{- if .Values.geonode.mapstore.nominatim_patch.enabled }}
-        - name: mapstore-nominatim-patch-py
-          mountPath: /usr/src/geonode/mapstore_nominatim_patch.py
-          subPath: mapstore_nominatim_patch.py
-          readOnly: true
-{{- end }}
         - name: pvc-statics
           mountPath: /mnt/volumes/statics
 {{- if .Values.favicon }}
@@ -150,11 +135,6 @@ spec:
         configMap:
           name: {{ .Release.Name }}-geonode-settings-additions
           defaultMode: 0555
-{{- if .Values.geonode.mapstore.nominatim_patch.enabled }}
-      - name: mapstore-nominatim-patch-py
-        configMap:
-          name: "{{ include "geonode_pod_name" . }}-mapstore-nominatim-patch"
-{{- end }}
 {{- if .Values.favicon }}
       - name: favicon
         configMap:

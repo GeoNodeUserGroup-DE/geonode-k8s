@@ -482,12 +482,6 @@ geonode:
     # -- when using ReadWriteOnce block storage on multi-node clusters.
     enabled: false
 
-  mapstore:
-    # Patch to override nominatim hard-coded url
-    nominatim_patch:
-      enabled: false
-      # host: "someotherhost.example.com"
-      # protocol: "https"
 
 # CONFIGURATION FOR GEOSERVER DEPLOYMENT
 geoserver:
