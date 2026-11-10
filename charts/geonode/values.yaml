@@ -434,7 +434,7 @@ geonode:
       # init container image
       name: jwilder/dockerize
       # init container image tag
-      tag: "v0.10.0"
+      tag: "v0.16.0"
     # init container image pull policy
     imagePullPolicy: IfNotPresent
 
@@ -444,7 +444,7 @@ geonode:
     # -- kubectl image used for the cleanup hook job (official Kubernetes project image)
     kubectlImage: registry.k8s.io/kubectl
     # -- kubectl image tag used for the cleanup hook job
-    kubectlTag: "v1.32.0"
+    kubectlTag: "v1.35.9"
 
   celery:
     # -- celery container name
@@ -617,9 +617,9 @@ nginx:
   replicaCount: 1
   image:
     # -- nginx docker image
-    name: nginxinc/nginx-unprivileged
+    name: nginx/nginx-unprivileged
     # -- nginx docker image tag
-    tag: "1.31.2-alpine3.23"
+    tag: "1.31.8-alpine3.24"
   # -- nginx image pull policy
   imagePullPolicy: "IfNotPresent"
   # -- pull secret to use for nginx image
@@ -677,7 +677,7 @@ pycsw:
     # -- pycsw docker image
     name: geopython/pycsw
     # -- pycsw docker image tag
-    tag: "3.0.0-beta2"
+    tag: "3.0.0-beta4"
   # -- Security context for pycsw pods (overrides global.securityContext)
   securityContext: {}
   # -- pycsw image pull policy
@@ -718,10 +718,10 @@ pycsw:
   init:
     container_name: pycsw-wait-for-geonode
     image:
-      # -- pycsw docker image
+      # -- pycsw init docker image
       name: alpine/curl
-      # -- pycsw docker image tag
-      tag: "8.5.0"
+      # -- pycsw init docker image tag
+      tag: "8.23.0"
     # -- pycsw image pull policy
     imagePullPolicy: "IfNotPresent"
   # -- pycsw config file parameters, see docs: https://docs.pycsw.org/_/downloads/en/latest/pdf/

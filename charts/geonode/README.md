@@ -2,7 +2,7 @@
 
 ![Version: 2.0.1](https://img.shields.io/badge/Version-2.0.1-informational?style=flat-square)
 
-Helm Chart for Geonode. Supported versions: Geonode: 5.1.1, Geoserver: 2.28.6-latest, pyCSW: 3.0.0-beta2
+Helm Chart for Geonode. Supported versions: Geonode: 5.1.1, Geoserver: 2.28.6-latest, pyCSW: 3.0.0-beta4
 
 **Homepage:** <https://geonode.org/>
 
@@ -85,7 +85,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.1, Geoserver: 2.28.6-la
 | geonode.general.x_frame_options | string | `"DENY"` | X_FRAME_OPTIONS value sent on every response. The chart used to force "ALLOW-FROM ALL", which current browsers ignore, so no framing policy applied at all. Use CSP frame-ancestors if you need to allow specific origins. |
 | geonode.hooks.cleanupOnUpgrade | bool | `true` | enable automatic cleanup of old init/migration jobs before helm upgrade |
 | geonode.hooks.kubectlImage | string | `"registry.k8s.io/kubectl"` | kubectl image used for the cleanup hook job (official Kubernetes project image) |
-| geonode.hooks.kubectlTag | string | `"v1.32.0"` | kubectl image tag used for the cleanup hook job |
+| geonode.hooks.kubectlTag | string | `"v1.35.9"` | kubectl image tag used for the cleanup hook job |
 | geonode.image.name | string | `"geonode/geonode"` |  |
 | geonode.image.tag | string | `"5.1.1"` |  |
 | geonode.imagePullPolicy | string | `"IfNotPresent"` | image pull policy |
@@ -96,7 +96,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.1, Geoserver: 2.28.6-la
 | geonode.ingress.tlsSecret | string | `"geonode-tls-secret"` | tls certificate for geonode ingress https://kubernetes.io/docs/tasks/tls/managing-tls-in-a-cluster/ (for the use of cert-manager, configure the acme section properly). is used when geonode.general.externalScheme is set to 'https' |
 | geonode.init.container_name | string | `"geonode-wait-for-db-and-rabbit"` | init container name |
 | geonode.init.image.name | string | `"jwilder/dockerize"` |  |
-| geonode.init.image.tag | string | `"v0.10.0"` |  |
+| geonode.init.image.tag | string | `"v0.16.0"` |  |
 | geonode.init.imagePullPolicy | string | `"IfNotPresent"` |  |
 | geonode.livenessProbe | object | `{"failureThreshold":3,"initialDelaySeconds":90,"periodSeconds":5,"tcpSocket":{"port":8000}}` | configure livenessProbe for geonode, make sure port is aligned with geonode.port configuration |
 | geonode.mail.backend | string | `"django.core.mail.backends.smtp.EmailBackend"` | set mail backend in geonode settings |
@@ -222,8 +222,8 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.1, Geoserver: 2.28.6-la
 | nginx.external_cors.enabled | bool | `false` | Add Access-Control-Allow-Origin directive to allow integration from an external domain |
 | nginx.geoServerMaxClientBodySize | string | `"10G"` | maximum upload size for geoserver in nginx configuration. Changes here may also require changes in geoserver configuration of the individual services (WFS, ...) |
 | nginx.geonodeMaxClientBodySize | string | `"2000M"` | max file upload size for geonode upload. Only set this value if it should be different from geonode.general.upload.size. to use e.g. if geonode.general.upload.document_size > geonode.general.upload.size |
-| nginx.image.name | string | `"nginxinc/nginx-unprivileged"` | nginx docker image |
-| nginx.image.tag | string | `"1.31.2-alpine3.23"` | nginx docker image tag |
+| nginx.image.name | string | `"nginx/nginx-unprivileged"` | nginx docker image |
+| nginx.image.tag | string | `"1.31.8-alpine3.24"` | nginx docker image tag |
 | nginx.imagePullPolicy | string | `"IfNotPresent"` | nginx image pull policy |
 | nginx.imagePullSecret | string | `""` | pull secret to use for nginx image |
 | nginx.livenessProbe.httpGet.path | string | `"/healthz"` | local nginx endpoint that does not depend on GeoNode. Do not use `/` here: it is proxied to GeoNode, so a GeoNode rollout would restart a healthy nginx container. |
@@ -286,12 +286,12 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.1, Geoserver: 2.28.6-la
 | pycsw.enabled | bool | `true` | enable single pycsw pod |
 | pycsw.endpoint | string | `"/catalogue/csw"` | pycsw url below geonode.general.externalDomain |
 | pycsw.image.name | string | `"geopython/pycsw"` | pycsw docker image |
-| pycsw.image.tag | string | `"3.0.0-beta2"` | pycsw docker image tag |
+| pycsw.image.tag | string | `"3.0.0-beta4"` | pycsw docker image tag |
 | pycsw.imagePullPolicy | string | `"IfNotPresent"` | pycsw image pull policy |
 | pycsw.imagePullSecret | string | `""` | pull secret to use for pycsw image |
 | pycsw.init.container_name | string | `"pycsw-wait-for-geonode"` |  |
-| pycsw.init.image.name | string | `"alpine/curl"` | pycsw docker image |
-| pycsw.init.image.tag | string | `"8.5.0"` | pycsw docker image tag |
+| pycsw.init.image.name | string | `"alpine/curl"` | pycsw init docker image |
+| pycsw.init.image.tag | string | `"8.23.0"` | pycsw init docker image tag |
 | pycsw.init.imagePullPolicy | string | `"IfNotPresent"` | pycsw image pull policy |
 | pycsw.livenessProbe.failureThreshold | int | `3` |  |
 | pycsw.livenessProbe.httpGet.path | string | `"/"` |  |
