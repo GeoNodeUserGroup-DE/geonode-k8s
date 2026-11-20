@@ -619,7 +619,7 @@ nginx:
     # -- nginx docker image
     name: nginx/nginx-unprivileged
     # -- nginx docker image tag
-    tag: "1.31.8-alpine3.24"
+    tag: "1.31.9-alpine3.24"
   # -- nginx image pull policy
   imagePullPolicy: "IfNotPresent"
   # -- pull secret to use for nginx image

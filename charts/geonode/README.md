@@ -223,7 +223,7 @@ Helm Chart for Geonode. Supported versions: Geonode: 5.1.1, Geoserver: 2.28.6-la
 | nginx.geoServerMaxClientBodySize | string | `"10G"` | maximum upload size for geoserver in nginx configuration. Changes here may also require changes in geoserver configuration of the individual services (WFS, ...) |
 | nginx.geonodeMaxClientBodySize | string | `"2000M"` | max file upload size for geonode upload. Only set this value if it should be different from geonode.general.upload.size. to use e.g. if geonode.general.upload.document_size > geonode.general.upload.size |
 | nginx.image.name | string | `"nginx/nginx-unprivileged"` | nginx docker image |
-| nginx.image.tag | string | `"1.31.8-alpine3.24"` | nginx docker image tag |
+| nginx.image.tag | string | `"1.31.9-alpine3.24"` | nginx docker image tag |
 | nginx.imagePullPolicy | string | `"IfNotPresent"` | nginx image pull policy |
 | nginx.imagePullSecret | string | `""` | pull secret to use for nginx image |
 | nginx.livenessProbe.httpGet.path | string | `"/healthz"` | local nginx endpoint that does not depend on GeoNode. Do not use `/` here: it is proxied to GeoNode, so a GeoNode rollout would restart a healthy nginx container. |
