@@ -80,7 +80,7 @@ redis:
     enabled: False
   image:
     name: redis
-    tag: "8.4.0"
+    tag: "8.10.3"
     # override digest included in redis subchart, to allow using other registries
     digest: ""
     pullPolicy: IfNotPresent
@@ -91,7 +91,7 @@ rabbitmq:
 memcached:
   image:
     repository: memcached
-    tag: "1.6.40"
+    tag: "1.6.45"
     pullPolicy: IfNotPresent
   metrics:
     image:
