@@ -324,7 +324,7 @@ The old PVC still holds the original data. Do **not** run Step 11 until you are 
   performs Step 2 by hand. A keep annotation (or a documented migration hook) would make
   this safe by default.
 - **`settings_additions` inert by default** — see Step 8.
-- **Celery `celery-cmd-temporary-fix` keeps heavy autoscale defaults** (`10,5` + `15,10`),
+- **Celery `celery-cmd` keeps heavy autoscale defaults** (`10,5` + `15,10`),
   which can OOMKill the celery container on uploads unless `CELERY__AUTOSCALE_VALUES` /
   `CELERY__HARVESTER_AUTOSCALE_VALUES` are lowered.
 
