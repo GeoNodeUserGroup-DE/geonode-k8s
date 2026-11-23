@@ -74,7 +74,7 @@ geonode:
 
     # Official Kubernetes project kubectl image (distroless — no shell)
     kubectlImage: registry.k8s.io/kubectl
-    kubectlTag: "v1.32.0"
+    kubectlTag: "v1.35.9"
 ```
 
 !!! note
